@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    {% if current_user %}
+        {# --- AUTHENTICATED: LEARNER DASHBOARD --- #}
+        
+        <div class="mx-auto max-w-5xl px-6 py-12 md:py-20">
+            {# Dashboard Header #}
+            <header class="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+                <div class="max-w-2xl">
+                    <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
+                        Welcome back, {{ current_user["name"].split(' ')[0] }}.
+                    </h1>
+                    <p class="mt-4 text-base text-[#6B6B6B]">
+                        {% if enrolled_courses %}
+                            You are currently making progress in {{ enrolled_courses|length }} course{{ 's' if enrolled_courses|length != 1 else '' }}. Ready to write some code today?
+                        {% else %}
+                            Your dashboard is currently empty. Browse our library to write your first lines of code.
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if enrolled_courses %}
+                    <div class="flex items-center gap-8 md:border-l md:border-[#E5E5E5] md:pl-8">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Enrolled</p>
+                            <p class="mt-1 text-2xl font-semibold text-[#1C1C1C]">{{ enrolled_courses|length }}</p>
+                        </div>
+                        {% set total_completed = enrolled_courses|sum(attribute='completed_lessons') %}
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Completed</p>
+                            <p class="mt-1 text-2xl font-semibold text-[#1C1C1C]">{{ total_completed }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </header>
+
+            {# Active Learning Section #}
+            {% if enrolled_courses %}
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-[#1C1C1C]">Jump back in</h2>
+                    <a href="{{ url_for('courses') }}" class="text-sm font-medium text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                        View Library &rarr;
+                    </a>
+                </div>
+                
+                <div class="grid gap-8 md:grid-cols-2">
+                    {% for enrolled_course in enrolled_courses %}
+                        <div class="group relative flex flex-col justify-between rounded-xl border border-[#1C1C1C] bg-white p-7 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                            <div>
+                                <div class="mb-6 flex items-start justify-between">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+                                        <i data-lucide="terminal" class="h-5 w-5"></i>
+                                    </div>
+                                    <span class="inline-flex items-center rounded-lg border border-[#E5E5E5] bg-[#FAF9F6] px-3 py-1 text-xs font-semibold text-[#6B6B6B]">
+                                        {{ enrolled_course["progress_percent"] }}%
+                                    </span>
+                                </div>
+                                
+                                <h3 class="text-xl font-semibold text-[#1C1C1C]">{{ enrolled_course["title"] }}</h3>
+                                <p class="mt-2 line-clamp-2 text-sm text-[#6B6B6B]">{{ enrolled_course["subtitle"] }}</p>
+                            </div>
+                            
+                            <div class="mt-8 pt-6">
+                                <div class="mb-4 flex items-center justify-between text-xs font-medium text-[#6B6B6B]">
+                                    <span class="truncate pr-4">Next: {{ enrolled_course["current_lesson"]["title"] }}</span>
+                                    <span class="shrink-0">{{ enrolled_course["current_lesson"]["number"] }} / {{ enrolled_course["total_lessons"] }}</span>
+                                </div>
+                                <div class="h-2.5 w-full overflow-hidden rounded-full bg-[#F5F5F5]">
+                                    <div class="h-full rounded-full bg-[#1C1C1C] transition-all duration-500 ease-out" style="width: {{ enrolled_course['progress_percent'] }}%;"></div>
+                                </div>
+                                
+                                <a href="{{ lesson_url(enrolled_course['current_lesson'], course_slug=enrolled_course['slug']) }}" class="mt-8 flex w-full items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                                    Continue Learning
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#D4D4D8] bg-white py-20 text-center">
+                    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#A3A3A3]">
+                        <i data-lucide="code" class="h-6 w-6"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#1C1C1C]">Ready to start coding?</h3>
+                    <p class="mt-2 text-sm text-[#6B6B6B]">Explore our interactive courses and write your first program today.</p>
+                    <a href="{{ url_for('courses') }}" class="mt-8 flex items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                        Browse Courses
+                    </a>
+                </div>
+            {% endif %}
+
+            {# Recommended Paths Section #}
+            {% set unrolled = [] %}
+            {% for c in courses if not c.enrolled and c.status == 'active' %}
+                {% set _ = unrolled.append(c) %}
+            {% endfor %}
+
+            {% if unrolled %}
+                <div class="mt-24">
+                    <div class="mb-8 flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-[#1C1C1C]">Paths to explore next</h2>
+                    </div>
+                    
+                    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {% for c in unrolled %}
+                            <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                                <div class="p-[3px] pb-0">
+                                    <div class="rounded-t-md bg-[#F5F5F5] border-b border-[#1C1C1C] px-4 py-2.5">
+                                        <span class="font-mono text-[13px] font-semibold text-[#1C1C1C] tracking-wider uppercase">Course</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col flex-grow px-6 pb-6 pt-3">
+                                    <h3 class="mb-3 text-xl font-bold text-[#1C1C1C]">{{ c.title }}</h3>
+                                    <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">{{ c.subtitle }}</p>
+                                    
+                                    <div class="mt-6 flex flex-col gap-3">
+                                        <hr class="border-t border-dashed border-[#E5E5E5]">
+                                        <div class="text-sm font-semibold text-[#1C1C1C]">Includes {{ c.total_lessons }} Lessons</div>
+                                        
+                                        <hr class="border-t border-dashed border-[#E5E5E5]">
+                                        <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ c.level }}
+                                            </div>
+                                            <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('course_overview', course_slug=c['slug']) }}" class="absolute inset-0 z-10"><span class="sr-only">View Course</span></a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+    {% else %}
+        {# --- UNAUTHENTICATED: PUBLIC LANDING PAGE --- #}
+        
+        {# Hero Section #}
+        <section class="relative overflow-hidden bg-[#FAF9F6] px-6 pt-24 pb-20 lg:pt-32 lg:pb-32 border-b border-[#E5E5E5]">
+            <div class="mx-auto max-w-6xl">
+                <div class="grid items-center gap-16 lg:grid-cols-2 lg:gap-12">
+                    <div class="max-w-2xl flex w-fit flex-col items-center">
+                        <h1 class="text-center text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl lg:text-[64px] lg:leading-[1.1]">
+                            Learn to code. <br /> Build your future.
+                        </h1>
+                        <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center">
+                            <a href="{{ url_for('signup') }}" class="inline-flex items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                                Start Learning
+                            </a>
+                            <a href="{{ url_for('courses') }}" class="inline-flex items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                                Explore Courses
+                            </a>
+                        </div>
+                    </div>
+
+                    {# Premium Minimalist Code Editor Mockup #}
+                    <div class="relative hidden lg:block">
+                        <div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl">
+                            {# Editor Header #}
+                            <div class="flex items-center border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
+                                <div class="flex gap-2">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                                </div>
+                                <div class="ml-4 flex-1 text-xs font-medium text-[#A3A3A3] font-mono tracking-wide">mastery.py</div>
+                            </div>
+                            
+                            {# Editor Content #}
+                            <div class="flex p-6 font-mono text-[13px] leading-[1.8]">
+                                {# Line Numbers #}
+                                <div class="flex flex-col text-right text-[#404040] select-none pr-6 border-r border-[#2A2A2A] mr-6">
+                                    <span>1</span>
+                                    <span>2</span>
+                                    <span>3</span>
+                                    <span>4</span>
+                                    <span>5</span>
+                                    <span>6</span>
+                                    <span>7</span>
+                                    <span>8</span>
+                                    <span>9</span>
+                                    <span>10</span>
+                                    <span>11</span>
+                                    <span>12</span>
+                                    <span>13</span>
+                                </div>
+                                {# Code #}
+                                <div class="text-[#E5E5E5]">
+                                    <p><span class="text-[#F97316]">def</span> <span class="text-[#FDBA74] font-medium">achieve_mastery</span>(developer):</p>
+                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;"""</p>
+                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;Mastery is not the absence of failure.</p>
+                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;It is the absolute refusal to quit.</p>
+                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;"""</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">while</span> <span class="text-[#FBBF24]">True</span>:</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">try</span>:</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;developer.<span class="text-[#FDBA74]">build_system</span>()</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">except</span> <span class="text-[#FBBF24]">Failure</span> <span class="text-[#F97316]">as</span> e:</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;developer.<span class="text-[#FDBA74]">analyze_and_adapt</span>(e)</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">else</span>:</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">break</span></p>
+                                    <p class="mt-2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">return</span> developer.potential</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Course Grid #}
+        <section class="bg-[#FAF9F6] py-24 sm:py-32 border-b border-[#E5E5E5]">
+            <div class="mx-auto max-w-6xl px-6">
+                <div class="mb-16 md:flex md:items-end md:justify-between">
+                    <div class="max-w-2xl">
+                        <h2 class="text-3xl font-semibold tracking-tight text-[#1C1C1C]">Courses for every skill level.</h2>
+                        <p class="mt-4 text-lg text-[#6B6B6B]">Master the languages that power the modern web and software industry.</p>
+                    </div>
+                    <a href="{{ url_for('courses') }}" class="hidden md:inline-flex items-center text-sm font-medium text-[#1C1C1C] hover:underline">
+                        View all courses <i data-lucide="arrow-right" class="ml-1 h-4 w-4"></i>
+                    </a>
+                </div>
+                
+                <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 pt-4">
+                    
+                    {# Card 1: Python (Matcha Accent) #}
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                        <div class="p-[3px] pb-0">
+                            <div class="rounded-t-md bg-[#E4EDE7] border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-[#2D4233] tracking-wide uppercase">Course</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-3">
+                            <h3 class="mb-3 text-2xl font-bold text-[#1C1C1C]">Learn Python</h3>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                Get started with Python in this beginner-friendly course. Build APIs, analyze data, and create AI models.
+                            </p>
+                            
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-[#1C1C1C]">Includes 24 Lessons</div>
+                                
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> Beginner Friendly
+                                    </div>
+                                    <span class="text-xs font-bold text-[#1C1C1C]">16 hours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('courses') }}" class="absolute inset-0 z-10"><span class="sr-only">Learn Python</span></a>
+                    </div>
+
+                    {# Card 2: JavaScript (Terracotta Accent) #}
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                        <div class="p-[3px] pb-0">
+                            <div class="rounded-t-md bg-[#F4EBE1] border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-[#543E2C] tracking-wide uppercase">Course</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-3">
+                            <h3 class="mb-3 text-2xl font-bold text-[#1C1C1C]">Learn JavaScript</h3>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                Learn the basics of JavaScript, an industry standard language that provides tools for web development.
+                            </p>
+                            
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-[#1C1C1C]">Includes 32 Lessons</div>
+                                
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> Intermediate
+                                    </div>
+                                    <span class="text-xs font-bold text-[#1C1C1C]">20 hours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('courses') }}" class="absolute inset-0 z-10"><span class="sr-only">Learn JavaScript</span></a>
+                    </div>
+
+                    {# Card 3: C++ (Career Path - Obsidian Accent) #}
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white shadow-[-5px_5px_0_0_#FAF9F6,-6px_6px_0_0_#1C1C1C] transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C] sm:col-span-2 lg:col-span-1">
+                        <div class="p-[3px] pb-0">
+                            <div class="rounded-t-md bg-[#1C1C1C] border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">Career path</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-3">
+                            <h3 class="mb-3 text-2xl font-bold text-[#1C1C1C]">C++ Systems Engineer</h3>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                Systems Engineers use C++ to build game engines, operating systems, and high-performance applications.
+                            </p>
+                            
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-[#1C1C1C]">Includes 12 Courses</div>
+                                
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> Beginner Friendly
+                                    </div>
+                                    <span class="text-xs font-bold text-[#1C1C1C]">50 hours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('courses') }}" class="absolute inset-0 z-10"><span class="sr-only">C++ Systems Engineer</span></a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        {# Minimal Footer #}
+        <footer class="bg-[#FAF9F6] py-12">
+            <div class="mx-auto max-w-6xl px-6">
+                <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+                    <div class="flex items-center gap-3">
+                        <div class="h-4 w-4 rounded bg-[#1C1C1C]"></div>
+                        <span class="text-sm font-semibold text-[#1C1C1C]">Learn with Kabeer</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-8 text-sm font-medium text-[#6B6B6B]">
+                        <a href="{{ url_for('courses') }}" class="hover:text-[#1C1C1C] transition-colors">Courses</a>
+                        <a href="#" class="hover:text-[#1C1C1C] transition-colors">Pathways</a>
+                        <a href="#" class="hover:text-[#1C1C1C] transition-colors">Terms</a>
+                        <a href="#" class="hover:text-[#1C1C1C] transition-colors">Privacy</a>
+                    </div>
+                    <p class="text-sm text-[#A3A3A3]">© 2026. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    {% endif %}
+</main>
+{% endblock %}

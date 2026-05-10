@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex-1 overflow-y-auto bg-canvas">
+    <div class="mx-auto max-w-3xl px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <header class="mb-10 border-b border-line pb-10">
+            <div class="mb-4 flex items-center gap-2 text-xs font-semibold text-muted">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-ink transition-colors">Admin Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                <span class="text-gold-600">{% if course %}Edit{% else %}New{% endif %} Course</span>
+            </div>
+            <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink">
+                {% if course %}Edit {{ course.title }}{% else %}Create New Course{% endif %}
+            </h1>
+        </header>
+
+        <form method="post" class="rounded-xl border border-line bg-paper p-6 sm:p-8">
+            <div class="grid gap-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label for="title" class="mb-2 block text-sm font-medium text-ink">Course Title</label>
+                    <input type="text" id="title" name="title" required value="{{ course.title if course else '' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="subtitle" class="mb-2 block text-sm font-medium text-ink">Subtitle</label>
+                    <textarea id="subtitle" name="subtitle" required rows="3" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">{{ course.subtitle if course else '' }}</textarea>
+                </div>
+
+                <div>
+                    <label for="slug" class="mb-2 block text-sm font-medium text-ink">URL Slug</label>
+                    <input type="text" id="slug" name="slug" required value="{{ course.slug if course else '' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                </div>
+
+                <div>
+                    <label for="level" class="mb-2 block text-sm font-medium text-ink">Level</label>
+                    <input type="text" id="level" name="level" required value="{{ course.level if course else 'Beginner' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="status" class="mb-2 block text-sm font-medium text-ink">Status</label>
+                    <select id="status" name="status" required class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                        <option value="active" {% if course and course.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="planned" {% if course and course.status == 'planned' %}selected{% endif %}>Planned (Coming Soon)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3 border-t border-line pt-6">
+                <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center justify-center rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-canvas">Cancel</a>
+                <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-gold-900">
+                    Save Course
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

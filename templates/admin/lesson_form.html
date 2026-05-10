@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .tox-tinymce { border-color: #E7E1D8 !important; border-radius: 0.75rem !important; }
+    .tox .tox-toolbar__primary { background-color: #FAF9F7 !important; border-bottom: 1px solid #E7E1D8 !important; }
+    .tox .tox-toolbar__group { border-color: #E7E1D8 !important; }
+    .tox .tox-tbtn { color: #171614 !important; border-radius: 0.375rem !important; }
+    .tox .tox-tbtn:hover { background: #EAD9B9 !important; }
+    .tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background: #EAD9B9 !important; }
+    .tox .tox-edit-area__iframe { background-color: #FFFFFF !important; }
+    .tox .tox-statusbar { border-top: 1px solid #E7E1D8 !important; background: #FAF9F7 !important; }
+    .tox .tox-menubar { background: #FAF9F7 !important; border-bottom: 1px solid #E7E1D8 !important; }
+    .tox .tox-mbtn { color: #171614 !important; }
+    .tox .tox-mbtn:hover:not(:disabled):not(.tox-mbtn--active) { background: #EAD9B9 !important; }
+    .tox .tox-mbtn--active { background: #EAD9B9 !important; }
+
+    #html-source-editor { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .block-palette-item { transition: all 0.15s ease; }
+    .block-palette-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+</style>
+
+<main class="flex-1 overflow-y-auto bg-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <header class="mb-10 border-b border-line pb-10">
+            <div class="mb-4 flex items-center gap-2 text-xs font-semibold text-muted">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-ink transition-colors">Admin Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                <span class="text-gold-600">Course: {{ course.title }}</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                <span class="text-gold-600">{% if lesson %}Edit{% else %}New{% endif %} Lesson</span>
+            </div>
+            <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink">
+                {% if lesson %}Edit Lesson {{ lesson.number }}{% else %}Create New Lesson{% endif %}
+            </h1>
+        </header>
+
+        <form method="post" id="lesson-form">
+            {# ── Metadata Section ────────────────────────────────────────── #}
+            <div class="mb-8 rounded-xl border border-line bg-paper p-6 sm:p-8">
+                <h2 class="mb-6 flex items-center gap-2 text-lg font-semibold text-ink">
+                    <i data-lucide="file-text" class="w-5 h-5 text-gold-600"></i>
+                    Lesson Details
+                </h2>
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label for="title" class="mb-2 block text-sm font-medium text-ink">Lesson Title</label>
+                        <input type="text" id="title" name="title" required value="{{ lesson.title if lesson else '' }}" placeholder="e.g. What is Python?"
+                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+                               oninput="autoSlug(this.value)">
+                    </div>
+
+                    <div>
+                        <label for="slug" class="mb-2 block text-sm font-medium text-ink">URL Slug</label>
+                        <input type="text" id="slug" name="slug" required value="{{ lesson.slug if lesson else '' }}" placeholder="what-is-python"
+                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                        <p class="mt-1 text-xs text-muted">Auto-generated from title. You can customize it.</p>
+                    </div>
+
+                    {% if lesson %}
+                    <div>
+                        <label for="number" class="mb-2 block text-sm font-medium text-ink">Lesson Number</label>
+                        <input type="number" id="number" name="number" required value="{{ lesson.number }}" min="1"
+                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    {% endif %}
+
+                    <div class="sm:col-span-2">
+                        <label for="section_id" class="mb-2 block text-sm font-medium text-ink">Section (Unit)</label>
+                        <select name="section_id" id="section_id"
+                                class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                            <option value="">-- No Section (Unassigned) --</option>
+                            {% for s in sections %}
+                                <option value="{{ s.id }}" {% if lesson and lesson.section_id == s.id %}selected{% endif %}>
+                                    Unit {{ s.number }}: {{ s.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <p class="mt-1 text-xs text-muted">Assigning a lesson to a section groups it under that header on the map.</p>
+                    </div>
+
+                    <div class="{% if not lesson %}sm:col-span-2{% endif %}">
+                        <label for="summary" class="mb-2 block text-sm font-medium text-ink">Summary</label>
+                        <textarea id="summary" name="summary" required rows="2" placeholder="Brief description shown in course overview..."
+                                  class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">{{ lesson.summary if lesson and lesson.summary is not none else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Content Editor Section ──────────────────────────────────── #}
+            <div class="mb-8 rounded-xl border border-line bg-paper p-6 sm:p-8">
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="flex items-center gap-2 text-lg font-semibold text-ink">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-gold-600"></i>
+                        Lesson Content
+                    </h2>
+                    <div class="flex space-x-1 rounded-lg bg-canvas p-1" role="tablist">
+                        <button type="button" id="tab-visual" onclick="switchTab('visual')" class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors bg-paper text-gold-600 shadow-sm border border-line">
+                            <i data-lucide="eye" class="w-3 h-3 inline mr-1"></i>Visual Editor
+                        </button>
+                        <button type="button" id="tab-source" onclick="switchTab('source')" class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors text-muted hover:text-ink">
+                            <i data-lucide="code" class="w-3 h-3 inline mr-1"></i>HTML Source
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="content_type" name="content_type" value="html">
+                <input type="hidden" id="final_content" name="content">
+
+                {# ── Content Block Palette ───────────────────────────────── #}
+                <div id="block-palette" class="mb-5">
+                    <p class="mb-3 text-xs font-semibold uppercase text-gold-600">Insert Content Block</p>
+                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+                        <button type="button" onclick="insertBlock('callout-info')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="info" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Info Callout
+                        </button>
+                        <button type="button" onclick="insertBlock('callout-warning')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                            Warning Box
+                        </button>
+                        <button type="button" onclick="insertBlock('feature-cards')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Feature Cards
+                        </button>
+                        <button type="button" onclick="insertBlock('tag-grid')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="tags" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Tag Grid
+                        </button>
+                        <button type="button" onclick="insertBlock('numbered-steps')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="list-ordered" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Numbered Steps
+                        </button>
+                        <button type="button" onclick="insertBlock('code-block')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="terminal" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Code Block
+                        </button>
+                        <button type="button" onclick="insertBlock('comparison')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="columns" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Comparison
+                        </button>
+                        <button type="button" onclick="insertBlock('image-caption')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="image" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Image + Caption
+                        </button>
+                        <button type="button" onclick="insertBlock('section-heading')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="heading" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Section + Text
+                        </button>
+                        <button type="button" onclick="insertBlock('divider')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
+                            <i data-lucide="minus" class="w-4 h-4 text-gold-600 shrink-0"></i>
+                            Divider
+                        </button>
+                    </div>
+                </div>
+
+                {# ── Visual Editor (TinyMCE) ─────────────────────────────── #}
+                <div id="editor-visual">
+                    <textarea id="tinymce-editor">{{ lesson.content if lesson and lesson.content else '' }}</textarea>
+                </div>
+
+                {# ── HTML Source Editor (Monaco) ─────────────────────────── #}
+                <div id="editor-source" class="hidden">
+                    <div id="monaco-editor" class="w-full rounded-lg border border-line" style="height: 500px; background-color: #1e1e1e;"></div>
+                </div>
+            </div>
+
+            {# ── Actions ─────────────────────────────────────────────────── #}
+            <div class="flex items-center justify-between">
+                <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center justify-center rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-canvas">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Back to Dashboard
+                </a>
+                <div class="flex items-center gap-3">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-ink px-6 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-gold-900">
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                        {% if lesson %}Update Lesson{% else %}Create Lesson{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+{# ── Scripts ─────────────────────────────────────────────────────────────── #}
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+<script>
+    let monacoEditor = null;
+    let currentTab = 'visual';
+
+    // ── Auto-slug from title ───────────────────────────────────────────
+    {% if not lesson %}
+    let slugManuallyEdited = false;
+    document.getElementById('slug').addEventListener('input', function() { slugManuallyEdited = true; });
+    {% endif %}
+
+    function autoSlug(title) {
+        {% if lesson %}return;{% endif %}
+        if (typeof slugManuallyEdited !== 'undefined' && slugManuallyEdited) return;
+        const slug = title.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+        document.getElementById('slug').value = slug;
+    }
+
+    // ── Content Block Templates ────────────────────────────────────────
+    const BLOCKS = {
+        'callout-info': `
+<div class="mb-12 rounded-xl border border-line bg-paper p-5">
+    <div class="flex gap-4">
+        <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-100 bg-gold-50 text-gold-600">
+            <i data-lucide="info" class="w-4 h-4"></i>
+        </span>
+        <div>
+            <h2 class="mb-2 text-base font-semibold text-ink">Info Title</h2>
+            <p class="text-sm leading-7 text-muted">Your informational message goes here. Use this for tips, notes, or important context.</p>
+        </div>
+    </div>
+</div>`,
+
+        'callout-warning': `
+<div class="mb-12 rounded-xl border border-line bg-paper p-5">
+    <div class="flex gap-4">
+        <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-100 bg-gold-50 text-gold-600">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        </span>
+        <div>
+            <h3 class="mb-2 text-base font-semibold text-ink">Important Step</h3>
+            <p class="text-sm leading-7 text-muted">Your warning or important information goes here. Highlight critical steps users shouldn't miss.</p>
+        </div>
+    </div>
+</div>`,
+
+        'feature-cards': `
+<div class="grid gap-4 sm:grid-cols-2 my-8">
+    <div class="rounded-xl border border-line bg-paper p-5">
+        <i data-lucide="trending-up" class="mb-4 w-5 h-5 text-gold-600"></i>
+        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
+        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
+    </div>
+    <div class="rounded-xl border border-line bg-paper p-5">
+        <i data-lucide="cpu" class="mb-4 w-5 h-5 text-gold-600"></i>
+        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
+        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
+    </div>
+    <div class="rounded-xl border border-line bg-paper p-5">
+        <i data-lucide="layers" class="mb-4 w-5 h-5 text-gold-600"></i>
+        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
+        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
+    </div>
+    <div class="rounded-xl border border-line bg-paper p-5">
+        <i data-lucide="globe-2" class="mb-4 w-5 h-5 text-gold-600"></i>
+        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
+        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
+    </div>
+</div>`,
+
+        'tag-grid': `
+<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 my-8">
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag One</div>
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Two</div>
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Three</div>
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Four</div>
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Five</div>
+    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Six</div>
+</div>`,
+
+        'numbered-steps': `
+<div class="space-y-10 my-8">
+    <div>
+        <div class="mb-4 flex items-start gap-4">
+            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">1</span>
+            <div>
+                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
+                <p class="leading-8 text-muted">Describe the first step in detail. Include any relevant code or examples.</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="mb-4 flex items-start gap-4">
+            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">2</span>
+            <div>
+                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
+                <p class="leading-8 text-muted">Describe the second step in detail. Continue building on the previous step.</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="mb-4 flex items-start gap-4">
+            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">3</span>
+            <div>
+                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
+                <p class="leading-8 text-muted">Describe the third step in detail. Wrap up the sequence.</p>
+            </div>
+        </div>
+    </div>
+</div>`,
+
+        'code-block': `
+<div class="overflow-hidden rounded-xl border border-gold-500 bg-[#151412] my-8">
+    <div class="flex items-center justify-between border-b border-[#2A2925] px-4 py-3">
+        <span class="text-xs font-semibold text-gold-100">Python</span>
+        <span class="rounded-md border border-gold-500/50 px-2 py-1 text-[11px] font-semibold text-gold-100">Clean</span>
+    </div>
+    <div class="overflow-x-auto p-5">
+        <pre class="font-mono text-[13px] leading-7 text-[#E8E1D6]"><code>print("Hello, World!")</code></pre>
+    </div>
+</div>`,
+
+        'comparison': `
+<div class="grid gap-4 sm:grid-cols-2 my-8">
+    <div class="rounded-xl border border-line bg-paper p-5">
+        <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg border border-line">
+            <i data-lucide="archive" class="w-4 h-4 text-muted"></i>
+        </div>
+        <h3 class="mb-2 font-semibold text-ink">Option A</h3>
+        <p class="text-sm leading-7 text-muted">Description of the first option, approach, or concept being compared.</p>
+    </div>
+    <div class="rounded-xl border border-gold-100 bg-gold-50 p-5">
+        <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-paper text-gold-600">
+            <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+        <h3 class="mb-2 font-semibold text-ink">Option B (Recommended)</h3>
+        <p class="text-sm leading-7 text-muted">Description of the recommended option, highlighted with the gold background.</p>
+    </div>
+</div>`,
+
+        'image-caption': `
+<figure class="my-10">
+    <div class="overflow-hidden rounded-xl border border-line">
+        <img src="https://placehold.co/800x400/FAF9F7/171614?text=Your+Image" alt="Description of image" class="w-full">
+    </div>
+    <figcaption class="mt-3 text-center text-sm text-muted">Image caption goes here — describe what the learner should notice.</figcaption>
+</figure>`,
+
+        'section-heading': `
+<section class="mb-14">
+    <h2 class="mb-4 text-2xl font-semibold tracking-tight text-ink">Section Title</h2>
+    <p class="mb-6 leading-8 text-muted">Write your section content here. Use clear, concise language to explain concepts to your learners.</p>
+</section>`,
+
+        'divider': `
+<div class="my-10 border-t border-line"></div>`
+    };
+
+    function insertBlock(type) {
+        const html = BLOCKS[type];
+        if (!html) return;
+
+        if (currentTab === 'visual' && tinymce.activeEditor) {
+            tinymce.activeEditor.insertContent(html);
+            tinymce.activeEditor.focus();
+        } else if (currentTab === 'source' && monacoEditor) {
+            const pos = monacoEditor.getPosition();
+            monacoEditor.executeEdits('', [{
+                range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
+                text: '\n' + html.trim() + '\n'
+            }]);
+            monacoEditor.focus();
+        }
+    }
+
+    // ── Tab Switching ──────────────────────────────────────────────
+    function switchTab(type) {
+        currentTab = type;
+        const btnVisual = document.getElementById('tab-visual');
+        const btnSource = document.getElementById('tab-source');
+        const pnlVisual = document.getElementById('editor-visual');
+        const pnlSource = document.getElementById('editor-source');
+
+        const activeClass = "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors bg-paper text-gold-600 shadow-sm border border-line";
+        const inactiveClass = "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors text-muted hover:text-ink";
+
+        if (type === 'source') {
+            btnSource.className = activeClass;
+            btnVisual.className = inactiveClass;
+            pnlSource.classList.remove('hidden');
+            pnlVisual.classList.add('hidden');
+
+            // Sync TinyMCE content → Monaco
+            if (tinymce.activeEditor && monacoEditor) {
+                monacoEditor.setValue(tinymce.activeEditor.getContent());
+            }
+            if (monacoEditor) monacoEditor.layout();
+        } else {
+            btnVisual.className = activeClass;
+            btnSource.className = inactiveClass;
+            pnlVisual.classList.remove('hidden');
+            pnlSource.classList.add('hidden');
+
+            // Sync Monaco content → TinyMCE
+            if (monacoEditor && tinymce.activeEditor) {
+                tinymce.activeEditor.setContent(monacoEditor.getValue());
+            }
+        }
+    }
+
+    // ── Initialize Editors ─────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", function() {
+        // TinyMCE init
+        tinymce.init({
+            selector: '#tinymce-editor',
+            height: 550,
+            menubar: 'edit view insert format table',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'wordcount', 'codesample',
+                'emoticons', 'preview', 'help', 'autoresize', 'quickbars'
+            ],
+            toolbar: [
+                'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor',
+                'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | blockquote hr | removeformat fullscreen code | help'
+            ],
+            content_style: `
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                body {
+                    font-family: 'Inter', sans-serif;
+                    font-size: 15px;
+                    line-height: 1.8;
+                    color: #171614;
+                    max-width: 100%;
+                    padding: 16px 20px;
+                }
+                h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.2; margin: 1.5em 0 0.5em; }
+                h2 { font-size: 1.5em; }
+                h3 { font-size: 1.25em; }
+                a { color: #8A662E; font-weight: 600; }
+                code { background: #F8F1E3; padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+                pre { background: #151412; color: #E8E1D6; padding: 20px; border-radius: 12px; border: 1px solid #2A2925; overflow-x: auto; }
+                pre code { background: transparent; padding: 0; color: inherit; }
+                blockquote { border-left: 4px solid #EAD9B9; padding: 12px 20px; margin: 16px 0; background: #FAF9F7; border-radius: 0 8px 8px 0; }
+                table { border-collapse: collapse; width: 100%; }
+                td, th { border: 1px solid #E7E1D8; padding: 10px 14px; }
+                th { background: #FAF9F7; font-weight: 600; }
+                img { max-width: 100%; border-radius: 12px; }
+                hr { border: none; border-top: 1px solid #E7E1D8; margin: 2em 0; }
+            `,
+            browser_spellcheck: true,
+            paste_as_text: false,
+            image_advtab: true,
+            codesample_languages: [
+                { text: 'Python', value: 'python' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'HTML', value: 'markup' },
+                { text: 'CSS', value: 'css' },
+                { text: 'Bash', value: 'bash' },
+                { text: 'C#', value: 'csharp' },
+                { text: 'Java', value: 'java' },
+                { text: 'JSON', value: 'json' },
+                { text: 'SQL', value: 'sql' },
+                { text: 'TypeScript', value: 'typescript' },
+            ],
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
+            quickbars_insert_toolbar: 'quickimage quicktable hr',
+            autoresize_bottom_margin: 30,
+            min_height: 400,
+            promotion: false,
+            branding: false,
+            setup: function(editor) {
+                editor.on('init', function() {
+                    lucide.createIcons();
+                });
+            }
+        });
+
+        // Monaco editor init
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
+                value: document.getElementById('tinymce-editor').value || '',
+                language: 'html',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                wordWrap: 'on',
+                formatOnPaste: true,
+                formatOnType: true,
+                tabSize: 4,
+                renderWhitespace: 'selection',
+                scrollBeyondLastLine: false,
+            });
+        });
+
+        // Form submission — sync active editor content
+        document.getElementById('lesson-form').addEventListener('submit', function(e) {
+            let content = '';
+            if (currentTab === 'source' && monacoEditor) {
+                content = monacoEditor.getValue();
+            } else if (tinymce.activeEditor) {
+                content = tinymce.activeEditor.getContent();
+            }
+            document.getElementById('final_content').value = content;
+            document.getElementById('content_type').value = 'html';
+        });
+    });
+</script>
+{% endblock %}

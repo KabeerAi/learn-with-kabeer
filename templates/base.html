@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn with Kabeer</title>
+
+    <!-- Premium Fonts: Inter for UI, JetBrains Mono for Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind & Icons -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Cleaned Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html { 
+            scroll-behavior: smooth; 
+            font-feature-settings: "ss03", "cv11"; /* Clean alternates for Inter */
+        }
+        
+        /* Premium Text Selection */
+        ::selection { background: #111827; color: #FFFFFF; }
+        
+        /* Custom Clean Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F9FAFB; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+        /* Toast Animations */
+        @keyframes slide-in-right {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slide-out-right {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .toast-item.animate-in { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-item.animate-out { animation: slide-out-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden bg-gray-50 text-gray-900 font-sans antialiased flex flex-col">
+    
+    {# --- LUXURY DARK NAVBAR --- #}
+    <nav class="sticky top-0 z-50 flex-none border-b border-[#2A2A2A] bg-[#1C1C1C] px-6 transition-all duration-300">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between">
+            <div class="flex items-center gap-10">
+                {% block mobile_menu_toggle %}{% endblock %}
+
+                {# Brand Logo #}
+                <a href="/" class="flex items-center gap-3 group" aria-label="Learn with Kabeer home">
+                    <div class="flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#FAF9F6] font-mono text-[11px] font-bold text-[#1C1C1C] transition-transform duration-200 group-hover:scale-105">
+                        &gt;_
+                    </div>
+                    <span class="font-sans text-[17px] font-bold tracking-tight text-[#FAF9F6]">Learn with Kabeer</span>
+                </a>
+
+                {# Main Navigation #}
+                <div class="hidden items-center gap-8 text-sm font-semibold text-[#A3A3A3] md:flex">
+                    {% if current_user %}
+                        <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' %}text-[#FAF9F6]{% endif %}">Dashboard</a>
+                        <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint and request.endpoint.startswith('admin_') %}text-[#FAF9F6]{% endif %}">Admin</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Right-side Navigation (Auth Actions) #}
+            <div class="flex items-center gap-6">
+                <div class="hidden items-center gap-6 text-sm font-semibold text-[#A3A3A3] sm:flex">
+                    {% if current_user %}
+                        <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6]">{{ current_user["name"] }}</a>
+                        <form action="{{ url_for('logout') }}" method="post" class="inline">
+                            <button class="flex items-center gap-2 transition-colors hover:text-[#FAF9F6]">
+                                Sign out
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="transition-colors hover:text-[#FAF9F6]">Sign in</a>
+                        <a href="{{ url_for('signup') }}" class="inline-flex h-9 items-center justify-center rounded-lg border border-[#FAF9F6] bg-[#FAF9F6] px-5 text-sm font-bold text-[#1C1C1C] shadow-[0_3px_0_0_#6B6B6B] transition-all hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#6B6B6B] active:translate-y-[3px] active:shadow-none focus:outline-none">
+                            Get started
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {# --- NOTIFICATION TOASTS --- #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="toast-container" class="fixed top-24 right-6 z-[100] flex flex-col gap-4 max-w-sm w-full pointer-events-none">
+                {% for category, message in messages %}
+                    <div class="toast-item pointer-events-auto flex items-start gap-4 p-4 rounded-xl border border-gray-900 bg-white shadow-[4px_4px_0_0_#111827] animate-in fade-in slide-in-from-right-4 duration-300" role="alert">
+                        <div class="flex-none mt-0.5">
+                            {% if category == 'error' %}
+                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600">
+                                    <i data-lucide="alert-triangle" class="h-4 w-4"></i>
+                                </div>
+                            {% elif category == 'success' %}
+                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-green-200 bg-green-50 text-green-600">
+                                    <i data-lucide="check" class="h-4 w-4"></i>
+                                </div>
+                            {% else %}
+                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-700">
+                                    <i data-lucide="info" class="h-4 w-4"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 pt-1">
+                            <p class="text-sm font-bold text-gray-900 leading-none">{{ category|capitalize if category != 'message' else 'Notice' }}</p>
+                            <p class="mt-2 text-sm font-medium text-gray-600 leading-snug">{{ message }}</p>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="flex-none text-gray-400 hover:text-gray-900 transition-colors" aria-label="Close">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <script>
+                // Auto-dismiss toasts after 5 seconds
+                setTimeout(() => {
+                    const container = document.getElementById('toast-container');
+                    if (container) {
+                        const toasts = container.querySelectorAll('.toast-item');
+                        toasts.forEach((toast, index) => {
+                            setTimeout(() => {
+                                toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-4');
+                                setTimeout(() => toast.remove(), 300);
+                            }, index * 100);
+                        });
+                    }
+                }, 5000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    {# --- MAIN CONTENT INJECTION --- #}
+    {% block content %}{% endblock %}
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

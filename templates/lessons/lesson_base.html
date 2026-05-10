@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block mobile_menu_toggle %}
+<button id="menuToggle" class="lg:hidden -ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-ink transition-colors focus:outline-none" aria-label="Toggle lesson menu">
+    <i data-lucide="menu" class="w-5 h-5"></i>
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="relative flex flex-1 overflow-hidden bg-white">
+    <div id="sidebarOverlay" class="fixed inset-x-0 bottom-0 top-12 z-30 bg-ink/10 opacity-0 pointer-events-none transition-opacity duration-200 lg:hidden backdrop-blur-sm"></div>
+
+    <aside id="sidebar" class="fixed bottom-0 left-0 top-12 z-40 flex w-72 -translate-x-full flex-col border-r border-line bg-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0">
+        <div class="flex-1 overflow-y-auto px-6 py-12">
+            <div class="mb-12">
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="mb-10 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-muted hover:text-ink transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Overview
+                </a>
+                <p class="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-muted italic">Curriculum</p>
+                <h2 class="text-[17px] font-semibold tracking-tightest leading-tight text-ink">{{ course["title"] }}</h2>
+            </div>
+
+            <nav aria-label="Course lessons">
+                <ul class="space-y-1">
+                    {% for l in lessons %}
+                        <li>
+                            <a href="{{ lesson_url(l, course['slug']) }}" class="group flex items-center justify-between rounded-[12px] px-4 py-3 transition-all duration-300 {% if l['id'] == lesson['id'] %}bg-parchment text-ink{% else %}text-muted hover:text-ink{% endif %}">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-[12px] font-semibold tracking-tightest {% if l['id'] == lesson['id'] %}text-ink{% else %}text-muted/50{% endif %}">{{ l["number"] }}</span>
+                                    <span class="text-[14px] font-medium tracking-tighter truncate max-w-[160px]">{{ l["title"] }}</span>
+                                </div>
+                                {% if current_user and l["number"] <= completed_lessons %}
+                                    <i data-lucide="check" class="w-3.5 h-3.5 text-blue"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+
+        <div class="border-t border-line p-8">
+            {% if current_user %}
+                <div class="mb-3 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.1em]">
+                    <span class="text-muted italic">Mastery</span>
+                    <span class="text-ink">{{ progress_percent }}%</span>
+                </div>
+                <div class="h-[1px] w-full bg-line">
+                    <div class="h-full bg-ink transition-all duration-[2s] ease-in-out" style="width: {{ progress_percent }}%;"></div>
+                </div>
+            {% else %}
+                <p class="text-[12px] font-medium tracking-tighter text-muted">Enroll to track progress.</p>
+            {% endif %}
+        </div>
+    </aside>
+
+    <main id="mainContent" class="h-full flex-1 overflow-y-auto bg-white">
+        <article class="mx-auto max-w-3xl px-6 py-24 lg:py-32">
+            <nav class="mb-12 flex items-center gap-4 text-[12px] font-bold uppercase tracking-[0.2em] text-muted">
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="hover:text-ink transition-colors">{{ course["title"] }}</a>
+                <span class="h-px w-6 bg-line"></span>
+                <span class="text-blue">Lesson {{ lesson["number"] }}</span>
+            </nav>
+
+            <header class="mb-20">
+                <h1 class="mb-8 font-sans text-[48px] font-semibold tracking-tightest leading-[1.1] text-ink sm:text-[56px]">
+                    {{ lesson["title"] }}
+                </h1>
+                <p class="text-[21px] font-medium leading-[1.47] tracking-tighter text-muted">
+                    {{ lesson["summary"] }}
+                </p>
+            </header>
+
+            <div class="min-h-[400px]">
+                {% block lesson_content %}{% endblock %}
+            </div>
+
+            <footer class="mt-32 flex flex-col gap-8 border-t border-line pt-16 pb-24 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex items-center gap-2 text-[14px] font-semibold tracking-tighter text-muted hover:text-ink transition-all group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+                    Back to path
+                </a>
+
+                {% if current_user %}
+                    {% if completed_lessons >= lesson["number"] %}
+                        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex h-12 items-center justify-center rounded-full bg-parchment px-8 text-[15px] font-semibold text-ink transition-all hover:bg-line active:scale-95 shadow-sm">
+                            Next Artifact
+                            <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
+                        </a>
+                    {% else %}
+                        <form action="{{ url_for('complete_lesson', course_slug=course['slug'], lesson_number=lesson['number']) }}" method="post">
+                            <button class="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-[15px] font-semibold text-white transition-all hover:bg-primaryActive active:scale-95 shadow-lg">
+                                Mark as Mastered
+                                <i data-lucide="check" class="ml-2 w-4 h-4"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('login', next=request.path) }}" class="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-[15px] font-semibold text-white transition-all hover:bg-primaryActive active:scale-95 shadow-lg">
+                        Sign in to save progress
+                    </a>
+                {% endif %}
+            </footer>
+        </article>
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let isSidebarOpen = false;
+
+    if (menuToggle && sidebar && sidebarOverlay) {
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                menuToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+                menuToggle.innerHTML = '<i data-lucide="menu" class="w-5 h-5"></i>';
+            }
+
+            lucide.createIcons();
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', () => { if (isSidebarOpen) toggleSidebar(); });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024 && isSidebarOpen) toggleSidebar();
+        });
+    }
+</script>
+{% endblock %}

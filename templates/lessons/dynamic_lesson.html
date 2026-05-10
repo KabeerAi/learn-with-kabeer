@@ -1,0 +1,30 @@
+{% extends "lessons/lesson_base.html" %}
+
+{% block lesson_content %}
+<div class="prose prose-zinc max-w-none text-muted prose-headings:text-ink prose-headings:font-semibold prose-headings:tracking-tightest prose-a:text-blue prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-strong:text-ink prose-strong:font-semibold prose-code:rounded-[6px] prose-code:bg-parchment prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-[14px] prose-code:text-ink prose-pre:bg-black prose-pre:text-white prose-pre:border prose-pre:border-white/5 prose-pre:rounded-[24px] prose-pre:p-10 prose-pre:shadow-2xl prose-kbd:rounded prose-kbd:border prose-kbd:border-line prose-kbd:bg-white prose-kbd:px-1.5 prose-kbd:py-0.5 prose-kbd:text-xs prose-kbd:font-sans prose-kbd:text-ink">
+    {% if lesson["content"] %}
+        {% if lesson.content_type == 'html' %}
+            {{ lesson["content"] | safe }}
+        {% else %}
+            {{ lesson["content"] | markdown | safe }}
+        {% endif %}
+    {% else %}
+        <div class="rounded-[32px] bg-parchment py-16 text-center not-prose">
+            <div class="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-[12px] bg-white text-muted shadow-sm">
+                <i data-lucide="file-edit" class="w-6 h-6"></i>
+            </div>
+            <p class="text-[17px] font-medium tracking-tighter text-muted">This artifact is being crafted.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Re-initialize Lucide icons for dynamically inserted content
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}

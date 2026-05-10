@@ -1,0 +1,192 @@
+/* 
+ * Learn with Kabeer - Premium Design System
+ * Style: Professional, Tactile, Senior Aesthetic
+ */
+
+:root {
+    --color-gold-50: #FDF9F0;
+    --color-gold-100: #F7EBD3;
+    --color-gold-500: #B28A42;
+    --color-gold-600: #8A662E;
+    --color-ink: #171614;
+    --color-muted: #6E6A63;
+    --color-line: #E7E1D8;
+    --color-paper: #FFFFFF;
+    --color-canvas: #FAF9F7;
+    --shadow-premium: 0 10px 30px -10px rgba(23, 22, 20, 0.08);
+}
+
+/* Base Refinements */
+html { scroll-behavior: smooth; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+::selection { background: var(--color-gold-100); color: var(--color-ink); }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-canvas); }
+::-webkit-scrollbar-thumb { 
+    background: var(--color-line); 
+    border-radius: 999px; 
+    border: 3px solid var(--color-canvas); 
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold-100); }
+
+/* --- Premium Button System --- */
+
+.btn-premium {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem; /* Precise 12px */
+    padding: 0.75rem 1.75rem;
+    border-radius: 0.875rem;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    user-select: none;
+    border: none;
+    z-index: 1;
+}
+
+.btn-premium::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+    transform: translateY(0);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+}
+
+.btn-premium-ink { background-color: var(--color-ink); color: var(--color-paper); }
+.btn-premium-ink::before { background-color: #000000; }
+
+.btn-premium-gold { background-color: var(--color-gold-500); color: white; }
+.btn-premium-gold::before { background-color: var(--color-gold-600); }
+
+.btn-premium-paper { 
+    background-color: var(--color-paper); 
+    color: var(--color-ink); 
+    box-shadow: inset 0 0 0 1.5px var(--color-line); 
+}
+.btn-premium-paper::before { background-color: var(--color-line); }
+
+/* Lift on hover, depress on active */
+.btn-premium:hover { transform: translateY(-4px); }
+.btn-premium:hover::before { transform: translateY(4px); opacity: 1; }
+.btn-premium:active { transform: translateY(2px); }
+.btn-premium:active::before { transform: translateY(0); }
+
+/* --- Learning Path Design --- */
+
+.path-node {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    z-index: 10;
+}
+
+.path-node::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    z-index: -1;
+    transform: translateY(0);
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.path-node:hover { transform: translateY(-4px); }
+.path-node:hover::after { transform: translateY(4px); opacity: 1; }
+.path-node:active { transform: translateY(2px); }
+.path-node:active::after { transform: translateY(0); }
+
+.node-status-complete { background: var(--color-gold-500); color: white; }
+.node-status-complete::after { background: var(--color-gold-600); }
+
+.node-status-current { 
+    background: var(--color-ink); 
+    color: white; 
+    box-shadow: inset 0 0 0 3px var(--color-gold-500); 
+}
+.node-status-current::after { background: #000000; }
+
+.node-status-locked { background: var(--color-line); color: var(--color-muted); opacity: 0.6; }
+
+/* Tooltip Animation */
+@keyframes float-premium {
+    0%, 100% { transform: translate(-50%, 0px); }
+    50% { transform: translate(-50%, -8px); }
+}
+.animate-float-premium {
+    animation: float-premium 2.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.active-pulse {
+    position: absolute;
+    inset: -8px;
+    background: var(--color-gold-500);
+    border-radius: 50%;
+    z-index: 0;
+    animation: pulse-premium 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-premium {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.15); opacity: 0; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+/* Stage Banner */
+.stage-banner-premium {
+    background: var(--color-paper);
+    border: 1.5px solid var(--color-line);
+    padding: 0.6rem 2rem;
+    border-radius: 1.25rem;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.65rem;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-premium);
+}
+
+/* --- Layout Elements --- */
+.nav-blur {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+.card-premium {
+    background: var(--color-paper);
+    border: 1.5px solid var(--color-line);
+    border-radius: 1.5rem;
+    transition: all 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+.card-premium:hover {
+    border-color: var(--color-gold-100);
+    box-shadow: var(--shadow-premium);
+    transform: translateY(-2px);
+}
+
+.animate-reveal {
+    animation: reveal 0.8s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@keyframes reveal {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
