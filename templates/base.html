@@ -77,11 +77,13 @@
                     {% if current_user %}
                         <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' %}text-[#FAF9F6]{% endif %}">Dashboard</a>
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
+                        <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
                         {% if current_user.is_admin %}
                             <a href="{{ url_for('admin_dashboard') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint and request.endpoint.startswith('admin_') %}text-[#FAF9F6]{% endif %}">Admin</a>
                         {% endif %}
                     {% else %}
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
+                        <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
                     {% endif %}
                 </div>
             </div>

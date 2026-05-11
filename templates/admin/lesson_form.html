@@ -88,18 +88,22 @@
             </div>
 
             {# ── Content Editor Section ──────────────────────────────────── #}
-            <div class="mb-8 rounded-xl border border-line bg-paper p-6 sm:p-8">
-                <div class="mb-6 flex items-center justify-between">
-                    <h2 class="flex items-center gap-2 text-lg font-semibold text-ink">
-                        <i data-lucide="edit-3" class="w-5 h-5 text-gold-600"></i>
-                        Lesson Content
-                    </h2>
-                    <div class="flex space-x-1 rounded-lg bg-canvas p-1" role="tablist">
-                        <button type="button" id="tab-visual" onclick="switchTab('visual')" class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors bg-paper text-gold-600 shadow-sm border border-line">
-                            <i data-lucide="eye" class="w-3 h-3 inline mr-1"></i>Visual Editor
+            <div class="mb-8 rounded-2xl border border-[#E5E5E5] bg-white p-6 sm:p-10 shadow-sm">
+                <div class="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between border-b border-[#F5F5F5] pb-8">
+                    <div>
+                        <h2 class="flex items-center gap-2.5 text-xl font-bold text-[#1C1C1C]">
+                            <i data-lucide="edit-3" class="w-5 h-5 text-[#1C1C1C]"></i>
+                            Artifact Builder
+                        </h2>
+                        <p class="mt-1 text-sm text-[#6B6B6B]">Design your lesson using our library of interactive components.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-1 p-1 bg-[#F5F5F5] rounded-xl self-start">
+                        <button type="button" id="tab-visual" onclick="switchTab('visual')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all bg-white text-[#1C1C1C] rounded-lg shadow-sm border border-[#E5E5E5]">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Visual
                         </button>
-                        <button type="button" id="tab-source" onclick="switchTab('source')" class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors text-muted hover:text-ink">
-                            <i data-lucide="code" class="w-3 h-3 inline mr-1"></i>HTML Source
+                        <button type="button" id="tab-source" onclick="switchTab('source')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all text-[#6B6B6B] hover:text-[#1C1C1C] rounded-lg">
+                            <i data-lucide="code" class="w-3.5 h-3.5"></i> Source
                         </button>
                     </div>
                 </div>
@@ -107,49 +111,82 @@
                 <input type="hidden" id="content_type" name="content_type" value="html">
                 <input type="hidden" id="final_content" name="content">
 
-                {# ── Content Block Palette ───────────────────────────────── #}
-                <div id="block-palette" class="mb-5">
-                    <p class="mb-3 text-xs font-semibold uppercase text-gold-600">Insert Content Block</p>
-                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
-                        <button type="button" onclick="insertBlock('callout-info')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="info" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Info Callout
+                {# ── Refined Block Toolkit ────────────────────────────────── #}
+                <div id="block-palette" class="mb-10">
+                    <div class="mb-5 flex items-center justify-between">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Interactive Toolkit</p>
+                        <span class="h-[1px] flex-1 mx-4 bg-[#F5F5F5]"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+                        <button type="button" onclick="insertBlock('callout-info')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <i data-lucide="info" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Info Box</span>
                         </button>
-                        <button type="button" onclick="insertBlock('callout-warning')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 shrink-0"></i>
-                            Warning Box
+
+                        <button type="button" onclick="insertBlock('callout-warning')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Warning</span>
                         </button>
-                        <button type="button" onclick="insertBlock('feature-cards')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="layout-grid" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Feature Cards
+
+                        <button type="button" onclick="insertBlock('code-block')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <i data-lucide="terminal" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Code Editor</span>
                         </button>
-                        <button type="button" onclick="insertBlock('tag-grid')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="tags" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Tag Grid
+
+                        <button type="button" onclick="insertBlock('feature-cards')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Grid Layout</span>
                         </button>
-                        <button type="button" onclick="insertBlock('numbered-steps')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="list-ordered" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Numbered Steps
+
+                        <button type="button" onclick="insertBlock('image-caption')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                                <i data-lucide="image" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Media Frame</span>
                         </button>
-                        <button type="button" onclick="insertBlock('code-block')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="terminal" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Code Block
+
+                        <button type="button" onclick="insertBlock('numbered-steps')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i data-lucide="list-ordered" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Guided Steps</span>
                         </button>
-                        <button type="button" onclick="insertBlock('comparison')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="columns" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Comparison
+
+                        <button type="button" onclick="insertBlock('comparison')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                                <i data-lucide="columns" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Comparison</span>
                         </button>
-                        <button type="button" onclick="insertBlock('image-caption')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="image" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Image + Caption
+
+                        <button type="button" onclick="insertBlock('section-heading')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-slate-600 group-hover:bg-slate-600 group-hover:text-white transition-colors">
+                                <i data-lucide="heading" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Sub-heading</span>
                         </button>
-                        <button type="button" onclick="insertBlock('section-heading')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="heading" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Section + Text
+
+                        <button type="button" onclick="insertBlock('tag-grid')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                <i data-lucide="tags" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Keywords</span>
                         </button>
-                        <button type="button" onclick="insertBlock('divider')" class="block-palette-item flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-left text-xs font-medium text-ink hover:border-gold-500">
-                            <i data-lucide="minus" class="w-4 h-4 text-gold-600 shrink-0"></i>
-                            Divider
+
+                        <button type="button" onclick="insertBlock('divider')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 text-gray-600 group-hover:bg-gray-600 group-hover:text-white transition-colors">
+                                <i data-lucide="minus" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[13px] font-bold text-[#1C1C1C]">Separator</span>
                         </button>
                     </div>
                 </div>
@@ -209,141 +246,147 @@
     // ── Content Block Templates ────────────────────────────────────────
     const BLOCKS = {
         'callout-info': `
-<div class="mb-12 rounded-xl border border-line bg-paper p-5">
+<div class="my-10 rounded-xl border-l-4 border-blue-400 bg-blue-50/50 px-6 py-5 not-prose shadow-sm">
     <div class="flex gap-4">
-        <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-100 bg-gold-50 text-gold-600">
+        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
             <i data-lucide="info" class="w-4 h-4"></i>
         </span>
-        <div>
-            <h2 class="mb-2 text-base font-semibold text-ink">Info Title</h2>
-            <p class="text-sm leading-7 text-muted">Your informational message goes here. Use this for tips, notes, or important context.</p>
+        <div class="text-[15px] leading-relaxed text-blue-900">
+            <h4 class="mb-1 font-bold text-blue-900">Information</h4>
+            <p>Your informational message goes here. Use this for tips, notes, or important context.</p>
         </div>
     </div>
 </div>`,
 
         'callout-warning': `
-<div class="mb-12 rounded-xl border border-line bg-paper p-5">
+<div class="my-10 rounded-xl border-l-4 border-amber-400 bg-amber-50/50 px-6 py-5 not-prose shadow-sm">
     <div class="flex gap-4">
-        <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-100 bg-gold-50 text-gold-600">
+        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
             <i data-lucide="alert-triangle" class="w-4 h-4"></i>
         </span>
-        <div>
-            <h3 class="mb-2 text-base font-semibold text-ink">Important Step</h3>
-            <p class="text-sm leading-7 text-muted">Your warning or important information goes here. Highlight critical steps users shouldn't miss.</p>
+        <div class="text-[15px] leading-relaxed text-amber-900">
+            <h4 class="mb-1 font-bold text-amber-900">Attention Required</h4>
+            <p>Your warning or important information goes here. Highlight critical steps users shouldn't miss.</p>
         </div>
     </div>
 </div>`,
 
         'feature-cards': `
-<div class="grid gap-4 sm:grid-cols-2 my-8">
-    <div class="rounded-xl border border-line bg-paper p-5">
-        <i data-lucide="trending-up" class="mb-4 w-5 h-5 text-gold-600"></i>
-        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
-        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
-    </div>
-    <div class="rounded-xl border border-line bg-paper p-5">
-        <i data-lucide="cpu" class="mb-4 w-5 h-5 text-gold-600"></i>
-        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
-        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
-    </div>
-    <div class="rounded-xl border border-line bg-paper p-5">
-        <i data-lucide="layers" class="mb-4 w-5 h-5 text-gold-600"></i>
-        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
-        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
-    </div>
-    <div class="rounded-xl border border-line bg-paper p-5">
-        <i data-lucide="globe-2" class="mb-4 w-5 h-5 text-gold-600"></i>
-        <h3 class="mb-2 font-semibold text-ink">Feature Title</h3>
-        <p class="text-sm leading-7 text-muted">Description of this feature or concept. Keep it concise and informative.</p>
-    </div>
-</div>`,
-
-        'tag-grid': `
-<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 my-8">
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag One</div>
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Two</div>
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Three</div>
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Four</div>
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Five</div>
-    <div class="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">Tag Six</div>
-</div>`,
-
-        'numbered-steps': `
-<div class="space-y-10 my-8">
-    <div>
-        <div class="mb-4 flex items-start gap-4">
-            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">1</span>
-            <div>
-                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
-                <p class="leading-8 text-muted">Describe the first step in detail. Include any relevant code or examples.</p>
-            </div>
+<div class="grid gap-6 sm:grid-cols-2 my-12 not-prose">
+    <div class="group rounded-2xl border border-[#E5E5E5] bg-white p-7 transition-all hover:border-[#1C1C1C] hover:shadow-xl">
+        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+            <i data-lucide="zap" class="w-5 h-5"></i>
         </div>
+        <h3 class="mb-3 text-lg font-bold text-[#1C1C1C]">Key Concept</h3>
+        <p class="text-sm leading-relaxed text-[#6B6B6B]">Explain a core principle or feature of this lesson here.</p>
     </div>
-    <div>
-        <div class="mb-4 flex items-start gap-4">
-            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">2</span>
-            <div>
-                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
-                <p class="leading-8 text-muted">Describe the second step in detail. Continue building on the previous step.</p>
-            </div>
+    <div class="group rounded-2xl border border-[#E5E5E5] bg-white p-7 transition-all hover:border-[#1C1C1C] hover:shadow-xl">
+        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+            <i data-lucide="target" class="w-5 h-5"></i>
         </div>
-    </div>
-    <div>
-        <div class="mb-4 flex items-start gap-4">
-            <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink text-xs font-semibold text-paper">3</span>
-            <div>
-                <h3 class="mb-2 text-lg font-semibold text-ink">Step Title</h3>
-                <p class="leading-8 text-muted">Describe the third step in detail. Wrap up the sequence.</p>
-            </div>
-        </div>
+        <h3 class="mb-3 text-lg font-bold text-[#1C1C1C]">Lesson Goal</h3>
+        <p class="text-sm leading-relaxed text-[#6B6B6B]">Describe what the learner will achieve by the end of this section.</p>
     </div>
 </div>`,
 
         'code-block': `
-<div class="overflow-hidden rounded-xl border border-gold-500 bg-[#151412] my-8">
-    <div class="flex items-center justify-between border-b border-[#2A2925] px-4 py-3">
-        <span class="text-xs font-semibold text-gold-100">Python</span>
-        <span class="rounded-md border border-gold-500/50 px-2 py-1 text-[11px] font-semibold text-gold-100">Clean</span>
-    </div>
-    <div class="overflow-x-auto p-5">
-        <pre class="font-mono text-[13px] leading-7 text-[#E8E1D6]"><code>print("Hello, World!")</code></pre>
-    </div>
-</div>`,
-
-        'comparison': `
-<div class="grid gap-4 sm:grid-cols-2 my-8">
-    <div class="rounded-xl border border-line bg-paper p-5">
-        <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg border border-line">
-            <i data-lucide="archive" class="w-4 h-4 text-muted"></i>
+<div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl my-10 not-prose group">
+    <div class="flex items-center justify-between border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
+        <div class="flex items-center gap-4">
+            <div class="flex gap-1.5">
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+            </div>
+            <div class="h-4 w-[1px] bg-[#2A2A2A]"></div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B] font-mono">python</span>
         </div>
-        <h3 class="mb-2 font-semibold text-ink">Option A</h3>
-        <p class="text-sm leading-7 text-muted">Description of the first option, approach, or concept being compared.</p>
-    </div>
-    <div class="rounded-xl border border-gold-100 bg-gold-50 p-5">
-        <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-paper text-gold-600">
-            <i data-lucide="check" class="w-4 h-4"></i>
+        <div class="flex items-center gap-4">
+            <button onclick="copyToClipboard(this)" data-code="print('Hello, World!')" class="flex items-center gap-2 rounded-md bg-[#2A2A2A] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A3A3A3] transition-all hover:bg-[#333333] hover:text-white focus:outline-none active:scale-95">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span class="copy-text">Copy</span>
+            </button>
+            <i data-lucide="code-2" class="w-4 h-4 text-[#404040]"></i>
         </div>
-        <h3 class="mb-2 font-semibold text-ink">Option B (Recommended)</h3>
-        <p class="text-sm leading-7 text-muted">Description of the recommended option, highlighted with the gold background.</p>
+    </div>
+    <div class="flex font-mono text-[13px] leading-[1.8] overflow-x-auto py-5">
+        <div class="flex flex-col text-right text-[#6B6B6B] select-none pr-4 border-r border-[#2A2A2A] ml-5 min-w-[2.5rem]">
+            <span class="opacity-30">1</span>
+        </div>
+        <div class="flex-1 text-[#E5E5E5]">
+            <div class="px-4 hover:bg-white/5 transition-colors">print("Hello, World!")</div>
+        </div>
     </div>
 </div>`,
 
         'image-caption': `
-<figure class="my-10">
-    <div class="overflow-hidden rounded-xl border border-line">
-        <img src="https://placehold.co/800x400/FAF9F7/171614?text=Your+Image" alt="Description of image" class="w-full">
+<figure class="my-14 not-prose">
+    <div class="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-[#F5F5F5] shadow-sm">
+        <img src="https://placehold.co/1200x600/FAF9F6/1C1C1C?text=Premium+Visual" alt="Documentation image" class="w-full grayscale hover:grayscale-0 transition-all duration-700">
     </div>
-    <figcaption class="mt-3 text-center text-sm text-muted">Image caption goes here — describe what the learner should notice.</figcaption>
+    <figcaption class="mt-5 text-center font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">
+        Fig 1.0 — Explanatory caption for the visual above.
+    </figcaption>
 </figure>`,
 
+        'comparison': `
+<div class="grid gap-6 sm:grid-cols-2 my-12 not-prose">
+    <div class="rounded-2xl border border-[#E5E5E5] bg-white p-7">
+        <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600">
+            <i data-lucide="x-circle" class="w-5 h-5"></i>
+        </div>
+        <h3 class="mb-2 font-bold text-[#1C1C1C]">Legacy Approach</h3>
+        <p class="text-sm leading-relaxed text-[#6B6B6B]">Explain why this older method is no longer recommended or efficient.</p>
+    </div>
+    <div class="rounded-2xl border border-[#1C1C1C] bg-[#1C1C1C] p-7 shadow-xl shadow-gray-200">
+        <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-green-500 text-white">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        </div>
+        <h3 class="mb-2 font-bold text-white">Modern Method</h3>
+        <p class="text-sm leading-relaxed text-[#A3A3A3]">Highlight the benefits and performance gains of the recommended approach.</p>
+    </div>
+</div>`,
+
         'section-heading': `
-<section class="mb-14">
-    <h2 class="mb-4 text-2xl font-semibold tracking-tight text-ink">Section Title</h2>
-    <p class="mb-6 leading-8 text-muted">Write your section content here. Use clear, concise language to explain concepts to your learners.</p>
+<section class="mb-16 mt-20 first:mt-0">
+    <h2 class="mb-6 text-3xl font-bold tracking-tight text-[#1C1C1C]">Deep Dive Heading</h2>
+    <p class="text-lg leading-relaxed text-[#6B6B6B]">Expand on the complex concepts here. Use clear language and bridge different ideas together.</p>
 </section>`,
 
+        'tag-grid': `
+<div class="flex flex-wrap gap-2 my-8 not-prose">
+    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Python 3.x</span>
+    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Optimization</span>
+    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Backend</span>
+    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Advanced</span>
+</div>`,
+
+        'numbered-steps': `
+<div class="space-y-12 my-12">
+    <div class="group relative flex items-start gap-6">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1C1C1C] text-sm font-bold text-white shadow-lg transition-transform group-hover:scale-110">1</div>
+        <div>
+            <h3 class="mb-2 text-xl font-bold text-[#1C1C1C]">Initialization</h3>
+            <p class="text-base leading-relaxed text-[#6B6B6B]">Configure the core environment variables and prepare the system for the first run.</p>
+        </div>
+    </div>
+    <div class="group relative flex items-start gap-6">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1C1C1C] text-sm font-bold text-white shadow-lg transition-transform group-hover:scale-110">2</div>
+        <div>
+            <h3 class="mb-2 text-xl font-bold text-[#1C1C1C]">Execution</h3>
+            <p class="text-base leading-relaxed text-[#6B6B6B]">Run the primary algorithm and monitor the output for any potential bottlenecks or errors.</p>
+        </div>
+    </div>
+</div>`,
+
         'divider': `
-<div class="my-10 border-t border-line"></div>`
+<div class="my-16 flex items-center gap-4 not-prose">
+    <div class="h-[1px] flex-1 bg-[#F5F5F5]"></div>
+    <div class="h-1.5 w-1.5 rounded-full bg-[#E5E5E5]"></div>
+    <div class="h-1.5 w-1.5 rounded-full bg-[#D4D4D8]"></div>
+    <div class="h-1.5 w-1.5 rounded-full bg-[#E5E5E5]"></div>
+    <div class="h-[1px] flex-1 bg-[#F5F5F5]"></div>
+</div>`
     };
 
     function insertBlock(type) {

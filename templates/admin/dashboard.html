@@ -1,306 +1,238 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main class="flex-1 overflow-y-auto bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
-        {# --- Header --- #}
-        <header class="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <p class="mb-2 text-xs font-bold uppercase tracking-widest text-gold-600">Administrative Suite</p>
-                <h1 class="text-4xl font-bold tracking-tight text-ink">System Overview</h1>
+<style>
+    /* Cleaned up drag-and-drop interactions to match the elegant UI */
+    .sortable-ghost {
+        opacity: 0.5 !important;
+        background-color: #F5F5F5 !important;
+        border: 1px dashed #A3A3A3 !important;
+        box-shadow: none !important;
+    }
+    .sortable-drag {
+        cursor: grabbing !important;
+        box-shadow: -6px 6px 0 0 #1C1C1C !important;
+        transform: translate(2px, -2px) !important;
+    }
+</style>
+
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    <div class="mx-auto max-w-5xl px-6 py-12 md:py-20">
+        
+        {# --- Dashboard Header --- #}
+        <header class="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+            <div class="max-w-2xl">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="flex h-6 w-6 items-center justify-center rounded bg-[#1C1C1C] text-[10px] font-bold text-white tracking-tighter">
+                        &gt;_
+                    </span>
+                    <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Administrative Suite</span>
+                </div>
+                <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
+                    System Overview
+                </h1>
+                <p class="mt-4 text-base text-[#6B6B6B]">
+                    Manage your curriculum, track platform analytics, and organize course content.
+                </p>
             </div>
-            <a href="{{ url_for('admin_course_new') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-6 py-3.5 text-sm font-bold text-paper transition-all hover:bg-gold-900 active:scale-[0.98] shadow-lg shadow-ink/10">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Create New Course
-            </a>
+            <div class="flex w-full flex-col sm:w-auto sm:flex-row items-center gap-3">
+                <a href="{{ url_for('admin_course_new') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#1C1C1C] bg-white px-6 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    <i data-lucide="plus" class="mr-2 h-4 w-4"></i> Create Course
+                </a>
+                <a href="{{ url_for('admin_career_path_new') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    <i data-lucide="map" class="mr-2 h-4 w-4"></i> Create Career Path
+                </a>
+            </div>
         </header>
 
         {# --- Analytics Row --- #}
-        <div class="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-muted">Total Courses</p>
-                <div class="mt-2 flex items-end justify-between">
-                    <p class="text-3xl font-bold text-ink">{{ courses|length }}</p>
-                    <div class="rounded-lg bg-gold-50 p-2 text-gold-600">
-                        <i data-lucide="book" class="w-5 h-5"></i>
+        <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="flex flex-col justify-between rounded-xl border border-[#1C1C1C] bg-white p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                <div class="mb-6 flex items-start justify-between">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+                        <i data-lucide="users" class="h-5 w-5"></i>
                     </div>
                 </div>
-            </div>
-            {% set total_enrollments = courses|sum(attribute='enrolled_count') %}
-            <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-muted">Total Enrollments</p>
-                <div class="mt-2 flex items-end justify-between">
-                    <p class="text-3xl font-bold text-ink">{{ total_enrollments }}</p>
-                    <div class="rounded-lg bg-emerald-50 p-2 text-emerald-600">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                    </div>
+                <div>
+                    <h3 class="text-3xl font-semibold text-[#1C1C1C]">{{ stats.total_users }}</h3>
+                    <p class="mt-1 text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Platform Users</p>
                 </div>
             </div>
-            {% set total_lessons = courses|sum(attribute='total_lessons') %}
-            <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-muted">Total Lessons</p>
-                <div class="mt-2 flex items-end justify-between">
-                    <p class="text-3xl font-bold text-ink">{{ total_lessons }}</p>
-                    <div class="rounded-lg bg-blue-50 p-2 text-blue-600">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
+
+            <div class="flex flex-col justify-between rounded-xl border border-[#1C1C1C] bg-white p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                <div class="mb-6 flex items-start justify-between">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+                        <i data-lucide="check-circle" class="h-5 w-5"></i>
                     </div>
                 </div>
+                <div>
+                    <h3 class="text-3xl font-semibold text-[#1C1C1C]">{{ stats.total_completions }}</h3>
+                    <p class="mt-1 text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">System Mastery</p>
+                </div>
             </div>
-            <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-muted">Active Path</p>
-                <div class="mt-2 flex items-end justify-between">
-                    <p class="text-3xl font-bold text-ink">{{ courses|selectattr('status', 'equalto', 'active')|list|length }}</p>
-                    <div class="rounded-lg bg-purple-50 p-2 text-purple-600">
-                        <i data-lucide="activity" class="w-5 h-5"></i>
+
+            <div class="flex flex-col justify-between rounded-xl border border-[#1C1C1C] bg-white p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                <div class="mb-6 flex items-start justify-between">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+                        <i data-lucide="file-text" class="h-5 w-5"></i>
                     </div>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-semibold text-[#1C1C1C]">{{ stats.total_lessons }}</h3>
+                    <p class="mt-1 text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Total Assets</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-between rounded-xl border border-[#1C1C1C] bg-white p-6 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                <div class="mb-6 flex items-start justify-between">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
+                        <i data-lucide="trending-up" class="h-5 w-5"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-semibold text-[#1C1C1C]">{{ stats.total_enrollments }}</h3>
+                    <p class="mt-1 text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Enrollments</p>
                 </div>
             </div>
         </div>
 
-        {# --- Course Management --- #}
-        <div class="space-y-8">
-            <div class="flex items-center justify-between border-b border-line pb-4">
-                <h2 class="text-xl font-bold text-ink">Course Inventory</h2>
-                <span class="text-sm font-semibold text-muted">{{ courses|length }} Item{{ 's' if courses|length != 1 else '' }}</span>
+        {# --- Career Path Management --- #}
+        <div class="mb-20 space-y-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-[#1C1C1C]">Career Paths</h2>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#A3A3A3]">{{ career_paths|length }} Path{{ 's' if career_paths|length != 1 else '' }} Defined</span>
             </div>
 
-            {% if not courses %}
-                <div class="rounded-2xl border-2 border-dashed border-line bg-paper/50 p-16 text-center">
-                    <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-50 text-gold-600">
-                        <i data-lucide="layers" class="w-8 h-8"></i>
+            {% if not career_paths %}
+                <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#D4D4D8] bg-white py-20 text-center">
+                    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#A3A3A3]">
+                        <i data-lucide="map" class="h-6 w-6"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-ink">Inventory is Empty</h3>
-                    <p class="mt-2 text-muted text-sm">Create a course to begin structuring your curriculum.</p>
+                    <h3 class="text-lg font-semibold text-[#1C1C1C]">No Career Paths</h3>
+                    <p class="mt-2 text-sm text-[#6B6B6B]">Group courses into specialized paths for professional growth.</p>
                 </div>
             {% endif %}
 
-            <div class="grid gap-6">
-                {% for course in courses %}
-                    <section class="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition-all hover:border-gold-500">
-                        {# Course Card Header #}
-                        <div class="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between border-b border-line">
-                            <div class="flex items-center gap-4">
-                                <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-ink text-paper">
-                                    <i data-lucide="layout" class="w-6 h-6"></i>
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {% for path in career_paths %}
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white shadow-[-5px_5px_0_0_#FAF9F6,-6px_6px_0_0_#1C1C1C] transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                        {# Card Header #}
+                        <div class="p-[3px] pb-0">
+                            <div class="flex items-center justify-between rounded-t-md bg-[#1C1C1C] border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
+                                    Career Path
                                 </span>
-                                <div>
-                                    <h3 class="text-lg font-bold text-ink">{{ course.title }}</h3>
-                                    <div class="mt-1 flex items-center gap-2 text-xs font-semibold">
-                                        <span class="text-muted">{{ course.slug }}</span>
-                                        <span class="h-1 w-1 rounded-full bg-line"></span>
-                                        <span class="inline-flex items-center gap-1 text-emerald-600">
-                                            <i data-lucide="users" class="w-3 h-3"></i>
-                                            {{ course.enrolled_count }} Enrolled
-                                        </span>
-                                        <span class="h-1 w-1 rounded-full bg-line"></span>
-                                        <span class="rounded-md px-2 py-0.5 {% if course.status == 'active' %}bg-green-50 text-green-700{% else %}bg-amber-50 text-amber-700{% endif %}">
-                                            {{ course.status|capitalize }}
-                                        </span>
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-white bg-[#1C1C1C] px-2 py-0.5 font-mono text-[10px] font-bold text-white uppercase">
+                                    {{ path.status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {# Card Body #}
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-5">
+                            <h2 class="mb-3 text-2xl font-bold text-[#1C1C1C]">{{ path.title }}</h2>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                {{ path.subtitle }}
+                            </p>
+
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-[#1C1C1C]">Includes {{ path.course_count }} Courses</div>
+
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ path.level }}
                                     </div>
+                                    <i data-lucide="settings" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:rotate-90 group-hover:text-[#1C1C1C]"></i>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="flex items-center gap-2">
-                                <a href="{{ url_for('admin_lesson_new', course_id=course.id) }}" class="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-xs font-bold text-paper hover:bg-gold-900 transition-colors">
-                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                    Add Lesson
-                                </a>
-                                <a href="{{ url_for('admin_course_edit', course_id=course.id) }}" class="inline-flex items-center justify-center rounded-lg border border-line p-2 text-muted hover:text-ink hover:bg-canvas transition-all" title="Edit Course">
-                                    <i data-lucide="settings" class="w-4 h-4"></i>
-                                </a>
-                                <form action="{{ url_for('admin_course_delete', course_id=course.id) }}" method="post" class="inline" onsubmit="return confirm('Delete course &quot;{{ course.title }}&quot;?')">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-lg border border-line p-2 text-muted hover:text-red-600 hover:bg-red-50 transition-all" title="Delete Course">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
+                        {# Full Card Clickable Link #}
+                        <a href="{{ url_for('admin_career_path_manage', path_id=path.id) }}" class="absolute inset-0 z-10">
+                            <span class="sr-only">Manage {{ path.title }}</span>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# --- Course Inventory --- #}
+        <div class="space-y-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-[#1C1C1C]">Course Inventory</h2>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#A3A3A3]">{{ courses|length }} Course{{ 's' if courses|length != 1 else '' }} Available</span>
+            </div>
+
+            {% if not courses %}
+                <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#D4D4D8] bg-white py-20 text-center">
+                    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#A3A3A3]">
+                        <i data-lucide="layers" class="h-6 w-6"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#1C1C1C]">Inventory is Empty</h3>
+                    <p class="mt-2 text-sm text-[#6B6B6B]">Create a course to begin structuring your curriculum.</p>
+                </div>
+            {% endif %}
+
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {% for course in courses %}
+                    {% set themes = [
+                        {'bg': 'bg-[#E4EDE7]', 'text': 'text-[#2D4233]'},
+                        {'bg': 'bg-[#F4EBE1]', 'text': 'text-[#543E2C]'},
+                        {'bg': 'bg-[#E2E8F0]', 'text': 'text-[#0F172A]'}
+                    ] %}
+                    {% set theme = themes[loop.index0 % 3] %}
+
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                        {# Card Header #}
+                        <div class="p-[3px] pb-0">
+                            <div class="flex items-center justify-between rounded-t-md {{ theme.bg }} border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold {{ theme.text }} tracking-wide uppercase">
+                                    Management
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold {% if course.status == 'active' %}text-[#16A34A]{% else %}text-[#F59E0B]{% endif %}">
+                                    {{ course.status|upper }}
+                                </span>
                             </div>
                         </div>
 
-                        {# Lesson List (Grouped by Sections with Drag & Drop) #}
-                        <div class="bg-canvas/50 p-6">
-                            <header class="mb-6 flex items-center justify-between">
-                                <h4 class="text-xs font-bold uppercase tracking-widest text-muted">Course Curriculum</h4>
-                                <button onclick="quickAddSection({{ course.id }})" class="inline-flex items-center gap-1.5 rounded-lg border border-gold-200 bg-gold-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gold-600 hover:bg-gold-100 transition-colors">
-                                    <i data-lucide="plus" class="w-3 h-3"></i>
-                                    Add Section
-                                </button>
-                            </header>
+                        {# Card Body #}
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-5">
+                            <h2 class="mb-3 text-2xl font-bold text-[#1C1C1C]">{{ course.title }}</h2>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                {{ course.subtitle }}
+                            </p>
 
-                            <div class="sections-container space-y-8" data-course-id="{{ course.id }}">
-                                {% for section in course.sections %}
-                                    <div class="section-group" data-section-id="{{ section.id if section.id else 'null' }}">
-                                        {# Section Header #}
-                                        <div class="mb-3 flex items-center justify-between group/sec">
-                                            <div class="flex items-center gap-3">
-                                                <i data-lucide="grip-vertical" class="w-4 h-4 text-line cursor-grab active:cursor-grabbing section-grip"></i>
-                                                <h5 class="text-sm font-bold text-ink cursor-pointer hover:text-gold-600 transition-colors section-title" 
-                                                    data-number="{{ section.number }}"
-                                                    ondblclick="editSectionTitle(this, {{ section.id if section.id else 'null' }})">
-                                                    {{ section.title }}
-                                                </h5>
-                                                {% if section.id %}
-                                                <span class="text-[10px] font-bold text-muted uppercase opacity-0 group-hover/sec:opacity-100 transition-opacity">Double-click to edit</span>
-                                                {% endif %}
-                                            </div>
-                                            {% if section.id %}
-                                            <div class="flex items-center gap-3 opacity-0 group-hover/sec:opacity-100 transition-opacity">
-                                                <a href="{{ url_for('admin_section_edit', section_id=section.id) }}" class="text-[10px] font-bold text-gold-600 hover:text-gold-900 uppercase">Edit</a>
-                                                <form action="{{ url_for('admin_section_delete', section_id=section.id) }}" method="post" onsubmit="return confirm('Delete section &quot;{{ section.title }}&quot;? Lessons will become unassigned.')">
-                                                    <button type="submit" class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase">Remove</button>
-                                                </form>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-
-                                        {# Lessons in this section #}
-                                        <div class="lessons-list grid gap-2 min-h-[40px] rounded-xl border-2 border-dashed border-transparent transition-colors" data-section-id="{{ section.id if section.id else 'null' }}">
-                                            {% if section.lessons %}
-                                                {% for lesson in section.lessons %}
-                                                    <div class="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3 transition-all hover:border-gold-100 group" data-lesson-id="{{ lesson.id }}">
-                                                        <div class="flex items-center gap-4">
-                                                            <i data-lucide="grip-vertical" class="w-4 h-4 text-line cursor-grab active:cursor-grabbing lesson-grip"></i>
-                                                            <span class="text-xs font-bold text-muted tabular-nums">{{ "%02d" % lesson.number }}</span>
-                                                            <span class="text-sm font-semibold text-ink">{{ lesson.title }}</span>
-                                                        </div>
-                                                        <div class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <a href="{{ url_for('admin_lesson_edit', lesson_id=lesson.id) }}" class="text-xs font-bold text-gold-600 hover:text-gold-900">Edit</a>
-                                                            <form action="{{ url_for('admin_lesson_delete', lesson_id=lesson.id) }}" method="post" class="inline">
-                                                                <button type="submit" class="text-xs font-bold text-red-400 hover:text-red-600">Delete</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                {% endfor %}
-                                            {% else %}
-                                                <div class="empty-placeholder py-4 text-center text-[10px] font-bold uppercase tracking-widest text-muted border border-dashed border-line rounded-xl">
-                                                    Empty Section — Drag lessons here
-                                                </div>
-                                            {% endif %}
-                                        </div>
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="file-text" class="h-4 w-4 text-[#A3A3A3]"></i> {{ course.total_lessons }} Lessons
                                     </div>
-                                {% endfor %}
+                                    <div class="flex items-center gap-2 text-[#16A34A]">
+                                        <i data-lucide="users" class="h-4 w-4"></i> {{ course.enrolled_count }}
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ course.level }}
+                                    </div>
+                                    <i data-lucide="settings" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:rotate-90 group-hover:text-[#1C1C1C]"></i>
+                                </div>
                             </div>
                         </div>
-                    </section>
+
+                        {# Full Card Clickable Link #}
+                        <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="absolute inset-0 z-10">
+                            <span class="sr-only">Manage {{ course.title }}</span>
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </main>
-
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Sortable for Sections (The groups themselves)
-        document.querySelectorAll('.sections-container').forEach(container => {
-            const courseId = container.dataset.courseId;
-            new Sortable(container, {
-                animation: 150,
-                handle: '.section-grip',
-                ghostClass: 'opacity-50',
-                onEnd: function() {
-                    const sectionIds = Array.from(container.querySelectorAll('.section-group'))
-                        .map(el => el.dataset.sectionId)
-                        .filter(id => id !== 'null');
-                    
-                    fetch('/admin/sections/reorder', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ course_id: courseId, section_ids: sectionIds })
-                    });
-                }
-            });
-        });
-
-        // Initialize Sortable for Lessons (Within and between sections)
-        document.querySelectorAll('.lessons-list').forEach(list => {
-            new Sortable(list, {
-                group: 'lessons',
-                animation: 150,
-                handle: '.lesson-grip',
-                ghostClass: 'bg-gold-50',
-                onEnd: function(evt) {
-                    const lessonId = evt.item.dataset.lessonId;
-                    const newSectionId = evt.to.dataset.sectionId;
-                    const container = evt.to.closest('.sections-container');
-                    const courseId = container.dataset.courseId;
-                    
-                    const lessonIds = Array.from(evt.to.querySelectorAll('[data-lesson-id]'))
-                        .map(el => el.dataset.lessonId);
-
-                    fetch('/admin/lessons/reorder', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            course_id: courseId, 
-                            section_id: newSectionId, 
-                            lesson_ids: lessonIds 
-                        })
-                    }).then(() => {
-                        // Refresh numbering locally for UX
-                        evt.to.querySelectorAll('.tabular-nums').forEach((el, idx) => {
-                            el.textContent = (idx + 1).toString().padStart(2, '0');
-                        });
-                    });
-                }
-            });
-        });
-    });
-
-    function quickAddSection(courseId) {
-        const title = prompt("Enter Section Title (Unit Header):", "New Section");
-        if (!title) return;
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/courses/${courseId}/sections/new`;
-        
-        const titleInput = document.createElement('input');
-        titleInput.type = 'hidden';
-        titleInput.name = 'title';
-        titleInput.value = title;
-        
-        const descInput = document.createElement('input');
-        descInput.type = 'hidden';
-        descInput.name = 'description';
-        descInput.value = '';
-        
-        form.appendChild(titleInput);
-        form.appendChild(descInput);
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    function editSectionTitle(el, sectionId) {
-        if (sectionId === 'null') return;
-        const currentTitle = el.textContent.trim();
-        const currentNumber = el.dataset.number || '1';
-        const newTitle = prompt("Edit Section Title:", currentTitle);
-        if (newTitle && newTitle !== currentTitle) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/sections/${sectionId}/edit`;
-            
-            const titleInput = document.createElement('input');
-            titleInput.type = 'hidden';
-            titleInput.name = 'title';
-            titleInput.value = newTitle;
-            
-            const descInput = document.createElement('input');
-            descInput.type = 'hidden';
-            descInput.name = 'description';
-            descInput.value = ''; // Keep desc for now
-            
-            const numInput = document.createElement('input');
-            numInput.type = 'hidden';
-            numInput.name = 'number';
-            numInput.value = currentNumber;
-            
-            form.appendChild(titleInput);
-            form.appendChild(descInput);
-            form.appendChild(numInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-</script>
 {% endblock %}

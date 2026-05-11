@@ -1,30 +1,39 @@
 {% extends "lessons/lesson_base.html" %}
 
 {% block lesson_content %}
-<div class="prose prose-zinc max-w-none text-muted prose-headings:text-ink prose-headings:font-semibold prose-headings:tracking-tightest prose-a:text-blue prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-strong:text-ink prose-strong:font-semibold prose-code:rounded-[6px] prose-code:bg-parchment prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-[14px] prose-code:text-ink prose-pre:bg-black prose-pre:text-white prose-pre:border prose-pre:border-white/5 prose-pre:rounded-[24px] prose-pre:p-10 prose-pre:shadow-2xl prose-kbd:rounded prose-kbd:border prose-kbd:border-line prose-kbd:bg-white prose-kbd:px-1.5 prose-kbd:py-0.5 prose-kbd:text-xs prose-kbd:font-sans prose-kbd:text-ink">
     {% if lesson["content"] %}
+        {# 
+           Content is injected directly. 
+           The parent lesson_base.html already wraps this block in a beautifully 
+           styled <article class="prose ..."> tag, so no extra wrappers are needed here. 
+        #}
         {% if lesson.content_type == 'html' %}
             {{ lesson["content"] | safe }}
         {% else %}
             {{ lesson["content"] | markdown | safe }}
         {% endif %}
     {% else %}
-        <div class="rounded-[32px] bg-parchment py-16 text-center not-prose">
-            <div class="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-[12px] bg-white text-muted shadow-sm">
-                <i data-lucide="file-edit" class="w-6 h-6"></i>
+        {# Premium Minimalist Empty State #}
+        <div class="not-prose mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#D4D4D8] bg-[#FAF9F6] py-24 text-center">
+            <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-[#E5E5E5] bg-white text-[#A3A3A3] shadow-sm">
+                <i data-lucide="pen-tool" class="h-6 w-6"></i>
             </div>
-            <p class="text-[17px] font-medium tracking-tighter text-muted">This artifact is being crafted.</p>
+            <h3 class="text-lg font-semibold tracking-tight text-[#1C1C1C]">Content in progress</h3>
+            <p class="mt-2 text-sm font-medium text-[#6B6B6B] max-w-sm leading-relaxed">
+                This lesson is currently being crafted by our instructors. Check back soon for the complete guide.
+            </p>
         </div>
     {% endif %}
-</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script>
     // Re-initialize Lucide icons for dynamically inserted content
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
 </script>
 {% endblock %}

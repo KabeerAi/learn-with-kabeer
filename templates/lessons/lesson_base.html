@@ -1,141 +1,268 @@
 {% extends "base.html" %}
 
 {% block mobile_menu_toggle %}
-<button id="menuToggle" class="lg:hidden -ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-ink transition-colors focus:outline-none" aria-label="Toggle lesson menu">
+<button id="menuToggle" class="lg:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white text-[#1C1C1C] transition-colors hover:bg-[#F5F5F5] focus:outline-none" aria-label="Toggle lesson menu">
     <i data-lucide="menu" class="w-5 h-5"></i>
 </button>
 {% endblock %}
 
 {% block content %}
-<div class="relative flex flex-1 overflow-hidden bg-white">
-    <div id="sidebarOverlay" class="fixed inset-x-0 bottom-0 top-12 z-30 bg-ink/10 opacity-0 pointer-events-none transition-opacity duration-200 lg:hidden backdrop-blur-sm"></div>
+<div class="relative flex flex-1 overflow-hidden bg-white selection:bg-[#1C1C1C] selection:text-white">
+    
+    {# --- Mobile Sidebar Overlay --- #}
+    <div id="sidebarOverlay" class="fixed inset-x-0 bottom-0 top-16 z-30 bg-[#1C1C1C]/10 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
 
-    <aside id="sidebar" class="fixed bottom-0 left-0 top-12 z-40 flex w-72 -translate-x-full flex-col border-r border-line bg-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0">
-        <div class="flex-1 overflow-y-auto px-6 py-12">
-            <div class="mb-12">
-                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="mb-10 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-muted hover:text-ink transition-colors">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Overview
+    {# --- Minimalist Elegant Sidebar --- #}
+    <aside id="sidebar" class="fixed bottom-0 left-0 top-16 z-40 flex w-[300px] -translate-x-full flex-col border-r border-[#E5E5E5] bg-[#FAF9F6] transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:top-0">
+        
+        <div class="flex-1 overflow-y-auto px-6 py-8">
+            <div class="mb-10">
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="group mb-8 flex w-fit items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B] shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md hover:text-[#1C1C1C]">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1"></i>
+                    Map Overview
                 </a>
-                <p class="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-muted italic">Curriculum</p>
-                <h2 class="text-[17px] font-semibold tracking-tightest leading-tight text-ink">{{ course["title"] }}</h2>
+                <p class="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3]">Curriculum</p>
+                <h2 class="text-xl font-bold tracking-tight text-[#1C1C1C] leading-snug">{{ course["title"] }}</h2>
             </div>
 
             <nav aria-label="Course lessons">
-                <ul class="space-y-1">
+                <ul class="space-y-2">
                     {% for l in lessons %}
+                        {% set is_locked = current_user and not current_user["is_admin"] and l["number"] > (completed_lessons + 1) %}
                         <li>
-                            <a href="{{ lesson_url(l, course['slug']) }}" class="group flex items-center justify-between rounded-[12px] px-4 py-3 transition-all duration-300 {% if l['id'] == lesson['id'] %}bg-parchment text-ink{% else %}text-muted hover:text-ink{% endif %}">
-                                <div class="flex items-center gap-4">
-                                    <span class="text-[12px] font-semibold tracking-tightest {% if l['id'] == lesson['id'] %}text-ink{% else %}text-muted/50{% endif %}">{{ l["number"] }}</span>
-                                    <span class="text-[14px] font-medium tracking-tighter truncate max-w-[160px]">{{ l["title"] }}</span>
+                            {% if is_locked %}
+                                <div class="group flex items-center justify-between rounded-xl border border-transparent px-3 py-3 text-[#A3A3A3] cursor-not-allowed">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-mono text-[11px] font-semibold text-[#D4D4D8]">
+                                            {{ "%02d"|format(l["number"]) }}
+                                        </span>
+                                        <span class="text-[13px] font-semibold tracking-tight truncate max-w-[160px] opacity-60">{{ l["title"] }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-center text-[#A3A3A3]">
+                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                                    </div>
                                 </div>
-                                {% if current_user and l["number"] <= completed_lessons %}
-                                    <i data-lucide="check" class="w-3.5 h-3.5 text-blue"></i>
-                                {% endif %}
-                            </a>
+                            {% else %}
+                                <a href="{{ lesson_url(l, course['slug']) }}" class="group flex items-center justify-between rounded-xl border px-3 py-3 transition-all duration-200 
+                                    {% if l['id'] == lesson['id'] %}
+                                        border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm
+                                    {% else %}
+                                        border-transparent bg-transparent text-[#6B6B6B] hover:border-[#E5E5E5] hover:bg-white hover:text-[#1C1C1C] hover:shadow-sm
+                                    {% endif %}">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-mono text-[11px] font-semibold {% if l['id'] == lesson['id'] %}text-[#1C1C1C]{% else %}text-[#A3A3A3]{% endif %}">
+                                            {{ "%02d"|format(l["number"]) }}
+                                        </span>
+                                        <span class="text-[13px] font-semibold tracking-tight truncate max-w-[160px]">{{ l["title"] }}</span>
+                                    </div>
+                                    
+                                    {% if current_user and l["number"] <= completed_lessons %}
+                                        <div class="flex items-center justify-center text-[#16A34A]">
+                                            <i data-lucide="check" class="w-4 h-4 stroke-[2.5]"></i>
+                                        </div>
+                                    {% endif %}
+                                </a>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
             </nav>
         </div>
 
-        <div class="border-t border-line p-8">
+        {# --- Clean Mastery Footer --- #}
+        <div class="border-t border-[#E5E5E5] bg-white p-6">
             {% if current_user %}
-                <div class="mb-3 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.1em]">
-                    <span class="text-muted italic">Mastery</span>
-                    <span class="text-ink">{{ progress_percent }}%</span>
+                <div class="mb-4 flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-widest text-[#1C1C1C]">
+                    <span>Course Mastery</span>
+                    <span class="text-[#6B6B6B]">{{ progress_percent }}%</span>
                 </div>
-                <div class="h-[1px] w-full bg-line">
-                    <div class="h-full bg-ink transition-all duration-[2s] ease-in-out" style="width: {{ progress_percent }}%;"></div>
+                
+                {# Clean Progress Bar #}
+                <div class="h-1.5 w-full rounded-full bg-[#F5F5F5] overflow-hidden">
+                    <div class="h-full bg-[#1C1C1C] rounded-full transition-all duration-1000 ease-out" style="width: {{ progress_percent }}%;"></div>
                 </div>
             {% else %}
-                <p class="text-[12px] font-medium tracking-tighter text-muted">Enroll to track progress.</p>
+                <div class="flex flex-col gap-1.5">
+                    <p class="text-[13px] font-semibold text-[#1C1C1C] uppercase tracking-wide">Guest Mode</p>
+                    <p class="text-[12px] text-[#6B6B6B]">Enroll to track your progress.</p>
+                </div>
             {% endif %}
         </div>
     </aside>
 
-    <main id="mainContent" class="h-full flex-1 overflow-y-auto bg-white">
-        <article class="mx-auto max-w-3xl px-6 py-24 lg:py-32">
-            <nav class="mb-12 flex items-center gap-4 text-[12px] font-bold uppercase tracking-[0.2em] text-muted">
-                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="hover:text-ink transition-colors">{{ course["title"] }}</a>
-                <span class="h-px w-6 bg-line"></span>
-                <span class="text-blue">Lesson {{ lesson["number"] }}</span>
-            </nav>
+    {# --- Main Plain Reading Area --- #}
+    <main id="mainContent" class="relative h-full flex-1 overflow-y-auto bg-white scroll-smooth">
+        
+        <div class="mx-auto max-w-[800px] px-6 py-12 sm:py-20 lg:px-12 lg:py-24">
+            
+            {# Elegant Header #}
+            <header class="mb-14 border-b border-[#E5E5E5] pb-10">
+                <nav class="mb-8 flex flex-wrap items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-widest text-[#1C1C1C]">
+                    <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="rounded-md border border-[#E5E5E5] bg-[#F5F5F5] px-2.5 py-1.5 text-[#6B6B6B] transition-all hover:bg-[#E5E5E5] hover:text-[#1C1C1C]">{{ course["title"] }}</a>
+                    <span class="text-[#A3A3A3]">\</span>
+                    <span class="rounded-md border border-[#BBF7D0] bg-[#F0FDF4] px-2.5 py-1.5 text-[#16A34A]">Lesson {{ "%02d"|format(lesson["number"]) }}</span>
+                </nav>
 
-            <header class="mb-20">
-                <h1 class="mb-8 font-sans text-[48px] font-semibold tracking-tightest leading-[1.1] text-ink sm:text-[56px]">
+                <h1 class="mb-5 text-3xl font-bold tracking-tight text-[#1C1C1C] sm:text-4xl lg:text-[44px] lg:leading-[1.15]">
                     {{ lesson["title"] }}
                 </h1>
-                <p class="text-[21px] font-medium leading-[1.47] tracking-tighter text-muted">
+                
+                {% if lesson["summary"] %}
+                <p class="text-lg font-normal leading-relaxed text-[#6B6B6B]">
                     {{ lesson["summary"] }}
                 </p>
+                {% endif %}
             </header>
 
-            <div class="min-h-[400px]">
+            {# Lesson Content Area (Refined Clean Typography & Corrected Code Blocks) #}
+            <article class="prose prose-lg prose-neutral max-w-none 
+                        prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-[#1C1C1C]
+                        prose-h2:text-2xl prose-h2:border-b prose-h2:border-[#E5E5E5] prose-h2:pb-3 prose-h2:mt-14
+                        prose-h3:text-xl prose-h3:mt-10
+                        prose-h4:text-lg
+                        prose-p:text-[#404040] prose-p:font-normal prose-p:leading-[1.8] 
+                        prose-a:text-[#1C1C1C] prose-a:font-medium prose-a:underline prose-a:underline-offset-4 prose-a:decoration-[#D4D4D8] hover:prose-a:decoration-[#1C1C1C] transition-all
+                        prose-strong:text-[#1C1C1C] prose-strong:font-semibold
+                        
+                        prose-code:text-[#E93D82] prose-code:bg-[#F5F5F5] prose-code:border prose-code:border-[#E5E5E5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:font-medium prose-code:text-[0.9em] prose-code:before:content-none prose-code:after:content-none
+                        
+                        [&_pre]:!bg-transparent [&_pre]:!p-0 [&_pre]:!border-none [&_pre]:!shadow-none [&_pre]:!rounded-none
+                        [&_pre_code]:!bg-transparent [&_pre_code]:!p-0 [&_pre_code]:!border-none [&_pre_code]:!text-inherit [&_pre_code]:!shadow-none [&_pre_code]:!rounded-none
+                        
+                        prose-blockquote:border-l-4 prose-blockquote:border-[#FACC15] prose-blockquote:bg-[#FAF9F6] prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:font-medium prose-blockquote:text-[#404040]
+                        
+                        prose-li:text-[#404040] prose-li:marker:text-[#A3A3A3]
+                        prose-ul:list-disc prose-ol:list-decimal
+                        
+                        prose-img:rounded-xl prose-img:border prose-img:border-[#E5E5E5] prose-img:shadow-sm
+                        
+                        prose-hr:border-t prose-hr:border-dashed prose-hr:border-[#D4D4D8] prose-hr:my-12
+                        
+                        prose-table:w-full prose-table:border-collapse prose-table:text-sm prose-table:border prose-table:border-[#E5E5E5] prose-table:rounded-xl prose-table:overflow-hidden prose-table:shadow-sm
+                        prose-th:bg-[#F5F5F5] prose-th:border-b prose-th:border-r prose-th:border-[#E5E5E5] prose-th:p-4 prose-th:font-semibold prose-th:text-[#1C1C1C] prose-th:text-left last:prose-th:border-r-0
+                        prose-td:border-b prose-td:border-r prose-td:border-[#E5E5E5] prose-td:bg-white prose-td:p-4 prose-td:text-[#404040] last:prose-td:border-r-0 group-last:prose-td:border-b-0">
                 {% block lesson_content %}{% endblock %}
-            </div>
+            </article>
 
-            <footer class="mt-32 flex flex-col gap-8 border-t border-line pt-16 pb-24 sm:flex-row sm:items-center sm:justify-between">
-                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex items-center gap-2 text-[14px] font-semibold tracking-tighter text-muted hover:text-ink transition-all group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
-                    Back to path
+            {# Minimalist Footer Actions #}
+            <footer class="mt-20 flex flex-col items-center justify-between gap-6 rounded-2xl border border-[#E5E5E5] bg-[#FAF9F6] px-6 py-8 sm:flex-row sm:px-10">
+                
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="group inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B] hover:text-[#1C1C1C] transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1.5"></i>
+                    Return to Map
                 </a>
 
                 {% if current_user %}
                     {% if completed_lessons >= lesson["number"] %}
-                        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex h-12 items-center justify-center rounded-full bg-parchment px-8 text-[15px] font-semibold text-ink transition-all hover:bg-line active:scale-95 shadow-sm">
-                            Next Artifact
-                            <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
+                        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-white px-6 py-3 text-[13px] font-semibold text-[#1C1C1C] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
+                            Next Artifact <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     {% else %}
-                        <form action="{{ url_for('complete_lesson', course_slug=course['slug'], lesson_number=lesson['number']) }}" method="post">
-                            <button class="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-[15px] font-semibold text-white transition-all hover:bg-primaryActive active:scale-95 shadow-lg">
-                                Mark as Mastered
-                                <i data-lucide="check" class="ml-2 w-4 h-4"></i>
+                        <form action="{{ url_for('complete_lesson', course_slug=course['slug'], lesson_number=lesson['number']) }}" method="post" class="w-full sm:w-auto">
+                            <button class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#A16207] bg-[#FACC15] px-6 py-3 text-[13px] font-semibold text-[#422006] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
+                                Mark as Mastered <i data-lucide="check-circle" class="w-4 h-4 stroke-[2.5]"></i>
                             </button>
                         </form>
                     {% endif %}
                 {% else %}
-                    <a href="{{ url_for('login', next=request.path) }}" class="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-[15px] font-semibold text-white transition-all hover:bg-primaryActive active:scale-95 shadow-lg">
-                        Sign in to save progress
+                    <a href="{{ url_for('login', next=request.path) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-6 py-3 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
+                        Sign in to save <i data-lucide="log-in" class="w-4 h-4"></i>
                     </a>
                 {% endif %}
             </footer>
-        </article>
+            
+        </div>
     </main>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    let isSidebarOpen = false;
+    document.addEventListener("DOMContentLoaded", function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        let isSidebarOpen = false;
 
-    if (menuToggle && sidebar && sidebarOverlay) {
-        function toggleSidebar() {
-            isSidebarOpen = !isSidebarOpen;
+        // --- Copy to Clipboard Utility ---
+        window.copyToClipboard = function(btn) {
+            const code = btn.getAttribute('data-code');
+            const textSpan = btn.querySelector('.copy-text');
+            const icon = btn.querySelector('i');
 
-            if (isSidebarOpen) {
-                sidebar.classList.remove('-translate-x-full');
-                sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                menuToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    updateButton();
+                });
             } else {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                menuToggle.innerHTML = '<i data-lucide="menu" class="w-5 h-5"></i>';
+                // Fallback for non-secure contexts
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    updateButton();
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
             }
 
-            lucide.createIcons();
-        }
+            function updateButton() {
+                const originalText = textSpan.textContent;
+                textSpan.textContent = 'Copied!';
+                btn.classList.add('text-[#16A34A]');
+                
+                if (typeof lucide !== 'undefined') {
+                    btn.querySelector('i').setAttribute('data-lucide', 'check');
+                    lucide.createIcons();
+                }
 
-        menuToggle.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', () => { if (isSidebarOpen) toggleSidebar(); });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024 && isSidebarOpen) toggleSidebar();
-        });
-    }
+                setTimeout(() => {
+                    textSpan.textContent = originalText;
+                    btn.classList.remove('text-[#16A34A]');
+                    if (typeof lucide !== 'undefined') {
+                        btn.querySelector('i').setAttribute('data-lucide', 'copy');
+                        lucide.createIcons();
+                    }
+                }, 2000);
+            }
+        };
+
+        if (menuToggle && sidebar && sidebarOverlay) {
+            function toggleSidebar() {
+                isSidebarOpen = !isSidebarOpen;
+
+                if (isSidebarOpen) {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    // Add tactile pressed state to button while open
+                    menuToggle.classList.add('translate-y-[4px]', 'shadow-none', 'bg-[#F5F5F5]', 'border-[#E5E5E5]');
+                    menuToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    // Remove tactile pressed state
+                    menuToggle.classList.remove('translate-y-[4px]', 'shadow-none', 'bg-[#F5F5F5]', 'border-[#E5E5E5]');
+                    menuToggle.innerHTML = '<i data-lucide="menu" class="w-5 h-5"></i>';
+                }
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            menuToggle.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', () => { if (isSidebarOpen) toggleSidebar(); });
+            
+            // Auto close sidebar on desktop resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024 && isSidebarOpen) {
+                    toggleSidebar();
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

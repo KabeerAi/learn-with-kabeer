@@ -31,6 +31,30 @@
                         <p class="mt-2 text-[11px] text-[#A3A3A3]">This text appears below the title in the sticky "Cloud" header.</p>
                     </div>
 
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-[#1C1C1C] mb-4">Section Background (New World)</label>
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                            {% for bg in backgrounds %}
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="background" value="{{ bg }}" class="peer sr-only" 
+                                       {% if section and section.background == bg %}checked{% endif %}>
+                                <div class="aspect-video overflow-hidden rounded-xl border-2 border-[#E5E5E5] bg-[#FAF9F6] transition-all peer-checked:border-[#1C1C1C] group-hover:border-[#D4D4D8]">
+                                    <img src="{{ url_for('static', filename='imgs/assets/background/' + bg) }}" 
+                                         class="h-full w-full object-cover transition-transform group-hover:scale-105" alt="{{ bg }}">
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-tight text-[#6B6B6B]">{{ bg.replace('.png', '').replace('-', ' ') }}</span>
+                                </div>
+                                {# Selection Indicator #}
+                                <div class="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-[#1C1C1C] text-white peer-checked:flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <p class="mt-3 text-[11px] text-[#A3A3A3]">Each section can have a unique environment to represent a "New World" on the course map.</p>
+                    </div>
+
                     {% if section %}
                     <div>
                         <label for="number" class="block text-xs font-bold uppercase tracking-widest text-[#1C1C1C]">Display Order</label>

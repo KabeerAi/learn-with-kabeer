@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Cleaned up drag-and-drop interactions to match the elegant UI */
+    .sortable-ghost {
+        opacity: 0.5 !important;
+        background-color: #F5F5F5 !important;
+        border: 1px dashed #A3A3A3 !important;
+        box-shadow: none !important;
+        border-radius: 0.75rem !important;
+    }
+    .sortable-drag {
+        cursor: grabbing !important;
+        box-shadow: -6px 6px 0 0 #1C1C1C !important;
+        transform: translate(2px, -2px) !important;
+        background-color: white !important;
+    }
+</style>
+
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    <div class="mx-auto max-w-5xl px-6 py-12 md:py-20">
+        
+        {# --- Header --- #}
+        <header class="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+            <div class="max-w-2xl">
+                <div class="mb-6">
+                    <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                        <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
+                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                        </span>
+                        Course Management
+                    </a>
+                </div>
+                <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
+                    {{ course.title }}
+                </h1>
+                <p class="mt-4 text-base text-[#6B6B6B]">
+                    {{ course.subtitle }}
+                </p>
+            </div>
+            
+            <div class="flex w-full flex-col sm:w-auto sm:flex-row items-center gap-3">
+                <a href="{{ url_for('admin_course_edit', course_id=course.id) }}" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#D4D4D8] bg-white px-6 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_2px_0_0_#E5E5E5] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#E5E5E5] active:translate-y-[2px] active:shadow-none focus:outline-none">
+                    <i data-lucide="settings" class="h-4 w-4"></i> Settings
+                </a>
+                <form action="{{ url_for('admin_course_delete', course_id=course.id) }}" method="post" class="w-full sm:w-auto" onsubmit="return confirm('Delete course &quot;{{ course.title }}&quot;?')">
+                    <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] px-6 py-3.5 text-sm font-semibold text-[#DC2626] shadow-[0_2px_0_0_#F87171] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#F87171] active:translate-y-[2px] active:shadow-none focus:outline-none">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        {# --- Curriculum Management --- #}
+        <section class="rounded-2xl border border-[#1C1C1C] bg-white overflow-hidden">
+            <div class="p-6 sm:p-10">
+                <header class="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E5E5] pb-8">
+                    <div>
+                        <h2 class="text-xl font-semibold text-[#1C1C1C]">Curriculum Map</h2>
+                        <p class="mt-2 text-sm text-[#6B6B6B]">Drag and drop to reorder sections and lessons.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="quickAddSection({{ course.id }})" class="flex items-center gap-2 rounded-xl border border-[#D4D4D8] bg-[#F5F5F5] px-5 py-3 text-xs font-semibold text-[#1C1C1C] transition-all hover:bg-[#E5E5E5]">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i> New Section
+                        </button>
+                        <a href="{{ url_for('admin_lesson_new', course_id=course.id) }}" class="flex items-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-5 py-3 text-xs font-semibold text-white shadow-[0_2px_0_0_#A3A3A3] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#A3A3A3] active:translate-y-[2px] active:shadow-none focus:outline-none">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Lesson
+                        </a>
+                    </div>
+                </header>
+
+                <div class="sections-container space-y-12" data-course-id="{{ course.id }}">
+                    {% for section in sections %}
+                        <div class="section-group" data-section-id="{{ section.id if section.id else 'null' }}">
+                            
+                            {# Section Header #}
+                            <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group/sec">
+                                <div class="flex items-center gap-3">
+                                    <div class="section-grip cursor-grab active:cursor-grabbing text-[#A3A3A3] hover:text-[#1C1C1C] transition-colors p-1 -ml-1 rounded-md hover:bg-[#F5F5F5]">
+                                        <i data-lucide="grip-vertical" class="h-5 w-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-[#1C1C1C] cursor-pointer hover:text-[#6B6B6B] transition-colors inline-block" 
+                                            data-number="{{ section.number }}"
+                                            ondblclick="editSectionTitle(this, {{ section.id if section.id else 'null' }})">
+                                            {{ section.title }}
+                                        </h3>
+                                        {% if section.id %}
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="rounded bg-[#F5F5F5] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-[#A3A3A3] opacity-0 transition-opacity group-hover/sec:opacity-100">Double-click to edit</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if section.id %}
+                                <div class="flex items-center gap-4 opacity-0 transition-opacity group-hover/sec:opacity-100 pl-9 sm:pl-0">
+                                    <a href="{{ url_for('admin_section_edit', section_id=section.id) }}" class="text-[11px] font-semibold text-[#6B6B6B] hover:text-[#1C1C1C] transition-colors">Edit Section</a>
+                                    <form action="{{ url_for('admin_section_delete', section_id=section.id) }}" method="post" onsubmit="return confirm('Delete section &quot;{{ section.title }}&quot;? Lessons will be moved to the previous section.')">
+                                        <button type="submit" class="text-[11px] font-semibold text-[#DC2626] hover:text-[#991B1B] transition-colors">Remove</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {# Lessons in this section #}
+                            <div class="lessons-list grid gap-3 min-h-[50px] rounded-xl transition-colors" data-section-id="{{ section.id if section.id else 'null' }}">
+                                {% if section.lessons %}
+                                    {% for lesson in section.lessons %}
+                                        <div class="group flex items-center justify-between rounded-xl border border-[#1C1C1C] bg-white px-5 py-4 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0_0_#1C1C1C]" data-lesson-id="{{ lesson.id }}">
+                                            <div class="flex items-center gap-4">
+                                                <div class="lesson-grip cursor-grab active:cursor-grabbing text-[#A3A3A3] group-hover:text-[#1C1C1C] transition-colors p-1 -ml-1 rounded-md hover:bg-[#F5F5F5]">
+                                                    <i data-lucide="grip-vertical" class="h-4 w-4"></i>
+                                                </div>
+                                                <span class="font-mono text-xs font-semibold text-[#A3A3A3] tabular-nums">{{ "%02d" % lesson.number }}</span>
+                                                <span class="text-sm font-semibold text-[#1C1C1C]">{{ lesson.title }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-4 opacity-0 transition-opacity group-hover:opacity-100">
+                                                <a href="{{ url_for('admin_lesson_edit', lesson_id=lesson.id) }}" class="text-[11px] font-semibold text-[#6B6B6B] hover:text-[#1C1C1C] transition-colors">Edit</a>
+                                                <form action="{{ url_for('admin_lesson_delete', lesson_id=lesson.id) }}" method="post" class="inline">
+                                                    <button type="submit" class="text-[11px] font-semibold text-[#DC2626] hover:text-[#991B1B] transition-colors">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-placeholder flex items-center justify-center py-8 text-center text-xs font-medium text-[#A3A3A3] border border-dashed border-[#D4D4D8] rounded-xl bg-[#FAF9F6]">
+                                        Drop lessons here to structure this section
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Sortable for Sections
+        document.querySelectorAll('.sections-container').forEach(container => {
+            const courseId = container.dataset.courseId;
+            new Sortable(container, {
+                animation: 200,
+                handle: '.section-grip',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function() {
+                    const sectionIds = Array.from(container.querySelectorAll('.section-group'))
+                        .map(el => el.dataset.sectionId)
+                        .filter(id => id !== 'null');
+                    
+                    fetch('/admin/sections/reorder', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ course_id: courseId, section_ids: sectionIds })
+                    }).then(res => {
+                        if (!res.ok) throw new Error("Failed to save section reorder");
+                    }).catch(err => {
+                        alert("Error: " + err.message + ". Please reload the page.");
+                    });
+                }
+            });
+        });
+
+        // Initialize Sortable for Lessons
+        document.querySelectorAll('.lessons-list').forEach(list => {
+            new Sortable(list, {
+                group: 'lessons',
+                animation: 200,
+                handle: '.lesson-grip',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function(evt) {
+                    const lessonId = evt.item.dataset.lessonId;
+                    const newSectionId = evt.to.dataset.sectionId;
+                    const container = evt.to.closest('.sections-container');
+                    const courseId = container.dataset.courseId;
+                    
+                    const lessonIds = Array.from(evt.to.querySelectorAll('[data-lesson-id]'))
+                        .map(el => el.dataset.lessonId);
+
+                    fetch('/admin/lessons/reorder', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            course_id: courseId, 
+                            section_id: newSectionId, 
+                            lesson_ids: lessonIds 
+                        })
+                    }).then(res => {
+                        if (!res.ok) throw new Error("Failed to save reorder");
+                        
+                        // Refresh numbering for BOTH lists (source and destination)
+                        [evt.from, evt.to].forEach(list => {
+                            list.querySelectorAll('.tabular-nums').forEach((el, idx) => {
+                                el.textContent = (idx + 1).toString().padStart(2, '0');
+                            });
+                        });
+                        
+                        // Update empty states visually
+                        document.querySelectorAll('.lessons-list').forEach(l => {
+                            const emptyMsg = l.querySelector('.empty-placeholder');
+                            const hasLessons = l.querySelectorAll('[data-lesson-id]').length > 0;
+                            if (emptyMsg) {
+                                emptyMsg.style.display = hasLessons ? 'none' : 'flex';
+                            }
+                        });
+                    }).catch(err => {
+                        alert("Error: " + err.message + ". Please reload the page.");
+                    });
+                }
+            });
+        });
+    });
+
+    function quickAddSection(courseId) {
+        const title = prompt("Enter Section Title:", "New Section");
+        if (!title) return;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/courses/${courseId}/sections/new`;
+        
+        const titleInput = document.createElement('input');
+        titleInput.type = 'hidden';
+        titleInput.name = 'title';
+        titleInput.value = title;
+        
+        const descInput = document.createElement('input');
+        descInput.type = 'hidden';
+        descInput.name = 'description';
+        descInput.value = '';
+        
+        form.appendChild(titleInput);
+        form.appendChild(descInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function editSectionTitle(el, sectionId) {
+        if (sectionId === 'null') return;
+        const currentTitle = el.textContent.trim();
+        const currentNumber = el.dataset.number || '1';
+        const newTitle = prompt("Edit Section Title:", currentTitle);
+        if (newTitle && newTitle !== currentTitle) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/sections/${sectionId}/edit`;
+            
+            const titleInput = document.createElement('input');
+            titleInput.type = 'hidden';
+            titleInput.name = 'title';
+            titleInput.value = newTitle;
+            
+            const descInput = document.createElement('input');
+            descInput.type = 'hidden';
+            descInput.name = 'description';
+            descInput.value = ''; 
+            
+            const numInput = document.createElement('input');
+            numInput.type = 'hidden';
+            numInput.name = 'number';
+            numInput.value = currentNumber;
+            
+            form.appendChild(titleInput);
+            form.appendChild(descInput);
+            form.appendChild(numInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

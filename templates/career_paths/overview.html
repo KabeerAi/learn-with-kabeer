@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-32">
+    
+    <div class="mx-auto max-w-6xl px-6 py-12 lg:py-24">
+        
+        {# Page Header #}
+        <header class="mb-16 md:flex md:items-end md:justify-between">
+            <div class="max-w-2xl">
+                <div class="mb-6">
+                    <a href="{{ url_for('career_paths') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                        <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
+                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                        </span>
+                        All Career Paths
+                    </a>
+                </div>
+                <h1 class="text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl lg:text-[64px] lg:leading-[1.1]">
+                    {{ path.title }}
+                </h1>
+                <p class="mt-6 text-lg text-[#6B6B6B]">
+                    {{ path.description or path.subtitle }}
+                </p>
+
+                <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+                    {% if path.enrolled %}
+                        <div class="flex items-center gap-3 rounded-xl border border-[#16A34A] bg-[#F0FDF4] px-6 py-3.5 text-sm font-bold text-[#16A34A]">
+                            <i data-lucide="check-circle" class="h-5 w-5"></i>
+                            Enrolled in Path
+                        </div>
+                    {% else %}
+                        <form action="{{ url_for('enroll_career_path', slug=path.slug) }}" method="post">
+                            <button type="submit" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                                <i data-lucide="plus" class="h-4 w-4"></i> Enroll in Path
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        {# Course List in Path #}
+        <div class="space-y-12">
+            <h2 class="text-2xl font-bold text-[#1C1C1C] border-b border-[#E5E5E5] pb-4">Path Curriculum</h2>
+            
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {% set themes = [
+                    {'bg': 'bg-[#E4EDE7]', 'text': 'text-[#2D4233]'},
+                    {'bg': 'bg-[#F4EBE1]', 'text': 'text-[#543E2C]'},
+                    {'bg': 'bg-[#E2E8F0]', 'text': 'text-[#0F172A]'}
+                ] %}
+
+                {% for course in path.courses %}
+                    {% set theme = themes[loop.index0 % 3] %}
+                    <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                        
+                        {# Card Header #}
+                        <div class="p-[3px] pb-0">
+                            <div class="flex items-center justify-between rounded-t-md {{ theme.bg }} border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold {{ theme.text }} tracking-wide uppercase">
+                                    Step {{ loop.index }}
+                                </span>
+                                {% if course.enrolled %}
+                                    <span class="flex items-center gap-1 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[9px] font-bold text-[#16A34A] uppercase">
+                                        <i data-lucide="check" class="h-2.5 w-2.5"></i> Enrolled
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {# Card Body #}
+                        <div class="flex flex-col flex-grow px-6 pb-6 pt-5">
+                            <h3 class="mb-3 text-2xl font-bold text-[#1C1C1C]">{{ course.title }}</h3>
+                            <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                                {{ course.subtitle }}
+                            </p>
+
+                            {# Meta & Actions #}
+                            <div class="mt-6 flex flex-col gap-3">
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ course.level }}
+                                    </div>
+                                    <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {# Full Card Clickable Link #}
+                        <a href="{{ url_for('course_overview', course_slug=course.slug) }}" class="absolute inset-0 z-10">
+                            <span class="sr-only">View {{ course.title }}</span>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</main>
+{% endblock %}

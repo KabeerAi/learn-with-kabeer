@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-32">
+    
+    <div class="mx-auto max-w-6xl px-6 py-12 lg:py-24">
+        
+        {# Page Header #}
+        <header class="mb-16 md:flex md:items-end md:justify-between">
+            <div class="max-w-2xl">
+                <h1 class="text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl lg:text-[64px] lg:leading-[1.1]">
+                    Career Paths
+                </h1>
+                <p class="mt-6 text-lg text-[#6B6B6B]">
+                    Specialized collections of courses designed to take you from zero to industry-ready in a specific field.
+                </p>
+            </div>
+        </header>
+
+        {# Career Path Grid #}
+        <section class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 pt-4">
+            {% for path in paths %}
+                <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white shadow-[-5px_5px_0_0_#FAF9F6,-6px_6px_0_0_#1C1C1C] transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                    {# Card Header #}
+                    <div class="p-[3px] pb-0">
+                        <div class="flex items-center justify-between rounded-t-md bg-[#1C1C1C] border-b border-[#1C1C1C] px-4 py-2.5">
+                            <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
+                                Career Path
+                            </span>
+                            <div class="flex items-center gap-2">
+                                {% if path.enrolled %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-[#16A34A] bg-[#16A34A] px-2 py-0.5 font-mono text-[10px] font-bold text-white uppercase">
+                                        <i data-lucide="check" class="h-2.5 w-2.5"></i> Enrolled
+                                    </span>
+                                {% endif %}
+                                {% if path.status != 'active' %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2 py-0.5 font-mono text-[10px] font-bold text-white uppercase">
+                                        {{ path.status }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {# Card Body #}
+                    <div class="flex flex-col flex-grow px-6 pb-6 pt-5">
+                        <h2 class="mb-3 text-2xl font-bold text-[#1C1C1C]">{{ path.title }}</h2>
+                        <p class="text-sm font-medium leading-relaxed text-[#6B6B6B] flex-grow">
+                            {{ path.subtitle }}
+                        </p>
+
+                        {# Meta & Actions #}
+                        <div class="mt-6 flex flex-col gap-3">
+                            <hr class="border-t border-dashed border-[#E5E5E5]">
+                            <div class="text-sm font-semibold text-[#1C1C1C]">Includes {{ path.course_count }} Courses</div>
+                            
+                            <hr class="border-t border-dashed border-[#E5E5E5]">
+                            <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ path.level }}
+                                </div>
+                                <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {# Full Card Clickable Link #}
+                    <a href="{{ url_for('career_path_overview', slug=path.slug) }}" class="absolute inset-0 z-10">
+                        <span class="sr-only">View {{ path.title }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
+
+    </div>
+</main>
+{% endblock %}

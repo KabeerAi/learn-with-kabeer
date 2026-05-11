@@ -27,6 +27,14 @@ app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqli
 # ─── Helpers ────────────────────────────────────────────────────────────────
 
 
+def get_available_backgrounds():
+    """List available backgrounds from the static folder."""
+    bg_dir = os.path.join(app.static_folder, "imgs/assets/background")
+    if not os.path.exists(bg_dir):
+        return []
+    return [f for f in os.listdir(bg_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+
+
 def lesson_url(lesson, course_slug=None):
     """Generate URL for a lesson. Every saved lesson is viewable."""
     if not course_slug:
@@ -66,19 +74,12 @@ def render_markdown(text):
 
         lang = "Terminal"
         icon = "terminal"
-        border_color = "border-[#2A2925]"
-        header_text_color = "text-[#C8C0B3]"
-        header_extra = ""
-
         if lang_class.startswith("language-"):
             lang = lang_class.replace("language-", "")
 
         if lang.lower() in ["python", "py"]:
             lang = "Python"
             icon = "code-2"
-            border_color = "border-gold-500"
-            header_text_color = "text-gold-100"
-            header_extra = '<span class="rounded-md border border-gold-500/50 px-2 py-1 text-[11px] font-semibold text-gold-100">Clean</span>'
         elif lang.lower() in ["javascript", "js"]:
             lang = "JavaScript"
             icon = "code-2"
@@ -98,13 +99,41 @@ def render_markdown(text):
             if lang != "Terminal":
                 lang = lang.capitalize()
 
-        return f'''<div class="overflow-hidden rounded-xl border {border_color} bg-[#151412] my-8 not-prose">
-    <div class="flex items-center justify-between border-b border-[#2A2925] px-4 py-3">
-        <span class="text-xs font-semibold {header_text_color}">{lang}</span>
-        {header_extra if header_extra else f'<i data-lucide="{icon}" class="w-4 h-4 text-[#8E8577]"></i>'}
+        # Split lines to add line numbers
+        lines = code_content.strip().split('\n')
+        line_numbers_html = "".join([f'<span class="opacity-30">{i+1}</span>' for i in range(len(lines))])
+        
+        import html as html_lib
+        safe_code = html_lib.escape(code_content.strip())
+        code_lines_html = "".join([f'<div class="px-4 hover:bg-white/5 transition-colors">{html_lib.escape(line) if line else "&nbsp;"}</div>' for line in lines])
+
+        return f'''<div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl my-10 not-prose group">
+    <div class="flex items-center justify-between border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
+        <div class="flex items-center gap-4">
+            <div class="flex gap-1.5">
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+            </div>
+            <div class="h-4 w-[1px] bg-[#2A2A2A]"></div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B] font-mono">{lang.lower()}</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="copyToClipboard(this)" data-code="{safe_code}" class="flex items-center gap-2 rounded-md bg-[#2A2A2A] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A3A3A3] transition-all hover:bg-[#333333] hover:text-white focus:outline-none active:scale-95">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span class="copy-text">Copy</span>
+            </button>
+            <i data-lucide="{icon}" class="w-4 h-4 text-[#404040]"></i>
+        </div>
     </div>
-    <div class="overflow-x-auto p-5">
-        <pre class="font-mono text-[13px] leading-7 text-[#E8E1D6]"><code>{code_content}</code></pre>
+    
+    <div class="flex font-mono text-[13px] leading-[1.8] overflow-x-auto py-5">
+        <div class="flex flex-col text-right text-[#6B6B6B] select-none pr-4 border-r border-[#2A2A2A] ml-5 min-w-[2.5rem]">
+            {line_numbers_html}
+        </div>
+        <div class="flex-1 text-[#E5E5E5]">
+            {code_lines_html}
+        </div>
     </div>
 </div>'''
 
@@ -119,13 +148,15 @@ def render_markdown(text):
             content = re.sub(r'^<p>(?:<strong>)?(?:Warning|Important|Alert):?(?:</strong>)?\s*', '<p>', content, flags=re.IGNORECASE)
 
         icon = "alert-triangle" if is_warning else "info"
+        accent_color = "border-amber-400 bg-amber-50/50 text-amber-900" if is_warning else "border-blue-400 bg-blue-50/50 text-blue-900"
+        icon_bg = "bg-amber-100 text-amber-600" if is_warning else "bg-blue-100 text-blue-600"
 
-        return f'''<div class="my-10 rounded-xl border border-line bg-paper p-5 not-prose">
+        return f'''<div class="my-10 rounded-xl border-l-4 {accent_color} px-6 py-5 not-prose shadow-sm">
     <div class="flex gap-4">
-        <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-100 bg-gold-50 text-gold-600">
+        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg {icon_bg}">
             <i data-lucide="{icon}" class="w-4 h-4"></i>
         </span>
-        <div class="text-sm leading-7 text-muted prose-p:my-0 prose-strong:font-semibold prose-strong:text-ink">
+        <div class="text-[15px] leading-relaxed prose-p:my-0 prose-strong:font-bold">
             {content}
         </div>
     </div>
@@ -159,13 +190,48 @@ def inject_template_helpers():
 @app.route("/")
 def home():
     if g.user:
-        return render_template("index.html", **database.get_course_overview(g.user))
-    return render_template("index.html", **database.get_course_overview())
+        if g.user["is_admin"]:
+            return redirect(url_for("admin_dashboard"))
+        
+        # For authenticated users, only show career paths they are enrolled in
+        all_paths = database.get_career_paths(g.user["id"])
+        career_paths = [p for p in all_paths if p["enrolled"] and p["status"] == "active"]
+        
+        overview = database.get_course_overview(g.user)
+        return render_template("index.html", career_paths=career_paths, **overview)
+    
+    # For guests, show all active career paths as "Paths to explore"
+    career_paths = [p for p in database.get_career_paths() if p["status"] == "active"]
+    return render_template("index.html", career_paths=career_paths, **database.get_course_overview())
 
 
 @app.route("/courses")
 def courses():
     return render_template("courses/index.html", courses=database.get_course_library(g.user))
+
+
+@app.route("/career-paths")
+def career_paths():
+    paths = database.get_career_paths(g.user["id"] if g.user else None)
+    return render_template("career_paths/index.html", paths=paths)
+
+
+@app.route("/career-paths/<slug>")
+def career_path_overview(slug):
+    path = database.get_career_path_by_slug(slug, g.user)
+    if not path:
+        abort(404)
+    return render_template("career_paths/overview.html", path=path)
+
+
+@app.route("/career-paths/<slug>/enroll", methods=("POST",))
+@login_required
+def enroll_career_path(slug):
+    if database.enroll_user_in_career_path(g.user["id"], slug):
+        flash("You are now enrolled in this career path.", "success")
+    else:
+        flash("Could not enroll in this career path.", "error")
+    return redirect(url_for("career_path_overview", slug=slug))
 
 
 @app.route("/course/<course_slug>")
@@ -273,6 +339,11 @@ def lesson_view(course_slug, lesson_number):
     if not lesson:
         abort(404)
 
+    # Check if lesson is locked (only for non-admins)
+    if not g.user["is_admin"] and lesson_number > overview["completed_lessons"] + 1:
+        flash("Complete previous lessons to unlock this one.", "info")
+        return redirect(url_for("course_overview", course_slug=course_slug))
+
     return render_template("lessons/dynamic_lesson.html", lesson=lesson, **overview)
 
 
@@ -295,7 +366,21 @@ def complete_lesson(course_slug, lesson_number):
 @admin_required
 def admin_dashboard():
     courses = database.get_course_library(g.user)
-    return render_template("admin/dashboard.html", courses=courses)
+    career_paths = database.get_career_paths()
+    stats = database.get_admin_stats()
+    return render_template("admin/dashboard.html", courses=courses, career_paths=career_paths, stats=stats)
+
+
+@app.route("/admin/courses/<int:course_id>/manage")
+@login_required
+@admin_required
+def admin_course_manage(course_id):
+    course = database.get_course_by_id(course_id)
+    if not course:
+        abort(404)
+    # Reuse get_course_overview to get sections and lessons
+    overview = database.get_course_overview(g.user, course["slug"])
+    return render_template("admin/course_manage.html", **overview)
 
 
 @app.route("/admin/courses/new", methods=("GET", "POST"))
@@ -363,6 +448,120 @@ def admin_course_delete(course_id):
     return redirect(url_for("admin_dashboard"))
 
 
+# ─── Admin Career Path Routes ──────────────────────────────────────────────
+
+
+@app.route("/admin/career-paths/new", methods=("GET", "POST"))
+@login_required
+@admin_required
+def admin_career_path_new():
+    if request.method == "POST":
+        title = request.form["title"].strip()
+        slug = request.form["slug"].strip().lower()
+        subtitle = request.form["subtitle"].strip()
+        description = request.form["description"].strip()
+        level = request.form["level"]
+        status = request.form["status"]
+
+        if not title or not slug or not subtitle:
+            flash("All fields are required.", "error")
+            return render_template("admin/career_path_form.html", path=None)
+
+        try:
+            database.create_career_path(slug, title, subtitle, description, level, status)
+            flash("Career path created successfully.", "success")
+        except Exception:
+            flash("A career path with this slug already exists.", "error")
+            return render_template("admin/career_path_form.html", path=None)
+
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin/career_path_form.html", path=None)
+
+
+@app.route("/admin/career-paths/<int:path_id>/edit", methods=("GET", "POST"))
+@login_required
+@admin_required
+def admin_career_path_edit(path_id):
+    path = database.get_career_path_by_id(path_id)
+    if not path:
+        abort(404)
+
+    if request.method == "POST":
+        title = request.form["title"].strip()
+        slug = request.form["slug"].strip().lower()
+        subtitle = request.form["subtitle"].strip()
+        description = request.form["description"].strip()
+        level = request.form["level"]
+        status = request.form["status"]
+
+        if not title or not slug or not subtitle:
+            flash("All fields are required.", "error")
+            return render_template("admin/career_path_form.html", path=path)
+
+        database.update_career_path(path_id, slug, title, subtitle, description, level, status)
+        flash("Career path updated successfully.", "success")
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin/career_path_form.html", path=path)
+
+
+@app.route("/admin/career-paths/<int:path_id>/manage")
+@login_required
+@admin_required
+def admin_career_path_manage(path_id):
+    path = database.get_career_path_by_id(path_id)
+    if not path:
+        abort(404)
+
+    # Get courses in this path
+    path_details = database.get_career_path_by_slug(path["slug"])
+    # Get all courses to allow adding existing
+    all_courses = database.get_course_library(g.user)
+
+    return render_template("admin/career_path_manage.html", path=path_details, all_courses=all_courses)
+
+
+@app.route("/admin/career-paths/<int:path_id>/add-course", methods=("POST",))
+@login_required
+@admin_required
+def admin_career_path_add_course(path_id):
+    course_id = request.form.get("course_id")
+    if course_id:
+        database.add_course_to_career_path(path_id, int(course_id))
+        flash("Course added to career path.", "success")
+    return redirect(url_for("admin_career_path_manage", path_id=path_id))
+
+
+@app.route("/admin/career-paths/<int:path_id>/remove-course/<int:course_id>", methods=("POST",))
+@login_required
+@admin_required
+def admin_career_path_remove_course(path_id, course_id):
+    database.remove_course_from_career_path(path_id, course_id)
+    flash("Course removed from career path.", "success")
+    return redirect(url_for("admin_career_path_manage", path_id=path_id))
+
+
+@app.route("/admin/career-paths/reorder", methods=("POST",))
+@login_required
+@admin_required
+def admin_career_path_reorder():
+    data = request.json
+    path_id = data.get("path_id")
+    course_ids = data.get("course_ids", [])
+    database.reorder_career_path_courses(path_id, course_ids)
+    return {"status": "success"}
+
+
+@app.route("/admin/career-paths/<int:path_id>/delete", methods=("POST",))
+@login_required
+@admin_required
+def admin_career_path_delete(path_id):
+    database.delete_career_path(path_id)
+    flash("Career path deleted.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
 # ─── Admin Section Routes ───────────────────────────────────────────────────
 
 
@@ -377,6 +576,7 @@ def admin_section_new(course_id):
     if request.method == "POST":
         title = request.form["title"].strip()
         description = request.form["description"].strip()
+        background = request.form.get("background")
         
         # Auto-assign next number
         existing = database.get_sections_by_course(course_id)
@@ -385,11 +585,11 @@ def admin_section_new(course_id):
         if not title:
             flash("Title is required.", "error")
         else:
-            database.create_section(course_id, next_num, title, description)
+            database.create_section(course_id, next_num, title, description, background)
             flash("Section created.", "success")
             return redirect(url_for("admin_dashboard"))
 
-    return render_template("admin/section_form.html", course=course, section=None)
+    return render_template("admin/section_form.html", course=course, section=None, backgrounds=get_available_backgrounds())
 
 
 @app.route("/admin/sections/<int:section_id>/edit", methods=("GET", "POST"))
@@ -405,15 +605,16 @@ def admin_section_edit(section_id):
         title = request.form["title"].strip()
         description = request.form["description"].strip()
         number = int(request.form["number"])
+        background = request.form.get("background")
 
         if not title:
             flash("Title is required.", "error")
         else:
-            database.update_section(section_id, number, title, description)
+            database.update_section(section_id, number, title, description, background)
             flash("Section updated.", "success")
             return redirect(url_for("admin_dashboard"))
 
-    return render_template("admin/section_form.html", course=course, section=section)
+    return render_template("admin/section_form.html", course=course, section=section, backgrounds=get_available_backgrounds())
 
 
 @app.route("/admin/sections/<int:section_id>/delete", methods=("POST",))
@@ -423,9 +624,16 @@ def admin_section_delete(section_id):
     section = database.get_section_by_id(section_id)
     if not section:
         abort(404)
-    database.delete_section(section_id)
-    flash("Section deleted.", "success")
-    return redirect(url_for("admin_dashboard"))
+    
+    course_id = section["course_id"]
+    success = database.delete_section(section_id)
+    
+    if not success:
+        flash("Cannot delete section with lessons because there is no previous section to move them to. Please create a section above first.", "error")
+    else:
+        flash("Section deleted.", "success")
+        
+    return redirect(url_for("admin_course_manage", course_id=course_id))
 
 
 @app.route("/admin/courses/<int:course_id>/lessons/new", methods=("GET", "POST"))
@@ -515,10 +723,9 @@ def admin_sections_reorder():
     # data: { course_id: 1, section_ids: [1, 2, 3] }
     course_id = data.get("course_id")
     section_ids = data.get("section_ids", [])
-    
-    for idx, sid in enumerate(section_ids, start=1):
-        database.update_section_order(sid, idx)
-    
+
+    database.reorder_sections(course_id, section_ids)
+
     return {"status": "success"}
 
 
@@ -531,16 +738,13 @@ def admin_lessons_reorder():
     course_id = data.get("course_id")
     section_id = data.get("section_id")
     lesson_ids = data.get("lesson_ids", [])
-    
+
     # section_id could be None (unassigned)
     if section_id == "null": section_id = None
 
-    for idx, lid in enumerate(lesson_ids, start=1):
-        # We need a new database helper for this or use update_lesson
-        database.update_lesson_section_and_order(lid, section_id, idx)
-    
-    return {"status": "success"}
+    database.reorder_lessons(course_id, section_id, lesson_ids)
 
+    return {"status": "success"}
 
 # ─── Init ───────────────────────────────────────────────────────────────────
 

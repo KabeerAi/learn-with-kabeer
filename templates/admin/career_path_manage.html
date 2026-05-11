@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    <div class="mx-auto max-w-5xl px-6 py-12 md:py-20">
+        
+        {# --- Header --- #}
+        <header class="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+            <div class="max-w-2xl">
+                <div class="mb-6">
+                    <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                        <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
+                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                        </span>
+                        Admin Dashboard
+                    </a>
+                </div>
+                <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
+                    {{ path.title }}
+                </h1>
+                <p class="mt-4 text-base text-[#6B6B6B]">
+                    {{ path.subtitle }}
+                </p>
+            </div>
+            
+            <div class="flex w-full flex-col sm:w-auto sm:flex-row items-center gap-3">
+                <a href="{{ url_for('admin_career_path_edit', path_id=path.id) }}" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#D4D4D8] bg-white px-6 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_2px_0_0_#E5E5E5] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#E5E5E5] active:translate-y-[2px] active:shadow-none focus:outline-none">
+                    <i data-lucide="settings" class="h-4 w-4"></i> Settings
+                </a>
+                <form action="{{ url_for('admin_career_path_delete', path_id=path.id) }}" method="post" class="w-full sm:w-auto" onsubmit="return confirm('Delete career path &quot;{{ path.title }}&quot;?')">
+                    <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] px-6 py-3.5 text-sm font-semibold text-[#DC2626] shadow-[0_2px_0_0_#F87171] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#F87171] active:translate-y-[2px] active:shadow-none focus:outline-none">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        {# --- Course Management --- #}
+        <section class="rounded-2xl border border-[#1C1C1C] bg-white overflow-hidden">
+            <div class="p-6 sm:p-10">
+                <header class="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E5E5] pb-8">
+                    <div>
+                        <h2 class="text-xl font-semibold text-[#1C1C1C]">Path Curriculum</h2>
+                        <p class="mt-2 text-sm text-[#6B6B6B]">Add and reorder courses in this career path.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <form action="{{ url_for('admin_career_path_add_course', path_id=path.id) }}" method="post" class="flex items-center gap-2">
+                            <select name="course_id" required class="rounded-xl border border-[#D4D4D8] bg-[#F5F5F5] px-4 py-2 text-xs font-semibold text-[#1C1C1C] focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]">
+                                <option value="" disabled selected>Add existing course...</option>
+                                {% for course in all_courses %}
+                                    <option value="{{ course.id }}">{{ course.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="flex items-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-black">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add
+                            </button>
+                        </form>
+                    </div>
+                </header>
+
+                <div class="courses-container space-y-3" data-path-id="{{ path.id }}">
+                    {% if path.courses %}
+                        {% for course in path.courses %}
+                            <div class="course-item group flex items-center justify-between rounded-xl border border-[#1C1C1C] bg-white px-5 py-4 transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0_0_#1C1C1C]" data-course-id="{{ course.id }}">
+                                <div class="flex items-center gap-4">
+                                    <div class="course-grip cursor-grab active:cursor-grabbing text-[#A3A3A3] group-hover:text-[#1C1C1C] transition-colors p-1 -ml-1 rounded-md hover:bg-[#F5F5F5]">
+                                        <i data-lucide="grip-vertical" class="h-4 w-4"></i>
+                                    </div>
+                                    <span class="font-mono text-xs font-semibold text-[#A3A3A3] tabular-nums">{{ "%02d" % course.number }}</span>
+                                    <span class="text-sm font-semibold text-[#1C1C1C]">{{ course.title }}</span>
+                                </div>
+                                <div class="flex items-center gap-4 opacity-0 transition-opacity group-hover:opacity-100">
+                                    <form action="{{ url_for('admin_career_path_remove_course', path_id=path.id, course_id=course.id) }}" method="post" class="inline">
+                                        <button type="submit" class="text-[11px] font-semibold text-[#DC2626] hover:text-[#991B1B] transition-colors">Remove from Path</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="flex items-center justify-center py-20 text-center text-sm font-medium text-[#A3A3A3] border border-dashed border-[#D4D4D8] rounded-xl bg-[#FAF9F6]">
+                            No courses added to this path yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.querySelector('.courses-container');
+        if (container) {
+            const pathId = container.dataset.pathId;
+            new Sortable(container, {
+                animation: 200,
+                handle: '.course-grip',
+                onEnd: function() {
+                    const courseIds = Array.from(container.querySelectorAll('.course-item'))
+                        .map(el => el.dataset.courseId);
+                    
+                    fetch('/admin/career-paths/reorder', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path_id: pathId, course_ids: courseIds })
+                    }).then(res => {
+                        if (res.ok) {
+                            // Update numbering
+                            container.querySelectorAll('.tabular-nums').forEach((el, idx) => {
+                                el.textContent = (idx + 1).toString().padStart(2, '0');
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

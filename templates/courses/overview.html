@@ -128,8 +128,8 @@
     {# --- Advanced Mathematical Map Generation (Horizontal) --- #}
     {% set map = namespace(x=0, paths=[], decorations=[]) %}
     
-    {# Start line from the far left (Center Y is 350px in a 700px height track container) #}
-    {% set _ = map.paths.append({'x': 0, 'y': 350}) %}
+    {# Start line from the far left (Baseline Y is 375px in a 700px height track container) #}
+    {% set _ = map.paths.append({'x': 0, 'y': 375}) %}
     
     {# Nearly straight, subtle handdrawn-like offsets for the nodes #}
     {% set offsets = [0, 8, 12, 8, 0, -8, -12, -8, 0, 8, 12, 8, 0, -8, -12, -8] %}
@@ -152,7 +152,7 @@
         {# Advance X significantly to leave room for the Massive Vertical Cloud Gate #}
         {# 700px ensures the first lesson node is completely clear of the huge cloud overlay shadow #}
         {% set map.x = map.x + 700 %}
-        {% set _ = map.paths.append({'x': map.x - 350, 'y': 350}) %}
+        {% set _ = map.paths.append({'x': map.x - 350, 'y': 375}) %}
         
         {% set stage_lessons = [] %}
         {% for lesson in stage_item.lessons %}
@@ -177,7 +177,7 @@
             {% endif %}
             
             {# Store coordinate for the SVG curved path #}
-            {% set _ = map.paths.append({'x': map.x, 'y': 350 + offset}) %}
+            {% set _ = map.paths.append({'x': map.x, 'y': 375 + offset}) %}
             
             {# Advance horizontal spacing for next lesson (widened for premium path feel to 280px) #}
             {% set map.x = map.x + 280 %}
@@ -188,7 +188,7 @@
         {% set stage_x_end = map.x %}
         
         {# Securely anchor the curve back to the center axis at the end of the stage #}
-        {% set _ = map.paths.append({'x': map.x, 'y': 350}) %}
+        {% set _ = map.paths.append({'x': map.x, 'y': 375}) %}
         
         {# Determine if entire stage is locked or completed #}
         {% set stage_locked = not enrolled or (enrolled and stage_item.lessons and stage_item.lessons[0]["number"] > completed_lessons + 1) %}
@@ -198,6 +198,7 @@
             'num': stage_item.number,
             'title': stage_item.title,
             'description': stage_item.description,
+            'background': stage_item.background,
             'accent': stage_accents[loop.index0 % stage_accents|length],
             'is_locked': stage_locked,
             'is_completed': stage_completed,
@@ -211,12 +212,19 @@
     <div id="map-scroll-area" class="map-scroll-area no-scrollbar relative w-full h-full flex-1 overflow-x-auto overflow-y-hidden bg-[#73C05A]">
         
         {# True Grassy Map Background (Attached natively to the scrolling container) #}
-        <div class="relative min-w-full h-full" 
-             style="width: {{ map.x }}px;
-                    background-image: url('{{ url_for('static', filename='imgs/assets/background/lush-greeny-lands.png') }}'); 
-                    background-size: auto 100%; 
-                    background-repeat: repeat-x; 
-                    background-position: left center;">
+        <div class="relative min-w-full h-full" style="width: {{ map.x }}px;">
+            
+            {# Section-specific Backgrounds #}
+            {% for stage in stages %}
+            <div class="absolute h-full" 
+                 style="left: {{ stage.x_start }}px; 
+                        width: {{ stage.width }}px;
+                        background-image: url('{{ url_for('static', filename='imgs/assets/background/' + (stage.background or 'lush-greeny-lands.png')) }}'); 
+                        background-size: auto 100%; 
+                        background-repeat: repeat-x; 
+                        background-position: left center;">
+            </div>
+            {% endfor %}
             
             {# --- Centered Map Track (Mathematically locks all path elements to exactly 700px tall in the center) --- #}
             <div class="absolute top-1/2 left-0 w-full h-[700px] -translate-y-1/2">
@@ -238,7 +246,9 @@
                 {% for stage in stages %}
                     
                     {# The Absolute Stage Container (defines horizontal bounds) #}
-                    <div class="absolute h-full pointer-events-none z-30" style="left: {{ stage.x_start }}px; width: {{ stage.width }}px; top: 0;">
+                    <div class="absolute h-full pointer-events-none z-30 js-stage-container" 
+                         data-background="{{ stage.background or 'lush-greeny-lands.png' }}"
+                         style="left: {{ stage.x_start }}px; width: {{ stage.width }}px; top: 0;">
                         
                         {# --- MASSIVE VERTICAL OVERLAY CLOUD GATE (Static) --- #}
                         <div class="absolute left-0 z-50 flex flex-col justify-center items-center w-[350px] pointer-events-none" style="height: 100vh; top: 50%; transform: translateY(-50%);">
@@ -279,7 +289,9 @@
                         {# The Nodes Container (Sits perfectly under the clouds inside the 700px track) #}
                         <div class="absolute top-0 left-0 w-full h-full pointer-events-auto z-40">
                             {% for el in stage.lessons %}
-                                <div class="group absolute flex flex-col items-center justify-center" style="left: {{ el.x - stage.x_start }}px; top: {{ 350 + el.offset }}px; transform: translate(-50%, -50%);">
+                                <div class="group absolute flex flex-col items-center justify-center" 
+                                     {% if el.is_current %}id="current-lesson-node" data-x="{{ el.x }}"{% endif %}
+                                     style="left: {{ el.x - stage.x_start }}px; top: {{ 375 + el.offset }}px; transform: translate(-50%, -50%);">
                                     
                                     {# Dynamic Tooltip for Active Node #}
                                     {% if el.is_current %}
@@ -567,7 +579,7 @@
         }, observerOptions);
 
         randomClouds.forEach(wrapper => cloudObserver.observe(wrapper));
-        
+
         // Fallback for clouds if observer is interrupted
         setTimeout(() => {
             randomClouds.forEach(wrapper => {
@@ -576,6 +588,100 @@
                 }
             });
         }, 1500);
-    });
-</script>
-{% endblock %}
+
+        // --- 6. Atmospheric Music Engine ---
+        const greenyHillsAudio = new Audio("{{ url_for('static', filename='musics/greeny-hills.MP3') }}");
+        greenyHillsAudio.loop = true;
+        greenyHillsAudio.volume = 0;
+
+        let musicFadeTimer = null;
+        let isMusicPlaying = false;
+
+        function fadeMusic(audio, targetVolume, duration = 2500) {
+            if (musicFadeTimer) clearInterval(musicFadeTimer);
+
+            const startVolume = audio.volume;
+            const volumeDiff = targetVolume - startVolume;
+            const startTime = Date.now();
+
+            if (targetVolume > 0 && audio.paused) {
+                audio.play().catch(e => console.log("Autoplay blocked, waiting for interaction"));
+            }
+
+            musicFadeTimer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                audio.volume = startVolume + (volumeDiff * progress);
+
+                if (progress >= 1) {
+                    clearInterval(musicFadeTimer);
+                    if (targetVolume === 0) {
+                        audio.pause();
+                        audio.currentTime = 0; // Reset for next entry
+                    }
+                }
+            }, 50);
+        }
+
+        const stageContainers = document.querySelectorAll('.js-stage-container');
+
+        function updateAtmosphericMusic() {
+            const viewportCenter = mapScrollArea.scrollLeft + (mapScrollArea.clientWidth / 2);
+            let currentBackground = null;
+
+            stageContainers.forEach(stage => {
+                const left = parseFloat(stage.style.left);
+                const width = parseFloat(stage.style.width);
+                if (viewportCenter >= left && viewportCenter <= left + width) {
+                    currentBackground = stage.getAttribute('data-background');
+                }
+            });
+
+            if (currentBackground === 'lush-greeny-lands.png') {
+                if (!isMusicPlaying) {
+                    isMusicPlaying = true;
+                    fadeMusic(greenyHillsAudio, 0.4); // 40% volume for subtle background feel
+                }
+            } else {
+                if (isMusicPlaying) {
+                    isMusicPlaying = false;
+                    fadeMusic(greenyHillsAudio, 0);
+                }
+            }
+        }
+
+        mapScrollArea.addEventListener('scroll', updateAtmosphericMusic);
+
+        // --- 7. Auto-Scroll to Current Lesson ---
+        const currentNode = document.getElementById('current-lesson-node');
+        if (currentNode) {
+            const targetX = parseInt(currentNode.getAttribute('data-x'));
+            const viewportWidth = mapScrollArea.clientWidth;
+            
+            // Center the node in the viewport
+            const centerOffset = targetX - (viewportWidth / 2);
+            const maxScroll = mapScrollArea.scrollWidth - viewportWidth;
+            const finalScroll = Math.max(0, Math.min(centerOffset, maxScroll));
+            
+            mapScrollArea.scrollLeft = finalScroll;
+            targetScroll = finalScroll;
+            currentScroll = finalScroll;
+        }
+
+        // Check on load after a short delay
+        setTimeout(updateAtmosphericMusic, 1000);
+
+        // Unlock audio context on first interaction (required by modern browsers)
+        const unlockAudio = () => {
+            updateAtmosphericMusic();
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('keydown', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+        });
+        </script>
+        {% endblock %}
