@@ -1,56 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main class="flex-1 overflow-y-auto bg-canvas">
-    <div class="mx-auto max-w-3xl px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <header class="mb-10 border-b border-line pb-10">
-            <div class="mb-4 flex items-center gap-2 text-xs font-semibold text-muted">
-                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-ink transition-colors">Admin Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                <span class="text-gold-600">{% if course %}Edit{% else %}New{% endif %} Course</span>
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    <div class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        
+        {# --- Header --- #}
+        <header class="mb-12 flex flex-col items-start gap-4">
+            <div class="mb-2">
+                <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-colors group-hover:bg-[#F5F5F5]">
+                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                    </span>
+                    Admin Dashboard
+                </a>
             </div>
-            <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink">
+            <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
                 {% if course %}Edit {{ course.title }}{% else %}Create New Course{% endif %}
             </h1>
+            <p class="text-base text-[#6B6B6B]">
+                {% if course %}Update the core details and metadata for this curriculum.{% else %}Define the core details and metadata for your new learning path.{% endif %}
+            </p>
         </header>
 
-        <form method="post" class="rounded-xl border border-line bg-paper p-6 sm:p-8">
-            <div class="grid gap-6 sm:grid-cols-2">
-                <div class="sm:col-span-2">
-                    <label for="title" class="mb-2 block text-sm font-medium text-ink">Course Title</label>
-                    <input type="text" id="title" name="title" required value="{{ course.title if course else '' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                </div>
+        {# --- Course Form --- #}
+        <form method="post" class="rounded-2xl border border-[#1C1C1C] bg-white overflow-hidden">
+            
+            <div class="p-6 sm:p-10">
+                <div class="grid gap-8 sm:grid-cols-2">
+                    
+                    <div class="sm:col-span-2">
+                        <label for="title" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Course Title</label>
+                        <input type="text" id="title" name="title" required value="{{ course.title if course else '' }}" 
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]" 
+                               placeholder="e.g. Learn Python">
+                    </div>
 
-                <div class="sm:col-span-2">
-                    <label for="subtitle" class="mb-2 block text-sm font-medium text-ink">Subtitle</label>
-                    <textarea id="subtitle" name="subtitle" required rows="3" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">{{ course.subtitle if course else '' }}</textarea>
-                </div>
+                    <div class="sm:col-span-2">
+                        <label for="subtitle" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Subtitle / Description</label>
+                        <textarea id="subtitle" name="subtitle" required rows="3" 
+                                  class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]" 
+                                  placeholder="A brief description of what learners will achieve...">{{ course.subtitle if course else '' }}</textarea>
+                    </div>
 
-                <div>
-                    <label for="slug" class="mb-2 block text-sm font-medium text-ink">URL Slug</label>
-                    <input type="text" id="slug" name="slug" required value="{{ course.slug if course else '' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                </div>
+                    <div>
+                        <label for="slug" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">URL Slug</label>
+                        <input type="text" id="slug" name="slug" required value="{{ course.slug if course else '' }}" 
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]" 
+                               placeholder="e.g. learn-python">
+                    </div>
 
-                <div>
-                    <label for="level" class="mb-2 block text-sm font-medium text-ink">Level</label>
-                    <input type="text" id="level" name="level" required value="{{ course.level if course else 'Beginner' }}" class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                </div>
+                    <div>
+                        <label for="level" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Difficulty Level</label>
+                        <input type="text" id="level" name="level" required value="{{ course.level if course else 'Beginner' }}" 
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]" 
+                               placeholder="e.g. Beginner, Intermediate">
+                    </div>
 
-                <div class="sm:col-span-2">
-                    <label for="status" class="mb-2 block text-sm font-medium text-ink">Status</label>
-                    <select id="status" name="status" required class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                        <option value="active" {% if course and course.status == 'active' %}selected{% endif %}>Active</option>
-                        <option value="planned" {% if course and course.status == 'planned' %}selected{% endif %}>Planned (Coming Soon)</option>
-                    </select>
+                    <div class="sm:col-span-2">
+                        <label for="status" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Course Status</label>
+                        <div class="relative">
+                            <select id="status" name="status" required 
+                                    class="appearance-none block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]">
+                                <option value="active" {% if course and course.status == 'active' %}selected{% endif %}>Active (Public)</option>
+                                <option value="planned" {% if course and course.status == 'planned' %}selected{% endif %}>Planned (Coming Soon)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#6B6B6B]">
+                                <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-end gap-3 border-t border-line pt-6">
-                <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center justify-center rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-canvas">Cancel</a>
-                <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-gold-900">
+            {# --- Form Actions --- #}
+            <div class="flex flex-col-reverse items-center justify-end gap-4 border-t border-[#E5E5E5] bg-[#FAF9F6] px-6 py-6 sm:flex-row sm:px-10">
+                <a href="{{ url_for('admin_dashboard') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    Cancel
+                </a>
+                <button type="submit" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    <i data-lucide="save" class="h-4 w-4"></i>
                     Save Course
                 </button>
             </div>
+
         </form>
     </div>
 </main>
