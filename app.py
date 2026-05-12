@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from functools import wraps
 
 import markdown
@@ -13,18 +14,21 @@ from flask import (
     session,
     url_for,
     abort,
+    jsonify,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from dotenv import load_dotenv
 
 import database
 
+load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqlite3")
 
 
-# ─── Helpers ────────────────────────────────────────────────────────────────
+#  Helpers 
 
 
 def get_available_backgrounds():
@@ -167,7 +171,7 @@ def render_markdown(text):
     return html
 
 
-# ─── Request Hooks ──────────────────────────────────────────────────────────
+#  Request Hooks 
 
 
 @app.before_request
@@ -184,7 +188,7 @@ def inject_template_helpers():
     }
 
 
-# ─── Public Routes ──────────────────────────────────────────────────────────
+#  Public Routes 
 
 
 @app.route("/")
@@ -259,7 +263,7 @@ def enroll_course(course_slug):
     return redirect(url_for("course_overview", course_slug=course_slug))
 
 
-# ─── Auth Routes ────────────────────────────────────────────────────────────
+#  Auth Routes 
 
 
 @app.route("/signup", methods=("GET", "POST"))
@@ -324,7 +328,7 @@ def logout():
     return redirect(url_for("home"))
 
 
-# ─── Lesson Routes ──────────────────────────────────────────────────────────
+#  Lesson Routes 
 
 
 @app.route("/course/<course_slug>/lesson/<int:lesson_number>")
@@ -358,7 +362,7 @@ def complete_lesson(course_slug, lesson_number):
     return redirect(url_for("course_overview", course_slug=course_slug))
 
 
-# ─── Admin Routes ───────────────────────────────────────────────────────────
+#  Admin Routes 
 
 
 @app.route("/admin")
@@ -448,7 +452,7 @@ def admin_course_delete(course_id):
     return redirect(url_for("admin_dashboard"))
 
 
-# ─── Admin Career Path Routes ──────────────────────────────────────────────
+#  Admin Career Path Routes 
 
 
 @app.route("/admin/career-paths/new", methods=("GET", "POST"))
@@ -562,7 +566,7 @@ def admin_career_path_delete(path_id):
     return redirect(url_for("admin_dashboard"))
 
 
-# ─── Admin Section Routes ───────────────────────────────────────────────────
+#  Admin Section Routes 
 
 
 @app.route("/admin/courses/<int:course_id>/sections/new", methods=("GET", "POST"))
@@ -729,6 +733,80 @@ def admin_sections_reorder():
     return {"status": "success"}
 
 
+@app.route("/admin/lessons/<int:lesson_id>/builder", methods=("GET", "POST"))
+@login_required
+@admin_required
+def admin_lesson_builder(lesson_id):
+    lesson = database.get_lesson_by_id(lesson_id)
+    if not lesson:
+        abort(404)
+
+    if request.method == "POST":
+        content = request.form.get("content", "").strip()
+        builder_json = request.form.get("builder_json", "").strip()
+        database.update_lesson(lesson_id, lesson["number"], lesson["slug"], lesson["title"], lesson["summary"], content, None, "html", lesson["section_id"], builder_json)
+        flash("Lesson layout saved successfully.", "success")
+        return redirect(url_for("admin_lesson_builder", lesson_id=lesson_id))
+
+    builder_data = []
+    if lesson["builder_json"]:
+        try:
+            builder_data = json.loads(lesson["builder_json"])
+        except json.JSONDecodeError:
+            builder_data = []
+
+    course = database.get_course_by_id(lesson["course_id"])
+    return render_template("admin/lesson_builder.html", lesson=lesson, course=course, builder_data=builder_data)
+
+
+@app.route("/admin/upload-image", methods=("POST",))
+@login_required
+@admin_required
+def admin_upload_image():
+    if "image" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files["image"]
+    lesson_id = request.form.get("lesson_id")
+    
+    if not file or not lesson_id:
+        return jsonify({"error": "Missing file or lesson ID"}), 400
+
+    lesson = database.get_lesson_by_id(lesson_id)
+    if not lesson:
+        return jsonify({"error": "Lesson not found"}), 404
+    
+    course = database.get_course_by_id(lesson["course_id"])
+    if not course:
+        return jsonify({"error": "Course not found"}), 404
+
+    # Construct Path: static/imgs/courses/<course_slug>_<course_id>/<lesson_slug>_<lesson_id>/
+    course_folder = f"{course['slug']}_{course['id']}"
+    lesson_folder = f"{lesson['slug']}_{lesson['id']}"
+    
+    upload_dir = os.path.join(
+        app.static_folder, "imgs", "courses", course_folder, lesson_folder
+    )
+    
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir, exist_ok=True)
+
+    from werkzeug.utils import secure_filename
+    filename = secure_filename(file.filename)
+    
+    # Add unique suffix to prevent overwriting
+    import time
+    name, ext = os.path.splitext(filename)
+    filename = f"{name}_{int(time.time())}{ext}"
+    
+    file_path = os.path.join(upload_dir, filename)
+    file.save(file_path)
+
+    # Return relative URL for static loading
+    relative_url = f"/static/imgs/courses/{course_folder}/{lesson_folder}/{filename}"
+    return jsonify({"url": relative_url})
+
+
 @app.route("/admin/lessons/reorder", methods=("POST",))
 @login_required
 @admin_required
@@ -746,8 +824,8 @@ def admin_lessons_reorder():
 
     return {"status": "success"}
 
-# ─── Init ───────────────────────────────────────────────────────────────────
 
+#  Init 
 
 database.init_app(app)
 

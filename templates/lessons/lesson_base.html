@@ -7,6 +7,14 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .quiz-option {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+</style>
 <div class="relative flex flex-1 overflow-hidden bg-white selection:bg-[#1C1C1C] selection:text-white">
     
     {# --- Mobile Sidebar Overlay --- #}
@@ -117,7 +125,7 @@
             {# Lesson Content Area (Refined Clean Typography & Corrected Code Blocks) #}
             <article class="prose prose-lg prose-neutral max-w-none 
                         prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-[#1C1C1C]
-                        prose-h2:text-2xl prose-h2:border-b prose-h2:border-[#E5E5E5] prose-h2:pb-3 prose-h2:mt-14
+                        prose-h2:text-2xl prose-h2:mt-14
                         prose-h3:text-xl prose-h3:mt-10
                         prose-h4:text-lg
                         prose-p:text-[#404040] prose-p:font-normal prose-p:leading-[1.8] 
@@ -227,6 +235,44 @@
                         lucide.createIcons();
                     }
                 }, 2000);
+            }
+        };
+
+        // --- Quiz Utility ---
+        window.checkQuiz = function(btn, index) {
+            const container = btn.closest('.quiz-container');
+            if (container.hasAttribute('data-answered')) return;
+            
+            const correctIndex = parseInt(container.getAttribute('data-correct-index'));
+            const options = container.querySelectorAll('.quiz-option');
+            
+            container.setAttribute('data-answered', 'true');
+            
+            options.forEach((opt, idx) => {
+                opt.disabled = true;
+                opt.classList.remove('hover:border-[#1C1C1C]', 'border-[#E5E5E5]');
+                
+                if (idx === correctIndex) {
+                    opt.classList.add('bg-green-100', 'border-green-600', 'text-green-700', 'border-2');
+                    // Add check icon
+                    const checkIcon = document.createElement('i');
+                    checkIcon.setAttribute('data-lucide', 'check-circle-2');
+                    checkIcon.classList.add('w-4', 'h-4', 'ml-auto');
+                    opt.appendChild(checkIcon);
+                } else if (idx === index) {
+                    opt.classList.add('bg-red-100', 'border-red-600', 'text-red-700', 'border-2');
+                    // Add x icon
+                    const xIcon = document.createElement('i');
+                    xIcon.setAttribute('data-lucide', 'x-circle');
+                    xIcon.classList.add('w-4', 'h-4', 'ml-auto');
+                    opt.appendChild(xIcon);
+                } else {
+                    opt.classList.add('opacity-40');
+                }
+            });
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
             }
         };
 

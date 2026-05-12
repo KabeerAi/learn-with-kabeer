@@ -2,108 +2,125 @@
 
 {% block content %}
 <style>
-    .tox-tinymce { border-color: #E7E1D8 !important; border-radius: 0.75rem !important; }
-    .tox .tox-toolbar__primary { background-color: #FAF9F7 !important; border-bottom: 1px solid #E7E1D8 !important; }
-    .tox .tox-toolbar__group { border-color: #E7E1D8 !important; }
-    .tox .tox-tbtn { color: #171614 !important; border-radius: 0.375rem !important; }
-    .tox .tox-tbtn:hover { background: #EAD9B9 !important; }
-    .tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background: #EAD9B9 !important; }
-    .tox .tox-edit-area__iframe { background-color: #FFFFFF !important; }
-    .tox .tox-statusbar { border-top: 1px solid #E7E1D8 !important; background: #FAF9F7 !important; }
-    .tox .tox-menubar { background: #FAF9F7 !important; border-bottom: 1px solid #E7E1D8 !important; }
-    .tox .tox-mbtn { color: #171614 !important; }
-    .tox .tox-mbtn:hover:not(:disabled):not(.tox-mbtn--active) { background: #EAD9B9 !important; }
-    .tox .tox-mbtn--active { background: #EAD9B9 !important; }
-
     #html-source-editor { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-    .block-palette-item { transition: all 0.15s ease; }
-    .block-palette-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .block-palette-item { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .block-palette-item:hover { transform: translateY(-2px) translateX(2px); box-shadow: -4px 4px 0 0 #1C1C1C; }
+    
+    .ai-loading {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
+    }
 </style>
 
-<main class="flex-1 overflow-y-auto bg-canvas">
-    <div class="mx-auto max-w-6xl px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <header class="mb-10 border-b border-line pb-10">
-            <div class="mb-4 flex items-center gap-2 text-xs font-semibold text-muted">
-                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-ink transition-colors">Admin Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                <span class="text-gold-600">Course: {{ course.title }}</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                <span class="text-gold-600">{% if lesson %}Edit{% else %}New{% endif %} Lesson</span>
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+    <div class="mx-auto max-w-6xl px-6 py-12 md:py-20">
+        
+        {# --- Header --- #}
+        <header class="mb-12 flex flex-col items-start gap-4">
+            <div class="mb-2 flex items-center gap-3">
+                <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-colors group-hover:bg-[#F5F5F5]">
+                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                    </span>
+                    Admin Dashboard
+                </a>
+                <span class="h-4 w-[1px] bg-[#E5E5E5]"></span>
+                <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Course: {{ course.title }}</span>
             </div>
-            <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink">
+            <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
                 {% if lesson %}Edit Lesson {{ lesson.number }}{% else %}Create New Lesson{% endif %}
             </h1>
+            <p class="text-base text-[#6B6B6B]">
+                {% if lesson %}Modify the content and structure of this instructional artifact.{% else %}Design and deploy a new learning artifact for your curriculum.{% endif %}
+            </p>
         </header>
 
-        <form method="post" id="lesson-form">
+        <form method="post" id="lesson-form" class="rounded-2xl border border-[#1C1C1C] bg-white overflow-hidden shadow-[-6px_6px_0_0_#1C1C1C]">
+            
             {# ── Metadata Section ────────────────────────────────────────── #}
-            <div class="mb-8 rounded-xl border border-line bg-paper p-6 sm:p-8">
-                <h2 class="mb-6 flex items-center gap-2 text-lg font-semibold text-ink">
-                    <i data-lucide="file-text" class="w-5 h-5 text-gold-600"></i>
-                    Lesson Details
-                </h2>
-                <div class="grid gap-6 sm:grid-cols-2">
+            <div class="p-6 sm:p-10 border-b border-[#E5E5E5]">
+                <div class="mb-8">
+                    <h2 class="flex items-center gap-2.5 text-xl font-bold text-[#1C1C1C]">
+                        <i data-lucide="file-text" class="w-5 h-5 text-[#1C1C1C]"></i>
+                        Metadata & Configuration
+                    </h2>
+                    <p class="mt-1 text-sm text-[#6B6B6B]">Basic information and routing details for this lesson.</p>
+                </div>
+                
+                <div class="grid gap-8 sm:grid-cols-2">
                     <div class="sm:col-span-2">
-                        <label for="title" class="mb-2 block text-sm font-medium text-ink">Lesson Title</label>
-                        <input type="text" id="title" name="title" required value="{{ lesson.title if lesson else '' }}" placeholder="e.g. What is Python?"
-                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+                        <label for="title" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Lesson Title</label>
+                        <input type="text" id="title" name="title" required value="{{ lesson.title if lesson else '' }}" 
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]" 
+                               placeholder="e.g. What is Python?"
                                oninput="autoSlug(this.value)">
                     </div>
 
                     <div>
-                        <label for="slug" class="mb-2 block text-sm font-medium text-ink">URL Slug</label>
-                        <input type="text" id="slug" name="slug" required value="{{ lesson.slug if lesson else '' }}" placeholder="what-is-python"
-                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                        <p class="mt-1 text-xs text-muted">Auto-generated from title. You can customize it.</p>
+                        <label for="slug" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">URL Slug</label>
+                        <input type="text" id="slug" name="slug" required value="{{ lesson.slug if lesson else '' }}" 
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]"
+                               placeholder="e.g. what-is-python">
+                        <p class="mt-2 font-mono text-[10px] text-[#A3A3A3]">Auto-generated from title.</p>
                     </div>
 
                     {% if lesson %}
                     <div>
-                        <label for="number" class="mb-2 block text-sm font-medium text-ink">Lesson Number</label>
+                        <label for="number" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Position (Lesson #)</label>
                         <input type="number" id="number" name="number" required value="{{ lesson.number }}" min="1"
-                               class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
+                               class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]">
                     </div>
                     {% endif %}
 
                     <div class="sm:col-span-2">
-                        <label for="section_id" class="mb-2 block text-sm font-medium text-ink">Section (Unit)</label>
-                        <select name="section_id" id="section_id"
-                                class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">
-                            <option value="">-- No Section (Unassigned) --</option>
-                            {% for s in sections %}
-                                <option value="{{ s.id }}" {% if lesson and lesson.section_id == s.id %}selected{% endif %}>
-                                    Unit {{ s.number }}: {{ s.title }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <p class="mt-1 text-xs text-muted">Assigning a lesson to a section groups it under that header on the map.</p>
+                        <label for="section_id" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Assigned Section (Unit)</label>
+                        <div class="relative">
+                            <select name="section_id" id="section_id"
+                                    class="appearance-none block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]">
+                                <option value="">-- Unassigned (General) --</option>
+                                {% for s in sections %}
+                                    <option value="{{ s.id }}" {% if lesson and lesson.section_id == s.id %}selected{% endif %}>
+                                        Unit {{ s.number }}: {{ s.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#6B6B6B]">
+                                <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="{% if not lesson %}sm:col-span-2{% endif %}">
-                        <label for="summary" class="mb-2 block text-sm font-medium text-ink">Summary</label>
-                        <textarea id="summary" name="summary" required rows="2" placeholder="Brief description shown in course overview..."
-                                  class="block w-full rounded-lg border border-line bg-canvas px-4 py-2.5 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500">{{ lesson.summary if lesson and lesson.summary is not none else '' }}</textarea>
+                    <div class="sm:col-span-2">
+                        <label for="summary" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Executive Summary</label>
+                        <textarea id="summary" name="summary" required rows="2" 
+                                  class="block w-full rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] px-4 py-3.5 text-[14px] font-medium text-[#1C1C1C] transition-colors hover:bg-white focus:border-[#1C1C1C] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]"
+                                  placeholder="A brief overview shown on the course map...">{{ lesson.summary if lesson and lesson.summary is not none else '' }}</textarea>
                     </div>
                 </div>
             </div>
 
             {# ── Content Editor Section ──────────────────────────────────── #}
-            <div class="mb-8 rounded-2xl border border-[#E5E5E5] bg-white p-6 sm:p-10 shadow-sm">
+            <div class="p-6 sm:p-10">
                 <div class="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between border-b border-[#F5F5F5] pb-8">
                     <div>
                         <h2 class="flex items-center gap-2.5 text-xl font-bold text-[#1C1C1C]">
                             <i data-lucide="edit-3" class="w-5 h-5 text-[#1C1C1C]"></i>
                             Artifact Builder
                         </h2>
-                        <p class="mt-1 text-sm text-[#6B6B6B]">Design your lesson using our library of interactive components.</p>
+                        <p class="mt-1 text-sm text-[#6B6B6B]">Compose your lesson manually or generate it with Mistral AI.</p>
                     </div>
                     
                     <div class="flex items-center gap-1 p-1 bg-[#F5F5F5] rounded-xl self-start">
-                        <button type="button" id="tab-visual" onclick="switchTab('visual')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all bg-white text-[#1C1C1C] rounded-lg shadow-sm border border-[#E5E5E5]">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Visual
-                        </button>
-                        <button type="button" id="tab-source" onclick="switchTab('source')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all text-[#6B6B6B] hover:text-[#1C1C1C] rounded-lg">
-                            <i data-lucide="code" class="w-3.5 h-3.5"></i> Source
+                        {% if lesson %}
+                        <a href="{{ url_for('admin_lesson_builder', lesson_id=lesson.id) }}" class="flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all bg-white text-[#1C1C1C] rounded-lg shadow-sm border border-[#E5E5E5]">
+                            <i data-lucide="layout" class="w-3.5 h-3.5"></i> Visual Builder
+                        </a>
+                        {% endif %}
+                        <button type="button" id="tab-source" onclick="switchTab('source')" class="flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all bg-white text-[#1C1C1C] rounded-lg shadow-sm border border-[#E5E5E5]">
+                            <i data-lucide="code" class="w-3.5 h-3.5"></i> Source Editor
                         </button>
                     </div>
                 </div>
@@ -118,113 +135,97 @@
                         <span class="h-[1px] flex-1 mx-4 bg-[#F5F5F5]"></span>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-                        <button type="button" onclick="insertBlock('callout-info')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                <i data-lucide="info" class="w-5 h-5"></i>
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+                        <button type="button" onclick="insertBlock('callout-info')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="info" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Info Box</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Info Box</span>
                         </button>
 
-                        <button type="button" onclick="insertBlock('callout-warning')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        <button type="button" onclick="insertBlock('callout-warning')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Warning</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Warning</span>
                         </button>
 
-                        <button type="button" onclick="insertBlock('code-block')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                <i data-lucide="terminal" class="w-5 h-5"></i>
+                        <button type="button" onclick="insertBlock('code-block')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="terminal" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Code Editor</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Code Block</span>
                         </button>
 
-                        <button type="button" onclick="insertBlock('feature-cards')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                        <button type="button" onclick="insertBlock('comparison')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="columns" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Grid Layout</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Comparison</span>
                         </button>
 
-                        <button type="button" onclick="insertBlock('image-caption')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                                <i data-lucide="image" class="w-5 h-5"></i>
+                        <button type="button" onclick="insertBlock('section-heading')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-slate-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="heading" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Media Frame</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Heading</span>
                         </button>
 
-                        <button type="button" onclick="insertBlock('numbered-steps')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                <i data-lucide="list-ordered" class="w-5 h-5"></i>
+                        <button type="button" onclick="insertBlock('quiz')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 text-orange-600 transition-colors group-hover:bg-[#1C1C1C] group-hover:text-white">
+                                <i data-lucide="help-circle" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Guided Steps</span>
-                        </button>
-
-                        <button type="button" onclick="insertBlock('comparison')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
-                                <i data-lucide="columns" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Comparison</span>
-                        </button>
-
-                        <button type="button" onclick="insertBlock('section-heading')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-slate-600 group-hover:bg-slate-600 group-hover:text-white transition-colors">
-                                <i data-lucide="heading" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Sub-heading</span>
-                        </button>
-
-                        <button type="button" onclick="insertBlock('tag-grid')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                                <i data-lucide="tags" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Keywords</span>
-                        </button>
-
-                        <button type="button" onclick="insertBlock('divider')" class="block-palette-item group flex flex-col gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 text-left transition-all hover:border-[#1C1C1C] hover:shadow-lg">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 text-gray-600 group-hover:bg-gray-600 group-hover:text-white transition-colors">
-                                <i data-lucide="minus" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1C1C1C]">Separator</span>
+                            <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-wide">Quiz Tool</span>
                         </button>
                     </div>
                 </div>
 
-                {# ── Visual Editor (TinyMCE) ─────────────────────────────── #}
-                <div id="editor-visual">
-                    <textarea id="tinymce-editor">{{ lesson.content if lesson and lesson.content else '' }}</textarea>
-                </div>
-
                 {# ── HTML Source Editor (Monaco) ─────────────────────────── #}
-                <div id="editor-source" class="hidden">
-                    <div id="monaco-editor" class="w-full rounded-lg border border-line" style="height: 500px; background-color: #1e1e1e;"></div>
+                <div id="editor-source">
+                    <div id="monaco-editor" class="w-full rounded-xl border border-[#1C1C1C] overflow-hidden" style="height: 600px; background-color: #1e1e1e;"></div>
                 </div>
             </div>
 
-            {# ── Actions ─────────────────────────────────────────────────── #}
-            <div class="flex items-center justify-between">
-                <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center justify-center rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-canvas">
-                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                    Back to Dashboard
+            {# --- Form Actions --- #}
+            <div class="flex flex-col-reverse items-center justify-end gap-4 border-t border-[#E5E5E5] bg-[#FAF9F6] px-6 py-6 sm:flex-row sm:px-10">
+                <a href="{{ url_for('admin_dashboard') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    Cancel
                 </a>
-                <div class="flex items-center gap-3">
-                    <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-ink px-6 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-gold-900">
-                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
-                        {% if lesson %}Update Lesson{% else %}Create Lesson{% endif %}
-                    </button>
-                </div>
+                <button type="submit" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    <i data-lucide="save" class="h-4 w-4"></i>
+                    {% if lesson %}Update Lesson{% else %}Create Lesson{% endif %}
+                </button>
             </div>
+
         </form>
     </div>
 </main>
 
 {# ── Scripts ─────────────────────────────────────────────────────────────── #}
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
 <script>
     let monacoEditor = null;
-    let currentTab = 'visual';
+    let currentTab = 'source';
+
+    // ── Clipboard Utility ─────────────────────────────────────────────
+    function copyToClipboard(btn) {
+        const code = btn.getAttribute('data-code');
+        navigator.clipboard.writeText(code).then(() => {
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('.copy-text');
+            const originalIcon = icon.getAttribute('data-lucide');
+            
+            icon.setAttribute('data-lucide', 'check');
+            if (text) text.textContent = 'Copied';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            setTimeout(() => {
+                icon.setAttribute('data-lucide', originalIcon);
+                if (text) text.textContent = 'Copy';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 2000);
+        });
+    }
 
     // ── Auto-slug from title ───────────────────────────────────────────
     {% if not lesson %}
@@ -271,24 +272,6 @@
     </div>
 </div>`,
 
-        'feature-cards': `
-<div class="grid gap-6 sm:grid-cols-2 my-12 not-prose">
-    <div class="group rounded-2xl border border-[#E5E5E5] bg-white p-7 transition-all hover:border-[#1C1C1C] hover:shadow-xl">
-        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-        </div>
-        <h3 class="mb-3 text-lg font-bold text-[#1C1C1C]">Key Concept</h3>
-        <p class="text-sm leading-relaxed text-[#6B6B6B]">Explain a core principle or feature of this lesson here.</p>
-    </div>
-    <div class="group rounded-2xl border border-[#E5E5E5] bg-white p-7 transition-all hover:border-[#1C1C1C] hover:shadow-xl">
-        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-[#E5E5E5] bg-[#FAF9F6] text-[#1C1C1C]">
-            <i data-lucide="target" class="w-5 h-5"></i>
-        </div>
-        <h3 class="mb-3 text-lg font-bold text-[#1C1C1C]">Lesson Goal</h3>
-        <p class="text-sm leading-relaxed text-[#6B6B6B]">Describe what the learner will achieve by the end of this section.</p>
-    </div>
-</div>`,
-
         'code-block': `
 <div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl my-10 not-prose group">
     <div class="flex items-center justify-between border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
@@ -319,16 +302,6 @@
     </div>
 </div>`,
 
-        'image-caption': `
-<figure class="my-14 not-prose">
-    <div class="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-[#F5F5F5] shadow-sm">
-        <img src="https://placehold.co/1200x600/FAF9F6/1C1C1C?text=Premium+Visual" alt="Documentation image" class="w-full grayscale hover:grayscale-0 transition-all duration-700">
-    </div>
-    <figcaption class="mt-5 text-center font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">
-        Fig 1.0 — Explanatory caption for the visual above.
-    </figcaption>
-</figure>`,
-
         'comparison': `
 <div class="grid gap-6 sm:grid-cols-2 my-12 not-prose">
     <div class="rounded-2xl border border-[#E5E5E5] bg-white p-7">
@@ -353,168 +326,61 @@
     <p class="text-lg leading-relaxed text-[#6B6B6B]">Expand on the complex concepts here. Use clear language and bridge different ideas together.</p>
 </section>`,
 
-        'tag-grid': `
-<div class="flex flex-wrap gap-2 my-8 not-prose">
-    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Python 3.x</span>
-    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Optimization</span>
-    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Backend</span>
-    <span class="rounded-lg border border-[#E5E5E5] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] shadow-sm">Advanced</span>
-</div>`,
-
-        'numbered-steps': `
-<div class="space-y-12 my-12">
-    <div class="group relative flex items-start gap-6">
-        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1C1C1C] text-sm font-bold text-white shadow-lg transition-transform group-hover:scale-110">1</div>
-        <div>
-            <h3 class="mb-2 text-xl font-bold text-[#1C1C1C]">Initialization</h3>
-            <p class="text-base leading-relaxed text-[#6B6B6B]">Configure the core environment variables and prepare the system for the first run.</p>
-        </div>
+        'quiz': `
+<div class="quiz-container my-12 p-8 rounded-2xl border-2 border-[#1C1C1C] bg-white shadow-[-8px_8px_0_0_#1C1C1C]" data-correct-index="1">
+    <h3 class="text-xl font-bold mb-6">Which of the following is a key feature of Python?</h3>
+    <div class="grid gap-4">
+        <button type="button" onclick="checkQuiz(this, 0)" class="quiz-option p-4 text-left border border-[#E5E5E5] rounded-xl font-medium transition-all hover:border-[#1C1C1C]">Static Typing</button>
+        <button type="button" onclick="checkQuiz(this, 1)" class="quiz-option p-4 text-left border border-[#E5E5E5] rounded-xl font-medium transition-all hover:border-[#1C1C1C]">Interpreted Language</button>
+        <button type="button" onclick="checkQuiz(this, 2)" class="quiz-option p-4 text-left border border-[#E5E5E5] rounded-xl font-medium transition-all hover:border-[#1C1C1C]">Manual Memory Management</button>
+        <button type="button" onclick="checkQuiz(this, 3)" class="quiz-option p-4 text-left border border-[#E5E5E5] rounded-xl font-medium transition-all hover:border-[#1C1C1C]">Compiled to Machine Code</button>
     </div>
-    <div class="group relative flex items-start gap-6">
-        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1C1C1C] text-sm font-bold text-white shadow-lg transition-transform group-hover:scale-110">2</div>
-        <div>
-            <h3 class="mb-2 text-xl font-bold text-[#1C1C1C]">Execution</h3>
-            <p class="text-base leading-relaxed text-[#6B6B6B]">Run the primary algorithm and monitor the output for any potential bottlenecks or errors.</p>
-        </div>
-    </div>
-</div>`,
-
-        'divider': `
-<div class="my-16 flex items-center gap-4 not-prose">
-    <div class="h-[1px] flex-1 bg-[#F5F5F5]"></div>
-    <div class="h-1.5 w-1.5 rounded-full bg-[#E5E5E5]"></div>
-    <div class="h-1.5 w-1.5 rounded-full bg-[#D4D4D8]"></div>
-    <div class="h-1.5 w-1.5 rounded-full bg-[#E5E5E5]"></div>
-    <div class="h-[1px] flex-1 bg-[#F5F5F5]"></div>
 </div>`
     };
 
     function insertBlock(type) {
         const html = BLOCKS[type];
-        if (!html) return;
+        if (!html || !monacoEditor) return;
 
-        if (currentTab === 'visual' && tinymce.activeEditor) {
-            tinymce.activeEditor.insertContent(html);
-            tinymce.activeEditor.focus();
-        } else if (currentTab === 'source' && monacoEditor) {
-            const pos = monacoEditor.getPosition();
-            monacoEditor.executeEdits('', [{
-                range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
-                text: '\n' + html.trim() + '\n'
-            }]);
-            monacoEditor.focus();
-        }
+        const pos = monacoEditor.getPosition();
+        monacoEditor.executeEdits('', [{
+            range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
+            text: '\n' + html.trim() + '\n'
+        }]);
+        monacoEditor.focus();
     }
 
     // ── Tab Switching ──────────────────────────────────────────────
     function switchTab(type) {
-        currentTab = type;
-        const btnVisual = document.getElementById('tab-visual');
-        const btnSource = document.getElementById('tab-source');
-        const pnlVisual = document.getElementById('editor-visual');
-        const pnlSource = document.getElementById('editor-source');
+        // Only source tab remains for now, but keeping for structure
+    }
 
-        const activeClass = "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors bg-paper text-gold-600 shadow-sm border border-line";
-        const inactiveClass = "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors text-muted hover:text-ink";
+    // ── Quiz Functionality (For Preview) ──────────────────────────
+    function checkQuiz(btn, index) {
+        const container = btn.closest('.quiz-container');
+        const correctIndex = parseInt(container.getAttribute('data-correct-index'));
+        const options = container.querySelectorAll('.quiz-option');
+        
+        options.forEach(opt => {
+            opt.classList.remove('bg-green-100', 'border-green-600', 'text-green-700', 'bg-red-100', 'border-red-600', 'text-red-700');
+            opt.disabled = true;
+        });
 
-        if (type === 'source') {
-            btnSource.className = activeClass;
-            btnVisual.className = inactiveClass;
-            pnlSource.classList.remove('hidden');
-            pnlVisual.classList.add('hidden');
-
-            // Sync TinyMCE content → Monaco
-            if (tinymce.activeEditor && monacoEditor) {
-                monacoEditor.setValue(tinymce.activeEditor.getContent());
-            }
-            if (monacoEditor) monacoEditor.layout();
+        if (index === correctIndex) {
+            btn.classList.add('bg-green-100', 'border-green-600', 'text-green-700');
         } else {
-            btnVisual.className = activeClass;
-            btnSource.className = inactiveClass;
-            pnlVisual.classList.remove('hidden');
-            pnlSource.classList.add('hidden');
-
-            // Sync Monaco content → TinyMCE
-            if (monacoEditor && tinymce.activeEditor) {
-                tinymce.activeEditor.setContent(monacoEditor.getValue());
-            }
+            btn.classList.add('bg-red-100', 'border-red-600', 'text-red-700');
+            options[correctIndex].classList.add('bg-green-100', 'border-green-600', 'text-green-700');
         }
     }
 
-    // ── Initialize Editors ─────────────────────────────────────────
+    // ── Initialize Editor ─────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", function() {
-        // TinyMCE init
-        tinymce.init({
-            selector: '#tinymce-editor',
-            height: 550,
-            menubar: 'edit view insert format table',
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'wordcount', 'codesample',
-                'emoticons', 'preview', 'help', 'autoresize', 'quickbars'
-            ],
-            toolbar: [
-                'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor',
-                'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | blockquote hr | removeformat fullscreen code | help'
-            ],
-            content_style: `
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                body {
-                    font-family: 'Inter', sans-serif;
-                    font-size: 15px;
-                    line-height: 1.8;
-                    color: #171614;
-                    max-width: 100%;
-                    padding: 16px 20px;
-                }
-                h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.2; margin: 1.5em 0 0.5em; }
-                h2 { font-size: 1.5em; }
-                h3 { font-size: 1.25em; }
-                a { color: #8A662E; font-weight: 600; }
-                code { background: #F8F1E3; padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
-                pre { background: #151412; color: #E8E1D6; padding: 20px; border-radius: 12px; border: 1px solid #2A2925; overflow-x: auto; }
-                pre code { background: transparent; padding: 0; color: inherit; }
-                blockquote { border-left: 4px solid #EAD9B9; padding: 12px 20px; margin: 16px 0; background: #FAF9F7; border-radius: 0 8px 8px 0; }
-                table { border-collapse: collapse; width: 100%; }
-                td, th { border: 1px solid #E7E1D8; padding: 10px 14px; }
-                th { background: #FAF9F7; font-weight: 600; }
-                img { max-width: 100%; border-radius: 12px; }
-                hr { border: none; border-top: 1px solid #E7E1D8; margin: 2em 0; }
-            `,
-            browser_spellcheck: true,
-            paste_as_text: false,
-            image_advtab: true,
-            codesample_languages: [
-                { text: 'Python', value: 'python' },
-                { text: 'JavaScript', value: 'javascript' },
-                { text: 'HTML', value: 'markup' },
-                { text: 'CSS', value: 'css' },
-                { text: 'Bash', value: 'bash' },
-                { text: 'C#', value: 'csharp' },
-                { text: 'Java', value: 'java' },
-                { text: 'JSON', value: 'json' },
-                { text: 'SQL', value: 'sql' },
-                { text: 'TypeScript', value: 'typescript' },
-            ],
-            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
-            quickbars_insert_toolbar: 'quickimage quicktable hr',
-            autoresize_bottom_margin: 30,
-            min_height: 400,
-            promotion: false,
-            branding: false,
-            setup: function(editor) {
-                editor.on('init', function() {
-                    lucide.createIcons();
-                });
-            }
-        });
-
         // Monaco editor init
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
-                value: document.getElementById('tinymce-editor').value || '',
+                value: `{{ lesson.content|safe if lesson and lesson.content else '' }}`,
                 language: 'html',
                 theme: 'vs-dark',
                 automaticLayout: true,
@@ -529,17 +395,16 @@
             });
         });
 
-        // Form submission — sync active editor content
+        // Form submission
         document.getElementById('lesson-form').addEventListener('submit', function(e) {
-            let content = '';
-            if (currentTab === 'source' && monacoEditor) {
-                content = monacoEditor.getValue();
-            } else if (tinymce.activeEditor) {
-                content = tinymce.activeEditor.getContent();
+            if (monacoEditor) {
+                document.getElementById('final_content').value = monacoEditor.getValue();
             }
-            document.getElementById('final_content').value = content;
             document.getElementById('content_type').value = 'html';
         });
+        
+        // Initial lucide icons
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>
 {% endblock %}

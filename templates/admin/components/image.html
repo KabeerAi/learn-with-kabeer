@@ -1,0 +1,16 @@
+<div class="canvas-item group/blk" id="${block.id}" data-type="image">
+    <div class="not-prose rounded-2xl overflow-hidden border border-gray-200 shadow-sm cursor-pointer transition-all hover:border-gray-400" onclick="openImageModal('${block.id}')">
+        ${block.data.url ? 
+            `<img src="${block.data.url}" class="w-full h-auto block transition-transform hover:scale-[1.01]">` : 
+            `<div class="bg-gray-50 p-12 flex flex-col items-center justify-center">
+                <i data-lucide="image" class="w-8 h-8 text-gray-300 mb-4"></i>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Add Media Asset</span>
+             </div>`
+        }
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>

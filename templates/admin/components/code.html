@@ -1,0 +1,20 @@
+<div class="canvas-item group/blk" id="${block.id}" data-type="code">
+    <div class="not-prose rounded-xl bg-gray-900 border border-gray-800 shadow-lg overflow-hidden cursor-pointer" onclick="openCodeModal('${block.id}')">
+        <div class="px-5 py-3 border-b border-gray-800 flex items-center justify-between bg-black/20">
+            <div class="flex items-center gap-3">
+                <div class="flex gap-1">
+                    <div class="w-2 h-2 rounded-full bg-gray-800"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-800"></div>
+                </div>
+                <span class="text-[10px] font-mono text-gray-500 font-bold uppercase tracking-widest">${block.data.lang}</span>
+            </div>
+            <i data-lucide="code" class="w-3.5 h-3.5 text-gray-600"></i>
+        </div>
+        <pre class="m-0 p-6 text-[13px] text-gray-300 font-mono whitespace-pre-wrap">${escapeHtml(block.data.code)}</pre>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>

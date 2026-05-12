@@ -1,0 +1,923 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Premium Design System Alignment */
+    :root {
+        --color-gold-500: #B28A42;
+        --color-ink: #171614;
+        --color-paper: #FFFFFF;
+        --color-canvas: #FAF9F7;
+        --color-line: #E7E1D8;
+        --color-muted: #6E6A63;
+        --shadow-premium: 0 10px 30px -10px rgba(23, 22, 20, 0.08);
+        --shadow-tactile-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+        background-color: var(--color-canvas) !important;
+        color: var(--color-ink) !important;
+    }
+
+    /* Builder Layout */
+    .builder-container {
+        display: flex;
+        height: calc(100vh - 64px); /* Subtract h-16 navbar */
+        overflow: hidden;
+    }
+
+    /* Sidebar - Refined & Minimal */
+    .builder-sidebar {
+        width: 320px;
+        background: white;
+        border-right: 1px solid var(--color-line);
+        display: flex;
+        flex-direction: column;
+        z-index: 40;
+    }
+
+    .sidebar-header {
+        padding: 32px 24px 24px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .sidebar-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+    }
+
+    /* Component Palette */
+    .palette-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .palette-item {
+        cursor: grab;
+        background: white;
+        border: 1px solid var(--color-line);
+        border-radius: 14px;
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+        user-select: none;
+    }
+
+    .palette-item:hover {
+        border-color: var(--color-gold-500);
+        background: var(--color-canvas);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-premium);
+    }
+
+    .palette-item:active {
+        cursor: grabbing;
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    .palette-item .icon-box {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid var(--color-line);
+        background: white;
+        color: var(--color-ink);
+        transition: all 0.2s;
+    }
+
+    .palette-item:hover .icon-box {
+        border-color: var(--color-gold-500);
+        color: var(--color-gold-500);
+    }
+
+    /* Viewport Area */
+    .builder-viewport {
+        flex: 1;
+        overflow-y: auto;
+        padding: 40px 24px 120px;
+        background: var(--color-canvas);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Fixed Top Toolbar */
+    .builder-toolbar {
+        width: 100%;
+        max-width: 850px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(250, 249, 247, 0.8);
+        backdrop-filter: blur(8px);
+        padding: 12px;
+        border-radius: 20px;
+        border: 1px solid var(--color-line);
+    }
+
+    /* Canvas Area */
+    .builder-canvas {
+        width: 100%;
+        max-width: 850px;
+        min-height: 500px;
+        background: white;
+        border: 1px solid var(--color-line);
+        border-radius: 24px;
+        padding: 60px 50px;
+        box-shadow: var(--shadow-premium);
+        position: relative;
+        transition: min-height 0.3s ease;
+    }
+
+    /* Blocks */
+    .canvas-item {
+        position: relative;
+        margin-bottom: 4px;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .canvas-item:hover {
+        background: #F9FAFB;
+        border-color: #F3F4F6;
+    }
+
+    .canvas-item.is-selected {
+        border-color: var(--color-gold-500);
+        background: white;
+        box-shadow: 0 4px 12px -2px rgba(0,0,0,0.05);
+    }
+
+    /* Controls */
+    .item-controls {
+        position: absolute;
+        top: 24px;
+        right: -56px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s;
+    }
+
+    .canvas-item:hover .item-controls,
+    .canvas-item.is-selected .item-controls {
+        opacity: 1;
+        pointer-events: auto;
+        right: -64px;
+    }
+
+    .control-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 1px solid var(--color-line);
+        border-radius: 10px;
+        color: var(--color-muted);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .control-btn:hover {
+        border-color: var(--color-ink);
+        color: var(--color-ink);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-tactile-sm);
+    }
+
+    .control-btn.delete:hover {
+        color: #DC2626;
+        border-color: #FCA5A5;
+        background: #FEF2F2;
+    }
+
+    .control-btn.drag-handle {
+        cursor: grab;
+    }
+
+    /* Contenteditable focus */
+    [contenteditable]:focus {
+        outline: none;
+    }
+
+    /* Sortable */
+    .sortable-ghost {
+        opacity: 0.3;
+        background: var(--color-gold-50) !important;
+        border: 1px dashed var(--color-gold-500) !important;
+    }
+
+    /* Modals */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(23, 22, 20, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .modal-content {
+        background: white;
+        border: 1px solid var(--color-line);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+    }
+
+    /* Empty state */
+    .canvas-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        color: var(--color-muted);
+    }
+
+    /* Typography Overrides for Builder */
+    .builder-canvas h2 { font-weight: 800; font-size: 1.875rem; letter-spacing: -0.025em; }
+    .builder-canvas p { font-size: 1.05rem; line-height: 1.7; color: #4B5563; }
+
+</style>
+
+<div class="builder-container">
+    {# --- Sidebar --- #}
+    <aside class="builder-sidebar">
+        <div class="sidebar-header">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Artifact Toolkit</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-gray-900">Lesson Blocks</h2>
+        </div>
+
+        <div class="sidebar-scroll">
+            <div id="palette-items" class="palette-grid">
+                <div class="palette-item" data-type="heading">
+                    <div class="icon-box"><i data-lucide="heading"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Heading</span>
+                </div>
+                <div class="palette-item" data-type="text">
+                    <div class="icon-box"><i data-lucide="type"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Paragraph</span>
+                </div>
+                <div class="palette-item" data-type="image">
+                    <div class="icon-box"><i data-lucide="image"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Media</span>
+                </div>
+                <div class="palette-item" data-type="code">
+                    <div class="icon-box"><i data-lucide="code"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Code Block</span>
+                </div>
+                <div class="palette-item" data-type="callout">
+                    <div class="icon-box"><i data-lucide="info"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Callout</span>
+                </div>
+                <div class="palette-item" data-type="quiz">
+                    <div class="icon-box"><i data-lucide="help-circle"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Quiz</span>
+                </div>
+            </div>
+
+            <div class="mt-12 p-6 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">Quick Guide</p>
+                <ul class="space-y-4 text-[11px] font-semibold text-gray-500">
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-md bg-white border border-gray-200"><i data-lucide="mouse-pointer-2" class="w-3 h-3"></i></div>
+                        <span>Drag items to canvas</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-md bg-white border border-gray-200"><i data-lucide="edit-3" class="w-3 h-3"></i></div>
+                        <span>Click to edit content</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-md bg-white border border-gray-200"><i data-lucide="save" class="w-3 h-3"></i></div>
+                        <span>Ctrl + S to auto-save</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    {# --- Viewport --- #}
+    <main class="builder-viewport">
+        {# Toolbar #}
+        <div class="builder-toolbar">
+            <div class="flex items-center gap-4 ml-2">
+                <a href="{{ url_for('admin_lesson_edit', lesson_id=lesson.id) }}" class="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-all hover:border-gray-900 hover:text-gray-900">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </a>
+                <div>
+                    <h3 class="text-xs font-bold tracking-tight text-gray-900">{{ lesson.title }}</h3>
+                    <p id="save-status" class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-400">Workspace ready</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="previewLesson()" class="flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 text-[10px] font-bold uppercase tracking-widest text-gray-700 transition-all hover:border-gray-900 hover:bg-gray-50">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
+                </button>
+                <button onclick="saveLesson()" class="flex h-10 items-center gap-2 rounded-xl bg-gray-900 px-6 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black hover:translate-y-[-1px] shadow-sm">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Changes
+                </button>
+            </div>
+        </div>
+
+        <div id="canvas-wrapper" class="relative w-full max-w-[850px]">
+            <div id="canvas" class="builder-canvas prose prose-slate max-w-none">
+                {# Blocks injected here #}
+            </div>
+
+            <div id="canvas-empty" class="canvas-empty transition-opacity duration-300">
+                <div class="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white mb-6">
+                    <i data-lucide="layout" class="h-6 w-6 text-gray-300"></i>
+                </div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Start your creation</p>
+                <p class="text-[10px] font-semibold text-gray-300 mt-2">Drag blocks from the palette to begin</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+{# --- Modals --- #}
+<div id="modal-code" class="modal-overlay">
+    <div class="modal-content">
+        <div class="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-sm font-bold uppercase tracking-widest text-gray-900">Code Block Settings</h3>
+            <button onclick="closeModal('modal-code')" class="text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-8">
+            <div class="mb-6">
+                <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Language</label>
+                <select id="input-code-lang" onchange="updateMonacoLanguage(this.value)" class="w-full h-11 rounded-xl border border-gray-200 px-4 text-xs font-bold text-gray-700 focus:border-gray-900 outline-none transition-colors">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="json">JSON</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="shell">Terminal/Shell</option>
+                </select>
+            </div>
+            <div class="mb-8">
+                <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Snippet</label>
+                <div id="monaco-editor-container" class="w-full h-[400px] rounded-xl border border-gray-200 overflow-hidden"></div>
+            </div>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeModal('modal-code')" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900">Cancel</button>
+                <button onclick="applyCodeChanges()" class="h-10 px-6 rounded-xl bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest transition-all hover:bg-black">Update Block</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-image" class="modal-overlay">
+    <div class="modal-content">
+        <div class="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-sm font-bold uppercase tracking-widest text-gray-900">Media Asset</h3>
+            <button onclick="closeModal('modal-image')" class="text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-0">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-100 bg-gray-50/50">
+                <button onclick="switchImageTab('url')" id="tab-img-url" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest border-b-2 border-gray-900 text-gray-900 transition-all">External URL</button>
+                <button onclick="switchImageTab('upload')" id="tab-img-upload" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 transition-all hover:text-gray-900">Local Upload</button>
+            </div>
+
+            <div class="p-8">
+                <div id="panel-img-url" class="block">
+                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Image URL</label>
+                    <input type="text" id="input-img-url" class="w-full h-11 rounded-xl border border-gray-200 px-4 text-xs font-bold text-gray-700 focus:border-gray-900 outline-none transition-colors" placeholder="https://...">
+                </div>
+
+                <div id="panel-img-upload" class="hidden">
+                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Upload File</label>
+                    <div id="drop-zone" class="w-full h-32 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-all hover:bg-gray-50 hover:border-gray-400 cursor-pointer">
+                        <i data-lucide="upload-cloud" class="w-8 h-8 text-gray-300 mb-2"></i>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Click or drag to upload</p>
+                        <input type="file" id="input-img-file" class="hidden" accept="image/*">
+                    </div>
+                    <div id="upload-status" class="mt-3 text-center hidden">
+                        <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest animate-pulse">Uploading...</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4 mt-8">
+                    <button onclick="closeModal('modal-image')" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900">Cancel</button>
+                    <button onclick="applyImageChanges()" class="h-10 px-6 rounded-xl bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest transition-all hover:bg-black">Confirm Media</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Component Templates -->
+<template id="tpl-heading">{% include 'admin/components/heading.html' %}</template>
+<template id="tpl-text">{% include 'admin/components/text.html' %}</template>
+<template id="tpl-image">{% include 'admin/components/image.html' %}</template>
+<template id="tpl-code">{% include 'admin/components/code.html' %}</template>
+<template id="tpl-callout">{% include 'admin/components/callout.html' %}</template>
+<template id="tpl-quiz">{% include 'admin/components/quiz.html' %}</template>
+
+<!-- Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const palette = document.getElementById('palette-items');
+    const emptyState = document.getElementById('canvas-empty');
+    let builderData = [];
+    let editingBlockId = null;
+    let monacoEditor = null;
+    let currentImageTab = 'url';
+
+    // --- Monaco Initialization ---
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+    
+    function initMonaco(value = '', language = 'python') {
+        if (monacoEditor) {
+            monacoEditor.setValue(value);
+            updateMonacoLanguage(language);
+            return;
+        }
+
+        require(['vs/editor/editor.main'], function () {
+            monacoEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
+                value: value,
+                language: language,
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono, monospace',
+                minimap: { enabled: false },
+                padding: { top: 20, bottom: 20 },
+                lineNumbers: 'on',
+                roundedSelection: true,
+                scrollBeyondLastLine: false,
+                readOnly: false,
+                cursorStyle: 'line',
+            });
+        });
+    }
+
+    function updateMonacoLanguage(lang) {
+        if (!monacoEditor) return;
+        const model = monacoEditor.getModel();
+        monaco.editor.setModelLanguage(model, lang === 'terminal' ? 'shell' : lang);
+    }
+
+    // --- Core Engine ---
+
+    function generateId() {
+        return 'blk-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function createBlock(type, data = null) {
+        return {
+            id: generateId(),
+            type: type,
+            data: data || getDefaultDataForType(type)
+        };
+    }
+
+    function getDefaultDataForType(type) {
+        switch(type) {
+            case 'heading': return { text: 'New Heading' };
+            case 'text': return { text: 'Type your story here...' };
+            case 'image': return { url: '' };
+            case 'code': return { lang: 'python', code: '# Add your code\nprint("Hello World")' };
+            case 'callout': return { type: 'info', title: 'Did you know?', body: 'Interesting fact goes here.' };
+            case 'quiz': return { question: 'What is the correct answer?', options: ['Option A', 'Option B'], correct: 0 };
+            default: return {};
+        }
+    }
+
+    // --- Rendering ---
+
+    function renderCanvas() {
+        canvas.innerHTML = '';
+        
+        if (builderData.length === 0) {
+            emptyState.style.display = 'flex';
+            emptyState.style.opacity = '1';
+        } else {
+            emptyState.style.opacity = '0';
+            setTimeout(() => {
+                if (builderData.length > 0) emptyState.style.display = 'none';
+            }, 300);
+
+            builderData.forEach(block => {
+                canvas.appendChild(renderBlock(block));
+            });
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function renderBlock(block) {
+        const template = document.getElementById(`tpl-${block.type}`);
+        if (!template) return document.createElement('div');
+
+        let html = template.innerHTML;
+        
+        try {
+            // Safer way to render the component template
+            const renderFunc = new Function('block', 'escapeHtml', 'return `' + html + '`;');
+            const renderedHtml = renderFunc(block, escapeHtml);
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = renderedHtml;
+            const wrapper = tempDiv.firstElementChild;
+
+            if (!wrapper) return document.createElement('div');
+
+            // Click to select
+            wrapper.addEventListener('click', (e) => {
+                if (e.target.closest('.control-btn')) return;
+                document.querySelectorAll('.canvas-item').forEach(el => el.classList.remove('is-selected'));
+                wrapper.classList.add('is-selected');
+            });
+
+            return wrapper;
+        } catch (e) {
+            console.error("Rendering error for " + block.type, e);
+            const errorEl = document.createElement('div');
+            errorEl.className = "p-4 border border-red-200 bg-red-50 text-red-600 text-xs rounded-xl";
+            errorEl.innerText = "Error rendering " + block.type;
+            return errorEl;
+        }
+    }
+
+    // --- Logic Actions ---
+
+    function updateBlockData(id, newData) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data = { ...blk.data, ...newData };
+            markUnsaved();
+        }
+    }
+
+    function deleteBlock(id) {
+        if (!confirm('Remove this block?')) return;
+        builderData = builderData.filter(b => b.id !== id);
+        renderCanvas();
+        markUnsaved();
+    }
+
+    function duplicateBlock(id) {
+        const idx = builderData.findIndex(b => b.id === id);
+        if (idx !== -1) {
+            const copy = JSON.parse(JSON.stringify(builderData[idx]));
+            copy.id = generateId();
+            builderData.splice(idx + 1, 0, copy);
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    function toggleCalloutType(id) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.type = blk.data.type === 'info' ? 'warning' : 'info';
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    function updateQuizOption(id, idx, val) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.options[idx] = val;
+            markUnsaved();
+        }
+    }
+
+    function addQuizOption(id) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.options.push('New choice');
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    function removeQuizOption(id, idx) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk && blk.data.options.length > 2) {
+            blk.data.options.splice(idx, 1);
+            if (blk.data.correct >= blk.data.options.length) blk.data.correct = 0;
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    function setQuizCorrect(id, idx) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.correct = idx;
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    // --- Interactions ---
+
+    function initSortables() {
+        new Sortable(palette, {
+            group: { name: 'shared', pull: 'clone', put: false },
+            sort: false,
+            animation: 250
+        });
+
+        new Sortable(canvas, {
+            group: 'shared',
+            handle: '.drag-handle',
+            animation: 250,
+            ghostClass: 'sortable-ghost',
+            filter: '[contenteditable="true"]', 
+            preventOnFilter: false,
+            onAdd: (evt) => {
+                const type = evt.item.dataset.type;
+                const newBlk = createBlock(type);
+                builderData.splice(evt.newIndex, 0, newBlk);
+                
+                // Remove the cloned element added by SortableJS and let renderCanvas handle it
+                evt.item.remove(); 
+                
+                renderCanvas();
+                markUnsaved();
+            },
+            onUpdate: (evt) => {
+                const item = builderData.splice(evt.oldIndex, 1)[0];
+                builderData.splice(evt.newIndex, 0, item);
+                markUnsaved();
+            }
+        });
+    }
+
+    // --- Modals ---
+
+    function openCodeModal(id) {
+        editingBlockId = id;
+        const blk = builderData.find(b => b.id === id);
+        document.getElementById('input-code-lang').value = blk.data.lang;
+        initMonaco(blk.data.code, blk.data.lang);
+        document.getElementById('modal-code').style.display = 'flex';
+    }
+
+    function applyCodeChanges() {
+        updateBlockData(editingBlockId, {
+            lang: document.getElementById('input-code-lang').value,
+            code: monacoEditor.getValue()
+        });
+        closeModal('modal-code');
+        renderCanvas();
+    }
+
+    function openImageModal(id) {
+        editingBlockId = id;
+        const blk = builderData.find(b => b.id === id);
+        document.getElementById('input-img-url').value = blk.data.url;
+        switchImageTab('url');
+        document.getElementById('modal-image').style.display = 'flex';
+    }
+
+    function switchImageTab(tab) {
+        currentImageTab = tab;
+        const urlBtn = document.getElementById('tab-img-url');
+        const uploadBtn = document.getElementById('tab-img-upload');
+        const urlPanel = document.getElementById('panel-img-url');
+        const uploadPanel = document.getElementById('panel-img-upload');
+
+        if (tab === 'url') {
+            urlBtn.classList.add('border-gray-900', 'text-gray-900');
+            urlBtn.classList.remove('border-transparent', 'text-gray-400');
+            uploadBtn.classList.remove('border-gray-900', 'text-gray-900');
+            uploadBtn.classList.add('border-transparent', 'text-gray-400');
+            urlPanel.classList.remove('hidden');
+            uploadPanel.classList.add('hidden');
+        } else {
+            uploadBtn.classList.add('border-gray-900', 'text-gray-900');
+            uploadBtn.classList.remove('border-transparent', 'text-gray-400');
+            urlBtn.classList.remove('border-gray-900', 'text-gray-900');
+            urlBtn.classList.add('border-transparent', 'text-gray-400');
+            uploadPanel.classList.remove('hidden');
+            urlPanel.classList.add('hidden');
+        }
+    }
+
+    // Image Upload Logic
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('input-img-file');
+    const uploadStatus = document.getElementById('upload-status');
+
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => handleFileUpload(e.target.files[0]);
+
+    async function handleFileUpload(file) {
+        if (!file) return;
+        uploadStatus.classList.remove('hidden');
+        
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('lesson_id', "{{ lesson.id }}");
+
+        try {
+            const res = await fetch("{{ url_for('admin_upload_image') }}", {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.url) {
+                document.getElementById('input-img-url').value = data.url;
+                switchImageTab('url');
+            } else {
+                alert('Upload failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Critical upload error');
+        } finally {
+            uploadStatus.classList.add('hidden');
+        }
+    }
+
+    function applyImageChanges() {
+        updateBlockData(editingBlockId, { url: document.getElementById('input-img-url').value });
+        closeModal('modal-image');
+        renderCanvas();
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+        editingBlockId = null;
+    }
+
+    // --- Save System ---
+
+    function markUnsaved() {
+        const s = document.getElementById('save-status');
+        s.innerText = 'Unsaved changes';
+        s.classList.remove('text-gray-400');
+        s.classList.add('text-amber-500');
+    }
+
+    function markSaved() {
+        const s = document.getElementById('save-status');
+        s.innerText = 'All changes saved';
+        s.classList.remove('text-amber-500');
+        s.classList.add('text-gray-400');
+    }
+
+    async function saveLesson() {
+        const btn = document.querySelector('button[onclick="saveLesson()"]');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Saving...';
+        btn.disabled = true;
+
+        const html = generateFinalHtml();
+        const jsonStr = JSON.stringify(builderData);
+
+        const formData = new FormData();
+        formData.append('content', html);
+        formData.append('builder_json', jsonStr);
+
+        try {
+            const res = await fetch(window.location.href, { method: 'POST', body: formData });
+            if (res.ok) markSaved();
+            else alert('Sync failure. Please check your connection.');
+        } catch (e) {
+            console.error(e);
+            alert('CRITICAL: Server unreachable.');
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+
+    function generateFinalHtml() {
+        let html = '';
+        builderData.forEach(blk => {
+            switch(blk.type) {
+                case 'heading':
+                    html += `<h2 class="mb-8 mt-12 text-3xl font-extrabold tracking-tight text-gray-900">${blk.data.text}</h2>\n`;
+                    break;
+                case 'text':
+                    html += `<p class="text-lg leading-relaxed text-gray-600 mb-6 font-medium">${blk.data.text}</p>\n`;
+                    break;
+                case 'image':
+                    if (blk.data.url) {
+                        html += `<div class="my-12 rounded-2xl overflow-hidden border border-gray-200 shadow-sm"><img src="${blk.data.url}" class="w-full h-auto block"></div>\n`;
+                    }
+                    break;
+                case 'code':
+                    html += `
+<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl my-10 not-prose group">
+    <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
+        <div class="flex items-center gap-4">
+            <div class="flex gap-1.5">
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+            </div>
+            <div class="h-4 w-[1px] bg-gray-800"></div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">${blk.data.lang}</span>
+        </div>
+        <button onclick="copyToClipboard(this)" data-code="${escapeHtml(blk.data.code)}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+        </button>
+    </div>
+    <div class="p-8 font-mono text-[14px] leading-relaxed text-gray-300 overflow-x-auto whitespace-pre">${escapeHtml(blk.data.code)}</div>
+</div>\n`;
+                    break;
+                case 'callout':
+                    const isWarn = blk.data.type === 'warning';
+                    html += `
+<div class="my-10 rounded-2xl border ${isWarn ? 'border-amber-200 bg-amber-50' : 'border-sky-200 bg-sky-50'} p-8 flex gap-6 not-prose shadow-sm">
+    <div class="w-14 h-14 shrink-0 rounded-2xl bg-white border border-inherit flex items-center justify-center shadow-sm">
+        <i data-lucide="${isWarn ? 'alert-triangle' : 'info'}" class="w-6 h-6 ${isWarn ? 'text-amber-600' : 'text-sky-600'}"></i>
+    </div>
+    <div>
+        <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">${blk.data.title}</h4>
+        <div class="text-base font-medium leading-relaxed text-gray-700">${blk.data.body}</div>
+    </div>
+</div>\n`;
+                    break;
+                case 'quiz':
+                    html += `
+<div class="quiz-container my-12 p-10 rounded-2xl border border-gray-200 bg-white shadow-sm" data-correct="${blk.data.correct}">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center text-xs text-white font-bold">?</div>
+        <h3 class="text-xl font-bold tracking-tight text-gray-900">${blk.data.question}</h3>
+    </div>
+    <div class="grid gap-3">
+        ${blk.data.options.map((opt, i) => `
+        <button type="button" onclick="checkQuiz(this, ${i})" class="group flex items-center justify-between p-5 border border-gray-100 rounded-xl text-left font-bold transition-all hover:border-gray-900 hover:bg-gray-50">
+            <span class="text-gray-700">${opt}</span>
+            <div class="w-5 h-5 rounded-full border border-gray-200 group-hover:border-gray-900"></div>
+        </button>
+        `).join('')}
+    </div>
+</div>\n`;
+                    break;
+            }
+        });
+        return html;
+    }
+
+    function previewLesson() {
+        saveLesson().then(() => {
+            window.open("{{ lesson_url(lesson, course.slug) }}", '_blank');
+        });
+    }
+
+    function escapeHtml(t) {
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+    }
+
+    // --- Boot ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        builderData = {{ builder_data | tojson | safe }};
+        renderCanvas();
+        initSortables();
+
+        // Keyboard save
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveLesson();
+            }
+        });
+    });
+</script>
+{% endblock %}
