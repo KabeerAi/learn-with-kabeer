@@ -498,7 +498,7 @@ def admin_course_edit(course_id):
 
         database.update_course(course_id, slug, title, subtitle, level, status)
         flash("Course updated successfully.", "success")
-        return redirect(url_for("admin_dashboard"))
+        return redirect(url_for("admin_course_manage", course_id=course_id))
 
     return render_template("admin/course_form.html", course=course)
 
@@ -539,13 +539,12 @@ def admin_career_path_new():
             return render_template("admin/career_path_form.html", path=None)
 
         try:
-            database.create_career_path(slug, title, subtitle, description, level, status)
+            path = database.create_career_path(slug, title, subtitle, description, level, status)
             flash("Career path created successfully.", "success")
+            return redirect(url_for("admin_career_path_manage", path_id=path["id"]))
         except Exception:
             flash("A career path with this slug already exists.", "error")
             return render_template("admin/career_path_form.html", path=None)
-
-        return redirect(url_for("admin_dashboard"))
 
     return render_template("admin/career_path_form.html", path=None)
 
@@ -572,7 +571,7 @@ def admin_career_path_edit(path_id):
 
         database.update_career_path(path_id, slug, title, subtitle, description, level, status)
         flash("Career path updated successfully.", "success")
-        return redirect(url_for("admin_dashboard"))
+        return redirect(url_for("admin_career_path_manage", path_id=path_id))
 
     return render_template("admin/career_path_form.html", path=path)
 
@@ -658,7 +657,7 @@ def admin_section_new(course_id):
         else:
             database.create_section(course_id, next_num, title, description, background)
             flash("Section created.", "success")
-            return redirect(url_for("admin_dashboard"))
+            return redirect(url_for("admin_course_manage", course_id=course_id))
 
     return render_template("admin/section_form.html", course=course, section=None, backgrounds=get_available_backgrounds())
 
@@ -683,7 +682,7 @@ def admin_section_edit(section_id):
         else:
             database.update_section(section_id, number, title, description, background)
             flash("Section updated.", "success")
-            return redirect(url_for("admin_dashboard"))
+            return redirect(url_for("admin_course_manage", course_id=course["id"]))
 
     return render_template("admin/section_form.html", course=course, section=section, backgrounds=get_available_backgrounds())
 
@@ -734,13 +733,12 @@ def admin_lesson_new(course_id):
             return render_template("admin/lesson_form.html", course=course, lesson=None, sections=sections)
 
         try:
-            database.create_lesson(course_id, next_number, slug, title, summary, content, None, content_type, section_id)
+            lesson = database.create_lesson(course_id, next_number, slug, title, summary, content, None, content_type, section_id)
             flash(f"Lesson {next_number} created successfully.", "success")
+            return redirect(url_for("admin_lesson_edit", lesson_id=lesson["id"]))
         except Exception as e:
             flash(f"Error creating lesson: {e}", "error")
             return render_template("admin/lesson_form.html", course=course, lesson=None, sections=sections)
-
-        return redirect(url_for("admin_dashboard"))
 
     return render_template("admin/lesson_form.html", course=course, lesson=None, sections=sections)
 
@@ -768,7 +766,7 @@ def admin_lesson_edit(lesson_id):
 
         database.update_lesson(lesson_id, number, slug, title, summary, content, None, content_type, section_id)
         flash("Lesson updated successfully.", "success")
-        return redirect(url_for("admin_dashboard"))
+        return redirect(url_for("admin_course_manage", course_id=course["id"]))
 
     return render_template("admin/lesson_form.html", course=course, lesson=lesson, sections=sections)
 
@@ -781,9 +779,10 @@ def admin_lesson_delete(lesson_id):
     if not lesson:
         abort(404)
 
+    course_id = lesson["course_id"]
     database.delete_lesson(lesson_id)
     flash(f"Lesson \"{lesson['title']}\" deleted and remaining lessons renumbered.", "success")
-    return redirect(url_for("admin_dashboard"))
+    return redirect(url_for("admin_course_manage", course_id=course_id))
 
 
 @app.route("/admin/sections/reorder", methods=("POST",))

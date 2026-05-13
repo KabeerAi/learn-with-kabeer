@@ -75,15 +75,11 @@
                 {# Main Navigation #}
                 <div class="hidden items-center gap-8 text-sm font-semibold text-[#A3A3A3] md:flex">
                     {% if current_user %}
-                        <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' %}text-[#FAF9F6]{% endif %}">Dashboard</a>
+                        <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' or (current_user.is_admin and request.endpoint and request.endpoint.startswith('admin_')) %}text-[#FAF9F6]{% endif %}">Dashboard</a>
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
                         <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
                         <a href="{{ url_for('rankings') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'rankings' %}text-[#FAF9F6]{% endif %}">Rankings</a>
-                        {% if current_user.is_admin %}
-                            <a href="{{ url_for('admin_dashboard') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint and request.endpoint.startswith('admin_') %}text-[#FAF9F6]{% endif %}">Admin</a>
-                        {% endif %}
-                    {% else %}
-                        <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
+                    {% else %}                        <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
                         <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
                         <a href="{{ url_for('rankings') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'rankings' %}text-[#FAF9F6]{% endif %}">Rankings</a>
                     {% endif %}

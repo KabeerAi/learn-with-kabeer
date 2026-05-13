@@ -6,13 +6,22 @@
         
         {# --- Header --- #}
         <header class="mb-12 flex flex-col items-start gap-4">
-            <div class="mb-2">
-                <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
-                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-colors group-hover:bg-[#F5F5F5]">
+            <div class="mb-6">
+                {% if course %}
+                <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
                         <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
                     </span>
-                    Admin Dashboard
+                    Course Management
                 </a>
+                {% else %}
+                <a href="{{ url_for('admin_dashboard') }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
+                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                    </span>
+                    Dashboard
+                </a>
+                {% endif %}
             </div>
             <h1 class="text-3xl font-semibold tracking-tight text-[#1C1C1C] sm:text-4xl">
                 {% if course %}Edit {{ course.title }}{% else %}Create New Course{% endif %}
@@ -74,8 +83,8 @@
             </div>
 
             {# --- Form Actions --- #}
-            <div class="flex flex-col-reverse items-center justify-end gap-4 border-t border-[#E5E5E5] bg-[#FAF9F6] px-6 py-6 sm:flex-row sm:px-10">
-                <a href="{{ url_for('admin_dashboard') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
+            <div class="mt-12 flex flex-col-reverse items-center justify-end gap-4 border-t border-[#E5E5E5] pt-10 sm:flex-row">
+                <a href="{{ url_for('admin_course_manage', course_id=course.id) if course else url_for('admin_dashboard') }}" class="flex w-full sm:w-auto items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
                     Cancel
                 </a>
                 <button type="submit" class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">

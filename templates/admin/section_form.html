@@ -4,13 +4,16 @@
 <main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
     <div class="mx-auto max-w-3xl px-6 py-12 md:py-20">
         <header class="mb-12">
-            <nav class="mb-4 flex items-center gap-3 font-mono text-[11px] font-bold uppercase tracking-widest text-[#A3A3A3]">
-                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-[#1C1C1C]">Admin</a>
-                <span class="h-px w-6 bg-[#D4D4D8]"></span>
-                <span>{{ 'Edit' if section else 'New' }} Section</span>
+            <nav class="mb-6 flex items-center gap-3 font-mono text-[11px] font-bold uppercase tracking-widest text-[#A3A3A3]">
+                <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="group inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B6B6B] transition-colors hover:text-[#1C1C1C]">
+                    <span class="flex h-6 w-6 items-center justify-center rounded border border-[#E5E5E5] bg-white text-[#1C1C1C] shadow-sm transition-transform group-hover:scale-110">
+                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                    </span>
+                    Course Management
+                </a>
             </nav>
             <h1 class="text-3xl font-bold tracking-tight text-[#1C1C1C]">{{ 'Edit Section' if section else 'Create New Section' }}</h1>
-            <p class="mt-2 text-[#6B6B6B]">Defining a section creates a new "Cloud" header on the course map.</p>
+            <p class="mt-2 text-[#6B6B6B]">Defining a section creates a new "Cloud" header on the course map for <strong>{{ course.title }}</strong>.</p>
         </header>
 
         <form method="post" class="space-y-8">
@@ -69,7 +72,7 @@
                 <button type="submit" class="inline-flex h-12 items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 text-sm font-bold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
                     {{ 'Save Changes' if section else 'Create Section' }}
                 </button>
-                <a href="{{ url_for('admin_dashboard') }}" class="text-sm font-bold text-[#6B6B6B] hover:text-[#1C1C1C]">Cancel</a>
+                <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="text-sm font-bold text-[#6B6B6B] hover:text-[#1C1C1C]">Cancel</a>
             </div>
         </form>
     </div>
