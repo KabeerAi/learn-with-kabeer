@@ -39,10 +39,17 @@
                                 Course
                             </span>
                             {% if course["enrolled"] %}
-                                <span class="flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#1C1C1C]">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C] animate-pulse"></span>
-                                    ACTIVE
-                                </span>
+                                {% if course["progress_percent"] == 100 %}
+                                    <span class="flex items-center gap-1.5 rounded-full border border-[#16A34A] bg-[#F0FDF4] px-2 py-0.5 font-mono text-[10px] font-bold text-[#16A34A]">
+                                        <i data-lucide="check" class="h-3 w-3"></i>
+                                        COMPLETED
+                                    </span>
+                                {% else %}
+                                    <span class="flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#1C1C1C]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C] animate-pulse"></span>
+                                        ACTIVE
+                                    </span>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>

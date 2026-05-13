@@ -42,7 +42,24 @@ def init_db():
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             is_admin INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            total_xp INTEGER NOT NULL DEFAULT 0,
+            streak_current INTEGER NOT NULL DEFAULT 0,
+            streak_max INTEGER NOT NULL DEFAULT 0,
+            last_activity_at TEXT,
+            league TEXT NOT NULL DEFAULT 'Bronze',
+            privacy_public INTEGER NOT NULL DEFAULT 1
+        );
+
+        CREATE TABLE IF NOT EXISTS activity_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            course_id INTEGER,
+            activity_type TEXT NOT NULL, -- 'lesson_complete', 'quiz_complete', etc.
+            xp_amount INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE SET NULL
         );
 
         CREATE TABLE IF NOT EXISTS courses (
@@ -150,6 +167,43 @@ def init_db():
     # Migration: add builder_json column if missing
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN builder_json TEXT")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    # Migration: add rankings columns to users table if missing
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN total_xp INTEGER NOT NULL DEFAULT 0")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN streak_current INTEGER NOT NULL DEFAULT 0")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN streak_max INTEGER NOT NULL DEFAULT 0")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN last_activity_at TEXT")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN league TEXT NOT NULL DEFAULT 'Bronze'")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN privacy_public INTEGER NOT NULL DEFAULT 1")
         db.commit()
     except sqlite3.OperationalError:
         pass
@@ -804,7 +858,189 @@ def update_section_order(section_id, number):
     db.commit()
 
 
-# ─── Lesson Queries ─────────────────────────────────────────────────────────
+# ─── Rankings & Activity Queries ─────────────────────────────────────────────
+
+
+def award_xp(user_id, xp_amount, activity_type, course_id=None):
+    db = get_db()
+    db.execute(
+        "INSERT INTO activity_log (user_id, course_id, activity_type, xp_amount) VALUES (?, ?, ?, ?)",
+        (user_id, course_id, activity_type, xp_amount),
+    )
+    db.execute(
+        "UPDATE users SET total_xp = total_xp + ? WHERE id = ?",
+        (xp_amount, user_id),
+    )
+    update_streak(user_id)
+    db.commit()
+
+
+def update_streak(user_id):
+    db = get_db()
+    user = get_user_by_id(user_id)
+    if not user:
+        return
+
+    now = db.execute("SELECT CURRENT_TIMESTAMP").fetchone()[0]
+    today = now.split(" ")[0]
+    
+    if not user["last_activity_at"]:
+        db.execute(
+            "UPDATE users SET streak_current = 1, streak_max = 1, last_activity_at = ? WHERE id = ?",
+            (now, user_id),
+        )
+        return
+
+    last_activity_date = user["last_activity_at"].split(" ")[0]
+    
+    if last_activity_date == today:
+        # Already active today, just update the timestamp
+        db.execute("UPDATE users SET last_activity_at = ? WHERE id = ?", (now, user_id))
+        return
+
+    # Check if yesterday
+    from datetime import datetime, timedelta
+    last_dt = datetime.strptime(last_activity_date, "%Y-%m-%d")
+    today_dt = datetime.strptime(today, "%Y-%m-%d")
+    
+    if today_dt - last_dt == timedelta(days=1):
+        new_streak = user["streak_current"] + 1
+        new_max = max(user["streak_max"], new_streak)
+        db.execute(
+            "UPDATE users SET streak_current = ?, streak_max = ?, last_activity_at = ? WHERE id = ?",
+            (new_streak, new_max, now, user_id),
+        )
+    else:
+        # Streak broken
+        db.execute(
+            "UPDATE users SET streak_current = 1, last_activity_at = ? WHERE id = ?",
+            (now, user_id),
+        )
+
+
+def get_leaderboard(course_id=None, timeframe='weekly', limit=10, user_id=None):
+    db = get_db()
+    
+    # Timeframe filter
+    time_filter = ""
+    if timeframe == 'weekly':
+        time_filter = "AND al.created_at >= date('now', '-7 days')"
+    elif timeframe == 'monthly':
+        time_filter = "AND al.created_at >= date('now', '-30 days')"
+
+    course_filter = ""
+    params = []
+    if course_id:
+        course_filter = "AND al.course_id = ?"
+        params.append(course_id)
+
+    # Base query for XP in timeframe with Decay Factor
+    # Decay formula: xp * power(0.95, days_old)
+    query = f"""
+        SELECT u.id, u.name, u.streak_current, u.league,
+               SUM(al.xp_amount * CASE 
+                   WHEN ? = 'all' THEN power(0.95, julianday('now') - julianday(al.created_at))
+                   ELSE 1 
+               END) as period_xp
+        FROM users u
+        JOIN activity_log al ON u.id = al.user_id
+        WHERE u.privacy_public = 1 {time_filter} {course_filter}
+        GROUP BY u.id
+        ORDER BY period_xp DESC
+        LIMIT ?
+    """
+    params.insert(0, timeframe)
+    params.append(limit)
+    
+    leaderboard = db.execute(query, params).fetchall()
+    
+    # If user_id is provided, ensure they are in the result or show their relative rank
+    if user_id:
+        user_rank_data = get_user_rank(user_id, course_id, timeframe)
+        return {
+            "top_users": [dict(row) for row in leaderboard],
+            "current_user_rank": user_rank_data
+        }
+    
+    return [dict(row) for row in leaderboard]
+
+
+def get_user_rank(user_id, course_id=None, timeframe='weekly'):
+    db = get_db()
+    
+    time_filter = ""
+    if timeframe == 'weekly':
+        time_filter = "AND created_at >= date('now', '-7 days')"
+    elif timeframe == 'monthly':
+        time_filter = "AND created_at >= date('now', '-30 days')"
+
+    course_filter = ""
+    base_params = []
+    if course_id:
+        course_filter = "AND course_id = ?"
+        base_params.append(course_id)
+
+    # Subquery to calculate period XP for all users
+    rank_query = f"""
+        WITH UserXP AS (
+            SELECT user_id, SUM(xp_amount) as period_xp
+            FROM activity_log
+            WHERE 1=1 {time_filter} {course_filter}
+            GROUP BY user_id
+        )
+        SELECT rank FROM (
+            SELECT user_id, period_xp,
+                   RANK() OVER (ORDER BY period_xp DESC) as rank
+            FROM UserXP
+        ) WHERE user_id = ?
+    """
+    
+    res = db.execute(rank_query, base_params + [user_id]).fetchone()
+    
+    user = get_user_by_id(user_id)
+    
+    xp_query = f"SELECT SUM(xp_amount) as period_xp FROM activity_log WHERE user_id = ? {time_filter} {course_filter}"
+    user_xp = db.execute(xp_query, [user_id] + base_params).fetchone()
+    
+    return {
+        "rank": res["rank"] if res else None,
+        "xp": user_xp["period_xp"] if user_xp else 0,
+        "name": user["name"],
+        "streak": user["streak_current"],
+        "league": user["league"]
+    }
+
+
+def get_user_stats(user_id):
+    user = get_user_by_id(user_id)
+    if not user:
+        return None
+    
+    return {
+        "total_xp": user["total_xp"],
+        "streak_current": user["streak_current"],
+        "streak_max": user["streak_max"],
+        "league": user["league"],
+        "privacy_public": bool(user["privacy_public"])
+    }
+
+
+def update_user_privacy(user_id, public):
+    db = get_db()
+    db.execute("UPDATE users SET privacy_public = ? WHERE id = ?", (1 if public else 0, user_id))
+    db.commit()
+
+
+def update_user_profile(user_id, name):
+    db = get_db()
+    db.execute("UPDATE users SET name = ? WHERE id = ?", (name, user_id))
+    db.commit()
+
+
+def delete_user(user_id):
+    db = get_db()
+    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
 
 
 def get_lesson_by_id(lesson_id):
@@ -985,4 +1221,8 @@ def mark_lesson_complete(user_id, course_slug, completed_lesson_number):
         (completed_lesson_number, next_lesson["id"], progress["id"]),
     )
     db.commit()
+
+    # Award XP for lesson completion
+    award_xp(user_id, 10, 'lesson_complete', course_id=course["id"])
+    
     return True

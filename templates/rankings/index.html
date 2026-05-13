@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/rankings.css') }}">
+<script src="{{ url_for('static', filename='js/rankings.js') }}" defer></script>
+
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-32">
+    
+    <div class="mx-auto max-w-6xl px-6 py-12 lg:py-24">
+        
+        {# Page Header #}
+        <header class="mb-16 md:flex md:items-end md:justify-between border-b border-[#E5E5E5] pb-12">
+            <div class="max-w-2xl">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="flex h-6 w-6 items-center justify-center rounded bg-[#1C1C1C] text-[10px] font-bold text-white tracking-tighter">
+                        <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Performance Hub</span>
+                </div>
+                <h1 class="text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl lg:text-[64px] lg:leading-[1.1]">
+                    Hall of Fame
+                </h1>
+                <p class="mt-6 text-lg text-[#6B6B6B]">
+                    Benchmark your progress against the community. consistency is rewarded, effort is immortalized.
+                </p>
+            </div>
+
+            {% if user_stats %}
+            <div class="mt-8 flex flex-col items-end gap-4 md:mt-0">
+                <div class="flex items-center gap-8 rounded-2xl border border-[#E5E5E5] bg-white p-6 shadow-sm">
+                    <div class="text-center">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3] mb-1">Your XP</div>
+                        <div class="text-2xl font-bold text-[#1C1C1C] font-mono">{{ user_stats.total_xp }}</div>
+                    </div>
+                    <div class="h-8 w-[1px] bg-[#E5E5E5]"></div>
+                    <div class="text-center">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3] mb-1">Streak</div>
+                        <div class="streak-counter text-2xl">
+                            <i data-lucide="flame" class="w-5 h-5 fill-orange-500"></i>
+                            <span class="font-mono">{{ user_stats.streak_current }}</span>
+                        </div>
+                    </div>
+                    <div class="h-8 w-[1px] bg-[#E5E5E5]"></div>
+                    <div class="text-center">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3] mb-1">League</div>
+                        <div class="text-sm font-bold text-[#1C1C1C] flex items-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
+                            {{ user_stats.league }}
+                        </div>
+                    </div>
+                </div>
+                
+                <form action="{{ url_for('toggle_privacy') }}" method="POST" class="flex items-center gap-3">
+                    <span class="text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Public Profile</span>
+                    <label class="privacy-toggle">
+                        <input type="checkbox" name="privacy_public" {% if user_stats.privacy_public %}checked{% endif %} onchange="this.form.submit()">
+                        <span class="slider"></span>
+                    </label>
+                </form>
+            </div>
+            {% endif %}
+        </header>
+
+        <div class="grid gap-12 lg:grid-cols-3">
+            
+            {# Left Column: Global Top 5 #}
+            <div class="lg:col-span-1">
+                <div class="mb-8 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-[#1C1C1C]">Global Elite</h2>
+                    <a href="{{ url_for('global_leaderboard') }}" class="text-[11px] font-bold uppercase tracking-widest text-[#A3A3A3] hover:text-[#1C1C1C] transition-colors">
+                        View Full &rarr;
+                    </a>
+                </div>
+
+                <div class="space-y-4">
+                    {% for user in global_top %}
+                    <div class="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white p-4 transition-all hover:border-[#1C1C1C] hover:shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-other{% endif %}">
+                                {{ loop.index }}
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-[#1C1C1C]">{{ user.name }}</div>
+                                <div class="text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3]">{{ user.league }} League</div>
+                            </div>
+                        </div>
+                        <div class="xp-pill">{{ user.period_xp }} XP</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {# League Info Card #}
+                <div class="mt-8 rounded-2xl border border-dashed border-[#D4D4D8] bg-white p-8 text-center">
+                    <div class="mb-4 mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#FAF9F6] border border-[#E5E5E5] text-[#1C1C1C]">
+                        <i data-lucide="award" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-[#1C1C1C] uppercase tracking-widest mb-2">The Leagues</h3>
+                    <p class="text-xs text-[#6B6B6B] leading-relaxed">
+                        Top 20% of weekly performers advance to higher leagues. Bottom 10% risk demotion. Stay active to reach Diamond.
+                    </p>
+                </div>
+            </div>
+
+            {# Right Column: Course Grid #}
+            <div class="lg:col-span-2">
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-[#1C1C1C]">Course Leaderboards</h2>
+                    <p class="text-sm text-[#6B6B6B] mt-1">See how you rank in your specific field of study.</p>
+                </div>
+
+                <section class="grid gap-6 md:grid-cols-2">
+                    {% set themes = [
+                        {'bg': 'bg-[#E4EDE7]', 'text': 'text-[#2D4233]'},
+                        {'bg': 'bg-[#F4EBE1]', 'text': 'text-[#543E2C]'},
+                        {'bg': 'bg-[#E2E8F0]', 'text': 'text-[#0F172A]'}
+                    ] %}
+
+                    {% for course in courses %}
+                        {% set theme = themes[loop.index0 % 3] %}
+                        <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                            
+                            <div class="p-[3px] pb-0">
+                                <div class="flex items-center justify-between rounded-t-md {{ theme.bg }} border-b border-[#1C1C1C] px-4 py-2.5">
+                                    <span class="font-mono text-[11px] font-bold {{ theme.text }} tracking-wide uppercase">
+                                        Leaderboard
+                                    </span>
+                                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 {{ theme.text }}"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col flex-grow px-6 pb-6 pt-5">
+                                <h2 class="mb-2 text-xl font-bold text-[#1C1C1C]">{{ course["title"] }}</h2>
+                                <p class="text-xs font-medium leading-relaxed text-[#6B6B6B] flex-grow line-clamp-2">
+                                    {{ course["subtitle"] }}
+                                </p>
+
+                                <div class="mt-6 flex items-center justify-between border-t border-dashed border-[#E5E5E5] pt-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="users" class="h-3.5 w-3.5 text-[#A3A3A3]"></i>
+                                        <span class="text-[10px] font-bold text-[#1C1C1C] uppercase tracking-widest">{{ course.enrolled_count }} Competitors</span>
+                                    </div>
+                                    <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
+                                </div>
+                            </div>
+                            
+                            <a href="{{ url_for('course_leaderboard', course_slug=course['slug']) }}" class="absolute inset-0 z-10">
+                                <span class="sr-only">View {{ course['title'] }} Leaderboard</span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

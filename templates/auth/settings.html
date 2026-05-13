@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+<script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+
+<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-32">
+    
+    <div class="mx-auto max-w-3xl px-6 py-12 lg:py-24">
+        
+        {# Page Header #}
+        <header class="mb-16 border-b border-[#E5E5E5] pb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="flex h-6 w-6 items-center justify-center rounded bg-[#1C1C1C] text-[10px] font-bold text-white tracking-tighter">
+                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                </span>
+                <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3]">Preferences</span>
+            </div>
+            <h1 class="text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl">
+                Account Settings
+            </h1>
+            <p class="mt-6 text-lg text-[#6B6B6B]">
+                Manage your profile, visibility, and account data.
+            </p>
+        </header>
+
+        <form action="{{ url_for('settings') }}" method="POST" class="space-y-12">
+            
+            {# Profile Section #}
+            <section class="settings-section">
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-[#1C1C1C]">Identity</h2>
+                    <p class="text-sm text-[#6B6B6B] mt-1">This is how you appear to other learners.</p>
+                </div>
+
+                <div class="rounded-2xl border border-[#1C1C1C] bg-white p-8 shadow-[-6px_6px_0_0_#F5F5F5,-7px_7px_0_0_#1C1C1C]">
+                    <div class="flex flex-col gap-8 md:flex-row md:items-center">
+                        {# Avatar Preview #}
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="avatar-preview shadow-sm">
+                                {{ current_user.name[:2].upper() }}
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3]">Initials Avatar</span>
+                        </div>
+
+                        <div class="flex-1 space-y-6">
+                            <div>
+                                <label for="name" class="block text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] mb-2">Display Name</label>
+                                <input type="text" name="name" id="name" value="{{ current_user.name }}" class="settings-input" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C] mb-2">Email Address</label>
+                                <input type="email" value="{{ current_user.email }}" class="settings-input opacity-50 cursor-not-allowed" disabled>
+                                <p class="mt-2 text-[10px] font-medium text-[#A3A3A3]">Email cannot be changed at this time.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {# Privacy Section #}
+            <section class="settings-section">
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-[#1C1C1C]">Privacy & Visibility</h2>
+                    <p class="text-sm text-[#6B6B6B] mt-1">Control your presence on the leaderboards.</p>
+                </div>
+
+                <div class="rounded-2xl border border-[#E5E5E5] bg-white p-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-[#1C1C1C]">Public Ranking</h3>
+                            <p class="text-xs text-[#6B6B6B] mt-1">Allow your XP and streak to be visible in global and course leaderboards.</p>
+                        </div>
+                        <label class="privacy-toggle">
+                            <input type="checkbox" name="privacy_public" {% if current_user.privacy_public %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            {# Save Button #}
+            <div class="flex justify-end border-t border-[#E5E5E5] pt-12">
+                <button type="submit" class="flex items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+        {# Danger Zone #}
+        <section class="danger-zone settings-section mt-24">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-red-600 flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    Danger Zone
+                </h2>
+                <p class="text-sm text-red-600/70 mt-1">Irreversible account actions.</p>
+            </div>
+
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-[#1C1C1C]">Delete Account</h3>
+                    <p class="text-xs text-[#6B6B6B] mt-1">Permanently remove all your data, progress, and achievements.</p>
+                </div>
+                <form id="delete-account-form" action="{{ url_for('delete_account') }}" method="POST">
+                    <button type="button" onclick="confirmDeletion()" class="rounded-xl border border-red-200 bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest text-red-600 transition-all hover:bg-red-50 hover:border-red-300 active:scale-95">
+                        Delete Forever
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+</main>
+{% endblock %}

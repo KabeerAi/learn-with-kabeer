@@ -78,26 +78,51 @@
                         <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' %}text-[#FAF9F6]{% endif %}">Dashboard</a>
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
                         <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
+                        <a href="{{ url_for('rankings') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'rankings' %}text-[#FAF9F6]{% endif %}">Rankings</a>
                         {% if current_user.is_admin %}
                             <a href="{{ url_for('admin_dashboard') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint and request.endpoint.startswith('admin_') %}text-[#FAF9F6]{% endif %}">Admin</a>
                         {% endif %}
                     {% else %}
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
                         <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
+                        <a href="{{ url_for('rankings') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'rankings' %}text-[#FAF9F6]{% endif %}">Rankings</a>
                     {% endif %}
                 </div>
             </div>
 
             {# Right-side Navigation (Auth Actions) #}
             <div class="flex items-center gap-6">
-                <div class="hidden items-center gap-6 text-sm font-semibold text-[#A3A3A3] sm:flex">
+                <div class="flex items-center gap-6 text-sm font-semibold text-[#A3A3A3]">
                     {% if current_user %}
-                        <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6]">{{ current_user["name"] }}</a>
-                        <form action="{{ url_for('logout') }}" method="post" class="inline">
-                            <button class="flex items-center gap-2 transition-colors hover:text-[#FAF9F6]">
-                                Sign out
-                            </button>
-                        </form>
+                        <div class="hidden items-center gap-4 md:flex">
+                            {# XP Pill #}
+                            <div class="flex items-center gap-1.5 rounded-full border border-[#2A2A2A] bg-[#1C1C1C] px-3 py-1.5 shadow-inner">
+                                <i data-lucide="zap" class="h-3.5 w-3.5 fill-amber-400 text-amber-400"></i>
+                                <span class="font-mono text-xs font-bold text-white">{{ current_user.total_xp }} <span class="text-[10px] text-[#6B6B6B]">XP</span></span>
+                            </div>
+
+                            {# League Badge #}
+                            <div class="flex items-center gap-1.5 rounded-full border border-[#2A2A2A] bg-[#1C1C1C] px-3 py-1.5 shadow-inner">
+                                <i data-lucide="shield" class="h-3.5 w-3.5 text-slate-400"></i>
+                                <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-[#A3A3A3]">{{ current_user.league }}</span>
+                            </div>
+                        </div>
+
+                        <div class="h-4 w-[1px] bg-[#2A2A2A] hidden md:block"></div>
+
+                        <div class="flex items-center gap-4">
+                            <a href="{{ url_for('settings') }}" class="group flex items-center gap-3 transition-colors hover:text-white">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#2A2A2A] bg-[#1C1C1C] text-[11px] font-bold text-white transition-all group-hover:border-white/20">
+                                    {{ current_user.name[:2].upper() }}
+                                </div>
+                                <span class="text-sm font-semibold">{{ current_user["name"].split(' ')[0] }}</span>
+                            </a>
+                            <form action="{{ url_for('logout') }}" method="post" class="inline">
+                                <button type="submit" class="flex items-center gap-2 transition-colors hover:text-[#FAF9F6]" title="Sign Out">
+                                    <i data-lucide="log-out" class="h-4 w-4"></i>
+                                </button>
+                            </form>
+                        </div>
                     {% else %}
                         <a href="{{ url_for('login') }}" class="transition-colors hover:text-[#FAF9F6]">Sign in</a>
                         <a href="{{ url_for('signup') }}" class="inline-flex h-9 items-center justify-center rounded-lg border border-[#FAF9F6] bg-[#FAF9F6] px-5 text-sm font-bold text-[#1C1C1C] shadow-[0_3px_0_0_#6B6B6B] transition-all hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#6B6B6B] active:translate-y-[3px] active:shadow-none focus:outline-none">

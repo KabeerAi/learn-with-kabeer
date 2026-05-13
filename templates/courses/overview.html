@@ -371,8 +371,13 @@
         <div class="flex flex-col items-center justify-between gap-4 rounded-2xl border-2 border-[#1C1C1C] bg-white p-5 shadow-[0_8px_0_0_#1C1C1C] sm:flex-row sm:gap-6">
             <div class="text-center sm:text-left flex-1">
                 {% if enrolled %}
-                    <h4 class="text-base font-bold text-[#1C1C1C] leading-tight truncate">Next: {{ current_lesson.title }}</h4>
-                    <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mt-1">Lesson {{ current_lesson.number }} of {{ course.total_lessons }}</p>
+                    {% if completed_lessons >= course.total_lessons %}
+                        <h4 class="text-base font-bold text-[#1C1C1C] leading-tight">Course Completed!</h4>
+                        <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#16A34A] mt-1">100% Mastered — Well done.</p>
+                    {% else %}
+                        <h4 class="text-base font-bold text-[#1C1C1C] leading-tight truncate">Next: {{ current_lesson.title }}</h4>
+                        <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mt-1">Lesson {{ current_lesson.number }} of {{ course.total_lessons }}</p>
+                    {% endif %}
                 {% else %}
                     <h4 class="text-base font-bold text-[#1C1C1C] leading-tight">Master {{ course["title"] }}</h4>
                     <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mt-1">Enroll to track your progress</p>
@@ -381,9 +386,15 @@
             
             <div class="w-full shrink-0 sm:w-auto">
                 {% if enrolled %}
-                    <a href="{{ lesson_url(current_lesson, course['slug']) }}" class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#A16207] bg-[#FACC15] px-6 py-3.5 text-[13px] font-bold text-[#422006] transition-all hover:-translate-y-1 hover:shadow-[0_4px_0_0_#A16207] active:translate-y-[2px] active:shadow-none focus:outline-none uppercase tracking-wide">
-                        <i data-lucide="play" class="h-4 w-4 fill-current"></i> Start Learning
-                    </a>
+                    {% if completed_lessons >= course.total_lessons %}
+                        <a href="{{ url_for('courses') }}" class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#1C1C1C] bg-[#1C1C1C] px-6 py-3.5 text-[13px] font-bold text-white transition-all hover:-translate-y-1 hover:shadow-[0_4px_0_0_#A3A3A3] active:translate-y-[2px] active:shadow-none focus:outline-none uppercase tracking-wide">
+                            <i data-lucide="layout-grid" class="h-4 w-4"></i> Explore More
+                        </a>
+                    {% else %}
+                        <a href="{{ lesson_url(current_lesson, course['slug']) }}" class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#A16207] bg-[#FACC15] px-6 py-3.5 text-[13px] font-bold text-[#422006] transition-all hover:-translate-y-1 hover:shadow-[0_4px_0_0_#A16207] active:translate-y-[2px] active:shadow-none focus:outline-none uppercase tracking-wide">
+                            <i data-lucide="play" class="h-4 w-4 fill-current"></i> Start Learning
+                        </a>
+                    {% endif %}
                 {% else %}
                     {% if current_user %}
                         <form action="{{ url_for('enroll_course', course_slug=course['slug']) }}" method="post" class="w-full">

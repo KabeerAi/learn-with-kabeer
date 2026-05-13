@@ -1,0 +1,92 @@
+/* Settings Specific Styles */
+
+.settings-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #E5E5E5;
+    background-color: white;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1C1C1C;
+    transition: all 0.2s ease;
+}
+
+.settings-input:focus {
+    border-color: #1C1C1C;
+    outline: none;
+    box-shadow: none;
+}
+
+.avatar-preview {
+    display: flex;
+    height: 6rem;
+    width: 6rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    border: 2px dashed #D4D4D8;
+    background-color: #FAF9F6;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1C1C1C;
+    transition: all 0.2s ease;
+}
+
+.danger-zone {
+    margin-top: 3rem;
+    border-radius: 1rem;
+    border: 1px solid #FEE2E2;
+    background-color: rgba(254, 242, 242, 0.3);
+    padding: 2rem;
+}
+
+.privacy-toggle {
+    position: relative;
+    display: inline-block;
+    width: 3rem;
+    height: 1.5rem;
+}
+
+.privacy-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E5E5E5;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 1.1rem;
+    width: 1.1rem;
+    left: 0.2rem;
+    bottom: 0.2rem;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #1C1C1C;
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.5rem);
+}

@@ -1,33 +1,27 @@
 {% extends "base.html" %}
 
 {% block mobile_menu_toggle %}
-<button id="menuToggle" class="lg:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white text-[#1C1C1C] transition-colors hover:bg-[#F5F5F5] focus:outline-none" aria-label="Toggle lesson menu">
+<button id="menuToggle" class="lg:hidden ml-1 flex h-9 w-9 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white text-[#1C1C1C] transition-all hover:bg-[#F5F5F5] focus:outline-none" aria-label="Toggle lesson menu">
     <i data-lucide="menu" class="w-5 h-5"></i>
 </button>
 {% endblock %}
 
 {% block content %}
-<style>
-    .quiz-option {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lessons.css') }}">
+
 <div class="relative flex flex-1 overflow-hidden bg-white selection:bg-[#1C1C1C] selection:text-white">
-    
+
     {# --- Mobile Sidebar Overlay --- #}
     <div id="sidebarOverlay" class="fixed inset-x-0 bottom-0 top-16 z-30 bg-[#1C1C1C]/10 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
 
     {# --- Minimalist Elegant Sidebar --- #}
     <aside id="sidebar" class="fixed bottom-0 left-0 top-16 z-40 flex w-[300px] -translate-x-full flex-col border-r border-[#E5E5E5] bg-[#FAF9F6] transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:top-0">
-        
+
         <div class="flex-1 overflow-y-auto px-6 py-8">
             <div class="mb-10">
-                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="group mb-8 flex w-fit items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#6B6B6B] shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md hover:text-[#1C1C1C]">
-                    <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1"></i>
-                    Map Overview
+                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="group mb-8 flex w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#A3A3A3] hover:text-[#1C1C1C] transition-colors">
+                    <i data-lucide="chevron-left" class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1"></i>
+                    Back to Hub
                 </a>
                 <p class="mb-2 font-mono text-[10px] font-bold uppercase tracking-widest text-[#A3A3A3]">Curriculum</p>
                 <h2 class="text-xl font-bold tracking-tight text-[#1C1C1C] leading-snug">{{ course["title"] }}</h2>
@@ -63,7 +57,7 @@
                                         </span>
                                         <span class="text-[13px] font-semibold tracking-tight truncate max-w-[160px]">{{ l["title"] }}</span>
                                     </div>
-                                    
+
                                     {% if current_user and l["number"] <= completed_lessons %}
                                         <div class="flex items-center justify-center text-[#16A34A]">
                                             <i data-lucide="check" class="w-4 h-4 stroke-[2.5]"></i>
@@ -77,14 +71,14 @@
             </nav>
         </div>
 
-        {# --- Clean Mastery Footer --- #}
+        {# --- Clean Progress Footer --- #}
         <div class="border-t border-[#E5E5E5] bg-white p-6">
             {% if current_user %}
                 <div class="mb-4 flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-widest text-[#1C1C1C]">
-                    <span>Course Mastery</span>
+                    <span>Course Progress</span>
                     <span class="text-[#6B6B6B]">{{ progress_percent }}%</span>
                 </div>
-                
+
                 {# Clean Progress Bar #}
                 <div class="h-1.5 w-full rounded-full bg-[#F5F5F5] overflow-hidden">
                     <div class="h-full bg-[#1C1C1C] rounded-full transition-all duration-1000 ease-out" style="width: {{ progress_percent }}%;"></div>
@@ -100,9 +94,9 @@
 
     {# --- Main Plain Reading Area --- #}
     <main id="mainContent" class="relative h-full flex-1 overflow-y-auto bg-white scroll-smooth">
-        
+
         <div class="mx-auto max-w-[800px] px-6 py-12 sm:py-20 lg:px-12 lg:py-24">
-            
+
             {# Elegant Header #}
             <header class="mb-14 border-b border-[#E5E5E5] pb-10">
                 <nav class="mb-8 flex flex-wrap items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-widest text-[#1C1C1C]">
@@ -114,7 +108,7 @@
                 <h1 class="mb-5 text-3xl font-bold tracking-tight text-[#1C1C1C] sm:text-4xl lg:text-[44px] lg:leading-[1.15]">
                     {{ lesson["title"] }}
                 </h1>
-                
+
                 {% if lesson["summary"] %}
                 <p class="text-lg font-normal leading-relaxed text-[#6B6B6B]">
                     {{ lesson["summary"] }}
@@ -122,193 +116,58 @@
                 {% endif %}
             </header>
 
-            {# Lesson Content Area (Refined Clean Typography & Corrected Code Blocks) #}
-            <article class="prose prose-lg prose-neutral max-w-none 
-                        prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-[#1C1C1C]
-                        prose-h2:text-2xl prose-h2:mt-14
-                        prose-h3:text-xl prose-h3:mt-10
-                        prose-h4:text-lg
-                        prose-p:text-[#404040] prose-p:font-normal prose-p:leading-[1.8] 
-                        prose-a:text-[#1C1C1C] prose-a:font-medium prose-a:underline prose-a:underline-offset-4 prose-a:decoration-[#D4D4D8] hover:prose-a:decoration-[#1C1C1C] transition-all
-                        prose-strong:text-[#1C1C1C] prose-strong:font-semibold
-                        
-                        prose-code:text-[#E93D82] prose-code:bg-[#F5F5F5] prose-code:border prose-code:border-[#E5E5E5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:font-medium prose-code:text-[0.9em] prose-code:before:content-none prose-code:after:content-none
-                        
-                        [&_pre]:!bg-transparent [&_pre]:!p-0 [&_pre]:!border-none [&_pre]:!shadow-none [&_pre]:!rounded-none
-                        [&_pre_code]:!bg-transparent [&_pre_code]:!p-0 [&_pre_code]:!border-none [&_pre_code]:!text-inherit [&_pre_code]:!shadow-none [&_pre_code]:!rounded-none
-                        
-                        prose-blockquote:border-l-4 prose-blockquote:border-[#FACC15] prose-blockquote:bg-[#FAF9F6] prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:font-medium prose-blockquote:text-[#404040]
-                        
-                        prose-li:text-[#404040] prose-li:marker:text-[#A3A3A3]
-                        prose-ul:list-disc prose-ol:list-decimal
-                        
-                        prose-img:rounded-xl prose-img:border prose-img:border-[#E5E5E5] prose-img:shadow-sm
-                        
-                        prose-hr:border-t prose-hr:border-dashed prose-hr:border-[#D4D4D8] prose-hr:my-12
-                        
-                        prose-table:w-full prose-table:border-collapse prose-table:text-sm prose-table:border prose-table:border-[#E5E5E5] prose-table:rounded-xl prose-table:overflow-hidden prose-table:shadow-sm
-                        prose-th:bg-[#F5F5F5] prose-th:border-b prose-th:border-r prose-th:border-[#E5E5E5] prose-th:p-4 prose-th:font-semibold prose-th:text-[#1C1C1C] prose-th:text-left last:prose-th:border-r-0
-                        prose-td:border-b prose-td:border-r prose-td:border-[#E5E5E5] prose-td:bg-white prose-td:p-4 prose-td:text-[#404040] last:prose-td:border-r-0 group-last:prose-td:border-b-0">
+            {# Lesson Content Area (Refined Clean Typography) #}
+            <article class="lesson-prose prose-neutral">
                 {% block lesson_content %}{% endblock %}
             </article>
 
+            {# Navigation Logic #}
+            {% set prev_lesson = (lessons | selectattr("number", "equalto", lesson.number - 1) | first) if lesson.number > 1 else None %}
+            {% set next_lesson = (lessons | selectattr("number", "equalto", lesson.number + 1) | first) %}
+
             {# Minimalist Footer Actions #}
-            <footer class="mt-20 flex flex-col items-center justify-between gap-6 rounded-2xl border border-[#E5E5E5] bg-[#FAF9F6] px-6 py-8 sm:flex-row sm:px-10">
-                
-                <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="group inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B] hover:text-[#1C1C1C] transition-colors">
-                    <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1.5"></i>
-                    Return to Map
-                </a>
+            <footer class="mt-24 flex flex-col items-center justify-between gap-8 border-t border-[#E5E5E5] pt-12 sm:flex-row">
+
+                {% if prev_lesson %}
+                    <a href="{{ lesson_url(prev_lesson, course['slug']) }}" class="btn-tactile-secondary w-full sm:w-auto">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Previous
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="btn-tactile-secondary w-full sm:w-auto">
+                        <i data-lucide="list" class="w-4 h-4"></i> Overview
+                    </a>
+                {% endif %}
 
                 {% if current_user %}
                     {% if completed_lessons >= lesson["number"] %}
-                        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-white px-6 py-3 text-[13px] font-semibold text-[#1C1C1C] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
-                            Next Artifact <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
+                        {% if next_lesson %}
+                            <a href="{{ lesson_url(next_lesson, course['slug']) }}" class="btn-tactile-primary w-full sm:w-auto">
+                                Next Lesson <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="btn-tactile-primary w-full sm:w-auto">
+                                Complete Course <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            </a>
+                        {% endif %}
                     {% else %}
                         <form action="{{ url_for('complete_lesson', course_slug=course['slug'], lesson_number=lesson['number']) }}" method="post" class="w-full sm:w-auto">
-                            <button class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#A16207] bg-[#FACC15] px-6 py-3 text-[13px] font-semibold text-[#422006] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
-                                Mark as Mastered <i data-lucide="check-circle" class="w-4 h-4 stroke-[2.5]"></i>
+                            <button class="btn-tactile-accent w-full">
+                                Complete Lesson <i data-lucide="check-circle" class="w-4 h-4"></i>
                             </button>
                         </form>
                     {% endif %}
                 {% else %}
-                    <a href="{{ url_for('login', next=request.path) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-6 py-3 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-[2px] active:shadow-none focus:outline-none">
+                    <a href="{{ url_for('login', next=request.path) }}" class="btn-tactile-primary w-full sm:w-auto">
                         Sign in to save <i data-lucide="log-in" class="w-4 h-4"></i>
                     </a>
                 {% endif %}
             </footer>
-            
+
         </div>
     </main>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        let isSidebarOpen = false;
-
-        // --- Copy to Clipboard Utility ---
-        window.copyToClipboard = function(btn) {
-            const code = btn.getAttribute('data-code');
-            const textSpan = btn.querySelector('.copy-text');
-            const icon = btn.querySelector('i');
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(code).then(() => {
-                    updateButton();
-                });
-            } else {
-                // Fallback for non-secure contexts
-                const textArea = document.createElement("textarea");
-                textArea.value = code;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    updateButton();
-                } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
-                }
-                document.body.removeChild(textArea);
-            }
-
-            function updateButton() {
-                const originalText = textSpan.textContent;
-                textSpan.textContent = 'Copied!';
-                btn.classList.add('text-[#16A34A]');
-                
-                if (typeof lucide !== 'undefined') {
-                    btn.querySelector('i').setAttribute('data-lucide', 'check');
-                    lucide.createIcons();
-                }
-
-                setTimeout(() => {
-                    textSpan.textContent = originalText;
-                    btn.classList.remove('text-[#16A34A]');
-                    if (typeof lucide !== 'undefined') {
-                        btn.querySelector('i').setAttribute('data-lucide', 'copy');
-                        lucide.createIcons();
-                    }
-                }, 2000);
-            }
-        };
-
-        // --- Quiz Utility ---
-        window.checkQuiz = function(btn, index) {
-            const container = btn.closest('.quiz-container');
-            if (container.hasAttribute('data-answered')) return;
-            
-            const correctIndex = parseInt(container.getAttribute('data-correct-index'));
-            const options = container.querySelectorAll('.quiz-option');
-            
-            container.setAttribute('data-answered', 'true');
-            
-            options.forEach((opt, idx) => {
-                opt.disabled = true;
-                opt.classList.remove('hover:border-[#1C1C1C]', 'border-[#E5E5E5]');
-                
-                if (idx === correctIndex) {
-                    opt.classList.add('bg-green-100', 'border-green-600', 'text-green-700', 'border-2');
-                    // Add check icon
-                    const checkIcon = document.createElement('i');
-                    checkIcon.setAttribute('data-lucide', 'check-circle-2');
-                    checkIcon.classList.add('w-4', 'h-4', 'ml-auto');
-                    opt.appendChild(checkIcon);
-                } else if (idx === index) {
-                    opt.classList.add('bg-red-100', 'border-red-600', 'text-red-700', 'border-2');
-                    // Add x icon
-                    const xIcon = document.createElement('i');
-                    xIcon.setAttribute('data-lucide', 'x-circle');
-                    xIcon.classList.add('w-4', 'h-4', 'ml-auto');
-                    opt.appendChild(xIcon);
-                } else {
-                    opt.classList.add('opacity-40');
-                }
-            });
-
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        };
-
-        if (menuToggle && sidebar && sidebarOverlay) {
-            function toggleSidebar() {
-                isSidebarOpen = !isSidebarOpen;
-
-                if (isSidebarOpen) {
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                    // Add tactile pressed state to button while open
-                    menuToggle.classList.add('translate-y-[4px]', 'shadow-none', 'bg-[#F5F5F5]', 'border-[#E5E5E5]');
-                    menuToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                    // Remove tactile pressed state
-                    menuToggle.classList.remove('translate-y-[4px]', 'shadow-none', 'bg-[#F5F5F5]', 'border-[#E5E5E5]');
-                    menuToggle.innerHTML = '<i data-lucide="menu" class="w-5 h-5"></i>';
-                }
-
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            }
-
-            menuToggle.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', () => { if (isSidebarOpen) toggleSidebar(); });
-            
-            // Auto close sidebar on desktop resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024 && isSidebarOpen) {
-                    toggleSidebar();
-                }
-            });
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/lessons.js') }}"></script>
 {% endblock %}

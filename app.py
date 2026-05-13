@@ -263,6 +263,73 @@ def enroll_course(course_slug):
     return redirect(url_for("course_overview", course_slug=course_slug))
 
 
+#  Rankings Routes 
+
+
+@app.route("/rankings")
+def rankings():
+    courses = database.get_course_library(g.user)
+    global_top = database.get_leaderboard(timeframe='weekly', limit=5)
+    user_stats = database.get_user_stats(g.user["id"]) if g.user else None
+    return render_template("rankings/index.html", courses=courses, global_top=global_top, user_stats=user_stats)
+
+
+@app.route("/rankings/global")
+def global_leaderboard():
+    timeframe = request.args.get("timeframe", "weekly")
+    leaderboard_data = database.get_leaderboard(timeframe=timeframe, user_id=g.user["id"] if g.user else None)
+    return render_template("rankings/leaderboard.html", title="Global Leaderboard", data=leaderboard_data, timeframe=timeframe)
+
+
+@app.route("/rankings/course/<course_slug>")
+def course_leaderboard(course_slug):
+    course = database.get_course_overview(None, course_slug)["course"]
+    if not course:
+        abort(404)
+    
+    timeframe = request.args.get("timeframe", "weekly")
+    leaderboard_data = database.get_leaderboard(course_id=course["id"], timeframe=timeframe, user_id=g.user["id"] if g.user else None)
+    return render_template("rankings/leaderboard.html", title=f"{course['title']} Leaderboard", data=leaderboard_data, timeframe=timeframe, course=course)
+
+
+@app.route("/settings/privacy", methods=("POST",))
+@login_required
+def toggle_privacy():
+    public = request.form.get("privacy_public") == "on"
+    database.update_user_privacy(g.user["id"], public)
+    flash("Privacy settings updated.", "success")
+    return redirect(request.referrer or url_for("rankings"))
+
+
+@app.route("/settings", methods=("GET", "POST"))
+@login_required
+def settings():
+    if request.method == "POST":
+        name = request.form.get("name")
+        public = request.form.get("privacy_public") == "on"
+        
+        if not name:
+            flash("Name is required.", "error")
+        else:
+            database.update_user_profile(g.user["id"], name)
+            database.update_user_privacy(g.user["id"], public)
+            flash("Settings updated successfully.", "success")
+            return redirect(url_for("settings"))
+
+    user_stats = database.get_user_stats(g.user["id"])
+    return render_template("auth/settings.html", user_stats=user_stats)
+
+
+@app.route("/settings/delete", methods=("POST",))
+@login_required
+def delete_account():
+    # Final confirmation check could be added here (e.g. password)
+    database.delete_user(g.user["id"])
+    session.clear()
+    flash("Your account has been permanently deleted.", "info")
+    return redirect(url_for("home"))
+
+
 #  Auth Routes 
 
 
