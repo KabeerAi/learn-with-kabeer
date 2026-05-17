@@ -4,6 +4,9 @@ import json
 from functools import wraps
 
 import markdown
+from google import genai
+from google.genai import types
+
 from flask import (
     Flask,
     flash,
@@ -171,6 +174,7 @@ def render_markdown(text):
     return html
 
 
+
 #  Request Hooks 
 
 
@@ -194,13 +198,9 @@ def inject_template_helpers():
 @app.route("/")
 def home():
     if g.user:
-        if g.user["is_admin"]:
-            return redirect(url_for("admin_dashboard"))
-        
         # For authenticated users, only show career paths they are enrolled in
         all_paths = database.get_career_paths(g.user["id"])
         career_paths = [p for p in all_paths if p["enrolled"] and p["status"] == "active"]
-        
         overview = database.get_course_overview(g.user)
         return render_template("index.html", career_paths=career_paths, **overview)
     
@@ -262,57 +262,16 @@ def enroll_course(course_slug):
     flash("You are enrolled.", "success")
     return redirect(url_for("course_overview", course_slug=course_slug))
 
-
-#  Rankings Routes 
-
-
-@app.route("/rankings")
-def rankings():
-    courses = database.get_course_library(g.user)
-    global_top = database.get_leaderboard(timeframe='weekly', limit=5)
-    user_stats = database.get_user_stats(g.user["id"]) if g.user else None
-    return render_template("rankings/index.html", courses=courses, global_top=global_top, user_stats=user_stats)
-
-
-@app.route("/rankings/global")
-def global_leaderboard():
-    timeframe = request.args.get("timeframe", "weekly")
-    leaderboard_data = database.get_leaderboard(timeframe=timeframe, user_id=g.user["id"] if g.user else None)
-    return render_template("rankings/leaderboard.html", title="Global Leaderboard", data=leaderboard_data, timeframe=timeframe)
-
-
-@app.route("/rankings/course/<course_slug>")
-def course_leaderboard(course_slug):
-    course = database.get_course_overview(None, course_slug)["course"]
-    if not course:
-        abort(404)
-    
-    timeframe = request.args.get("timeframe", "weekly")
-    leaderboard_data = database.get_leaderboard(course_id=course["id"], timeframe=timeframe, user_id=g.user["id"] if g.user else None)
-    return render_template("rankings/leaderboard.html", title=f"{course['title']} Leaderboard", data=leaderboard_data, timeframe=timeframe, course=course)
-
-
-@app.route("/settings/privacy", methods=("POST",))
-@login_required
-def toggle_privacy():
-    public = request.form.get("privacy_public") == "on"
-    database.update_user_privacy(g.user["id"], public)
-    flash("Privacy settings updated.", "success")
-    return redirect(request.referrer or url_for("rankings"))
-
-
 @app.route("/settings", methods=("GET", "POST"))
 @login_required
 def settings():
     if request.method == "POST":
         name = request.form.get("name")
-        public = request.form.get("privacy_public") == "on"
         
         if not name:
             flash("Name is required.", "error")
         else:
             database.update_user_profile(g.user["id"], name)
-            database.update_user_privacy(g.user["id"], public)
             flash("Settings updated successfully.", "success")
             return redirect(url_for("settings"))
 
@@ -382,6 +341,7 @@ def login():
         else:
             session.clear()
             session["user_id"] = user["id"]
+            
             flash("Welcome back.", "success")
             return redirect(request.args.get("next") or url_for("home"))
 
@@ -421,9 +381,13 @@ def lesson_view(course_slug, lesson_number):
 @app.route("/course/<course_slug>/lesson/<int:lesson_number>/complete", methods=("POST",))
 @login_required
 def complete_lesson(course_slug, lesson_number):
-    if not database.mark_lesson_complete(g.user["id"], course_slug, lesson_number):
+    awards = database.mark_lesson_complete(g.user["id"], course_slug, lesson_number)
+    if awards is None:
         flash("Enroll in the course before saving lesson progress.", "info")
         return redirect(url_for("course_overview", course_slug=course_slug))
+
+    if awards:
+        flash(json.dumps(awards), 'xp_award')
 
     flash("Lesson marked complete. Your progress was saved.", "success")
     return redirect(url_for("course_overview", course_slug=course_slug))
@@ -890,6 +854,238 @@ def admin_lessons_reorder():
 
     return {"status": "success"}
 
+
+#  Course on Demand (COD) Routes 
+
+COD_QUESTIONS = [
+    "What is the core topic/technology? (e.g., TypeScript, Python, Next.js)",
+    "What is the target learner's experience level? (Absolute Beginner, Intermediate, Advanced Switcher)",
+    "What is the single, overarching project built throughout the course? (e.g., A real-time chat app, a CLI expense tracker)",
+    "What is the course scope/depth? (Quick Crash Course [3-5 sections], Comprehensive Masterclass [10+ sections])",
+    "What specific version of the technology are we targeting? (e.g., Python 3.12, React 19)",
+    "What formatting output do you prefer? (Markdown, JSON for LMS database, HTML/MDX) - Note: I will generate JSON for our system."
+]
+
+@app.route("/cod")
+@login_required
+def cod_interface():
+    # Clear previous COD session state if starting fresh
+    if 'cod_state' not in session or request.args.get('reset'):
+        session['cod_state'] = {
+            'step': 0,
+            'answers': {},
+            'history': []
+        }
+    return render_template("lessons/cod.html")
+
+@app.route("/cod/chat", methods=("POST",))
+@login_required
+def cod_chat():
+    user_msg = request.json.get("message")
+    state = session.get('cod_state')
+    
+    if not state:
+        return {"error": "Session expired"}, 400
+
+    step = state['step']
+    
+    # Save answer to previous question
+    if step > 0:
+        state['answers'][step-1] = user_msg
+        state['history'].append({"role": "user", "content": user_msg})
+
+    # If we have more questions, ask the next one
+    if step < len(COD_QUESTIONS):
+        next_q = COD_QUESTIONS[step]
+        state['step'] += 1
+        state['history'].append({"role": "assistant", "content": next_q})
+        session['cod_state'] = state
+        return {"response": next_q, "step": state['step'], "done": False}
+
+    # All questions answered! Propose a syllabus.
+    if step == len(COD_QUESTIONS):
+        # Trigger Gemini to generate a syllabus and XP estimate
+        state['step'] += 1
+        session['cod_state'] = state
+        
+        try:
+            syllabus_data = generate_cod_syllabus(state['answers'])
+            state['pending_course'] = syllabus_data
+            cost = len(syllabus_data['lessons']) * 3
+            state['total_cost'] = cost
+            
+            can_afford = g.user["is_pro"] or g.user["total_xp"] >= cost
+            
+            response_msg = f"I've architected your custom course: **{syllabus_data['title']}**.\n\n"
+            response_msg += f"**Course Report & Syllabus:**\n"
+            for lesson in syllabus_data['lessons']:
+                response_msg += f"- Lesson {lesson['number']}: {lesson['title']}\n"
+            
+            response_msg += f"\n**Economic Breakdown:**\n"
+            response_msg += f"- Lessons: {len(syllabus_data['lessons'])}\n"
+            response_msg += f"- Cost: **{cost} XP** (3 XP per lesson)\n"
+            response_msg += f"- Your Balance: {g.user['total_xp']} XP\n"
+            
+            if not can_afford:
+                response_msg += f"\n**Insufficient XP:** You need {cost - g.user['total_xp']} more XP to forge this course. Complete more lessons or quizzes to earn XP."
+                state['history'].append({"role": "assistant", "content": response_msg})
+                session['cod_state'] = state
+                return {"response": response_msg, "step": state['step'], "done": True, "needs_confirmation": False, "can_afford": False}
+            
+            response_msg += "\nEverything is architected. Shall we proceed with content generation and refactoring?"
+            
+            state['history'].append({"role": "assistant", "content": response_msg})
+            session['cod_state'] = state
+            return {"response": response_msg, "step": state['step'], "done": True, "needs_confirmation": True, "cost": cost, "can_afford": True}
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+    return {"error": "Invalid state"}, 400
+
+@app.route("/cod/confirm", methods=("POST",))
+@login_required
+def cod_confirm():
+    state = session.get('cod_state')
+    if not state or 'pending_course' not in state:
+        return {"error": "No pending course"}, 400
+
+    cost = state['total_cost']
+    if not g.user["is_pro"] and g.user["total_xp"] < cost:
+        return {"error": f"Insufficient XP. You need {cost} XP, but have {g.user['total_xp']}."}, 400
+
+    # Deduct XP if not pro
+    if not g.user["is_pro"]:
+        database.deduct_xp(g.user["id"], cost, "cod_generation")
+
+    try:
+        # Generate full content using Gemini
+        full_course = generate_cod_full_content(state['answers'], state['pending_course'])
+        
+        # Save to database
+        course_slug = f"cod-{g.user['id']}-{int(os.times()[4])}"
+        db_course = database.create_course(
+            slug=course_slug,
+            title=full_course['title'],
+            subtitle=full_course['subtitle'],
+            level=state['answers'][1], # Experience level
+            status='active',
+            user_id=g.user["id"]
+        )
+        
+        # Add sections and lessons
+        # Note: AI generates lessons mapped to sections
+        sections = {} # name -> id
+        for lesson_data in full_course['lessons']:
+            section_name = lesson_data.get('section', 'Core Curriculum')
+            if section_name not in sections:
+                sec = database.create_section(db_course['id'], len(sections)+1, section_name, "")
+                sections[section_name] = sec['id']
+            
+            database.create_lesson(
+                course_id=db_course['id'],
+                number=lesson_data['number'],
+                slug=f"lesson-{lesson_data['number']}",
+                title=lesson_data['title'],
+                summary=lesson_data['summary'],
+                content="", # We use builder_json
+                content_type='html',
+                section_id=sections[section_name],
+                builder_json=json.dumps(lesson_data['builder_json'])
+            )
+        
+        # Enroll user
+        database.enroll_user_in_course(g.user["id"], course_slug)
+        
+        session.pop('cod_state', None)
+        return {"status": "success", "url": url_for("course_overview", course_slug=course_slug)}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+def generate_cod_syllabus(answers):
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    model = "gemini-2.0-flash-lite" # Updated to a stable-like version or 1.5-flash
+    
+    prompt = f"""
+    You are Mosh Hamedani, a world-class software engineering instructor.
+    We are architecting a course on: {answers[0]}
+    Learner Level: {answers[1]}
+    Project Goal: {answers[2]}
+    Scope: {answers[3]}
+    Version: {answers[4]}
+    
+    Architect a detailed syllabus. 
+    Rule 1: Section 1 'Getting Started' MUST have exactly 5 lessons: Welcome & Roadmap, How to Think Like a Software Engineer, Your First 5 Lines of Code, Code Readability & Format Rules, Interactive Challenge: The Debugging Test.
+    Rule 2: Subsequent sections should cover core fundamentals and the project.
+    
+    Output JSON:
+    {{
+        "title": "Course Title",
+        "subtitle": "Short catchy subtitle",
+        "lessons": [
+            {{ "number": 1, "title": "Lesson Title", "section": "Section Name" }},
+            ...
+        ]
+    }}
+    """
+    
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        )
+    )
+    return json.loads(response.text)
+
+def generate_cod_full_content(answers, syllabus):
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    model = "gemini-2.0-flash-lite"
+    
+    # We'll do this in one or more passes if needed, but for now a single robust pass
+    prompt = f"""
+    You are Mosh Hamedani. Generate full content for the architected course.
+    
+    STYLE RULES:
+    1. Tone: Authoritative yet encouraging. Use "we".
+    2. Code Standard: Clean vs. Dirty Code comparisons are MANDATORY.
+    3. 3-Paragraph Rule: Explain concepts in 3 short paragraphs max.
+    4. Layout: Scannable, use bolding, backticks, and warning callouts.
+    5. Section 1 Blueprint: Follow the exact 5 lessons provided.
+    6. Section 2+ Blueprint: 4-part layout (Concept, Syntax, Pitfall, Micro-Exercise).
+    
+    SYLLABUS: {json.dumps(syllabus)}
+    
+    COMPONENTS: We use a block-based builder. Each lesson's 'builder_json' is a list of blocks:
+    - {{"type": "heading", "content": "Title"}}
+    - {{"type": "text", "content": "Paragraph content with **bold** and `code`"}}
+    - {{"type": "code", "lang": "python", "content": "code snippet"}}
+    - {{"type": "callout", "variant": "warning/info", "content": "tip content"}}
+    
+    Output JSON for the ENTIRE course:
+    {{
+        "title": "{syllabus['title']}",
+        "subtitle": "{syllabus['subtitle']}",
+        "lessons": [
+            {{
+                "number": 1,
+                "title": "...",
+                "section": "...",
+                "summary": "Short 1-sentence summary",
+                "builder_json": [ {{ "type": "text", "content": "..." }}, ... ]
+            }},
+            ...
+        ]
+    }}
+    """
+    
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        )
+    )
+    return json.loads(response.text)
 
 #  Init 
 

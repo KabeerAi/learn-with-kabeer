@@ -3,7 +3,7 @@
  */
 
 function confirmDeletion() {
-    const confirmation = confirm("Are you absolutely sure you want to delete your account? This action is permanent and all your progress, XP, and rankings will be lost forever.");
+    const confirmation = confirm("Are you absolutely sure you want to delete your account? This action is permanent and all your progress and XP will be lost forever.");
     if (confirmation) {
         document.getElementById('delete-account-form').submit();
     }

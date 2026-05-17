@@ -58,26 +58,7 @@
                 </div>
             </section>
 
-            {# Privacy Section #}
-            <section class="settings-section">
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-[#1C1C1C]">Privacy & Visibility</h2>
-                    <p class="text-sm text-[#6B6B6B] mt-1">Control your presence on the leaderboards.</p>
-                </div>
 
-                <div class="rounded-2xl border border-[#E5E5E5] bg-white p-8">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-[#1C1C1C]">Public Ranking</h3>
-                            <p class="text-xs text-[#6B6B6B] mt-1">Allow your XP and streak to be visible in global and course leaderboards.</p>
-                        </div>
-                        <label class="privacy-toggle">
-                            <input type="checkbox" name="privacy_public" {% if current_user.privacy_public %}checked{% endif %}>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </section>
 
             {# Save Button #}
             <div class="flex justify-end border-t border-[#E5E5E5] pt-12">
