@@ -1,139 +1,254 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main class="flex-1 overflow-hidden bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white h-[calc(100vh-64px)] flex flex-col">
-    {# --- CHAT HEADER --- #}
-    <div class="border-b border-[#E5E5E5] bg-white/80 px-8 py-4 backdrop-blur-md">
+<main id="cod-container" class="state-initial flex-1 overflow-hidden bg-white font-sans selection:bg-[#1C1C1C] selection:text-white h-[calc(100vh-64px)] flex flex-col transition-all duration-700">
+    
+    {# --- CHAT HEADER (Only visible in chat state) --- #}
+    <div id="chat-header" class="opacity-0 pointer-events-none border-b border-[#F0F0F0] bg-white/80 px-8 py-3 backdrop-blur-md transition-opacity duration-700">
         <div class="mx-auto flex max-w-4xl items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-200/50">
-                    <i data-lucide="sparkles" class="h-5 w-5 text-white"></i>
+                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1C1C1C]">
+                    <i data-lucide="sparkles" class="h-3.5 w-3.5 text-white"></i>
                 </div>
-                <div>
-                    <h1 class="text-sm font-bold tracking-tight text-[#1C1C1C]">Course Architect AI</h1>
-                    <p class="text-[11px] font-medium text-[#A3A3A3]">Powered by Gemini 2.0</p>
-                </div>
+                <span class="text-[13px] font-semibold tracking-tight text-[#1C1C1C]">Forge</span>
             </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 rounded-full border border-[#E5E5E5] bg-white px-3 py-1.5 shadow-sm">
-                    <i data-lucide="zap" class="h-3.5 w-3.5 text-amber-50 fill-amber-400 text-amber-400"></i>
-                    <span class="text-xs font-bold text-[#1C1C1C]"><span id="userXp">{{ current_user['total_xp'] }}</span> XP</span>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 text-[11px] font-bold text-[#1C1C1C] uppercase tracking-wider">
+                    <i data-lucide="zap" class="h-3 w-3 fill-amber-400 text-amber-400"></i>
+                    <span class="xp-value">{{ current_user['total_xp'] | comma }}</span> XP
                 </div>
-                <button onclick="window.location.href='/cod?reset=1'" class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white text-[#404040] transition-all hover:bg-[#FAF9F6] active:scale-95" title="Reset Chat">
-                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                <button onclick="resetChat()" class="text-[#A3A3A3] transition-colors hover:text-[#1C1C1C]" title="New conversation">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
                 </button>
             </div>
         </div>
     </div>
 
     {# --- MESSAGES AREA --- #}
-    <div id="chatMessages" class="flex-1 overflow-y-auto px-8 py-10 scroll-smooth">
-        <div class="mx-auto max-w-3xl space-y-8">
-            {# Welcome Message #}
-            <div class="flex gap-4">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
-                    <i data-lucide="bot" class="h-5 w-5"></i>
-                </div>
-                <div class="space-y-4">
-                    <div class="rounded-2xl border border-[#E5E5E5] bg-white p-5 shadow-sm">
-                        <p class="text-[15px] leading-relaxed text-[#404040]">
-                            Welcome back. I am your Course Architect. We are going to build something world-class today. 
-                            <br><br>
-                            To get started, I need to ingest your requirements. **What is the core topic or technology we are targeting?** (e.g., TypeScript, Python, Next.js)
-                        </p>
-                    </div>
-                </div>
+    <div id="chatMessages" class="hidden flex-1 overflow-y-auto px-6 py-12 scroll-smooth opacity-0 transition-opacity duration-1000">
+        <div class="mx-auto max-w-3xl space-y-10">
+            {# Messages will be injected here #}
+        </div>
+        
+        {# Status/Thinking Indicator #}
+        <div id="statusIndicator" class="mt-8 hidden">
+            <div class="mx-auto max-w-3xl flex items-center justify-start gap-4">
+                <div class="thinking-orb"></div>
+                <span id="statusText" class="text-[13px] font-medium text-[#8E8E93]">Thinking</span>
             </div>
         </div>
     </div>
 
-    {# --- INPUT AREA --- #}
-    <div class="border-t border-[#E5E5E5] bg-white p-8">
-        <div class="mx-auto max-w-3xl">
-            <div id="statusIndicator" class="mb-4 hidden">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50">
-                        <div class="h-1.5 w-1.5 animate-ping rounded-full bg-amber-500"></div>
-                    </div>
-                    <span id="statusText" class="text-xs font-semibold text-amber-600 uppercase tracking-widest">Architecting syllabus...</span>
-                </div>
-            </div>
-
-            <form id="chatForm" class="relative flex items-center">
-                <input type="text" id="userInput" autocomplete="off" placeholder="Type your response..." class="w-full rounded-2xl border border-[#E5E5E5] bg-[#FAF9F6] px-6 py-4 pr-16 text-[15px] font-medium text-[#1C1C1C] transition-all placeholder:text-[#A3A3A3] focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/10">
-                <button type="submit" id="sendBtn" class="absolute right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#1C1C1C] text-white transition-all hover:bg-[#2A2A2A] active:scale-95 disabled:opacity-50">
-                    <i data-lucide="arrow-up" class="h-5 w-5"></i>
-                </button>
-            </form>
-            <p class="mt-4 text-center text-[11px] font-medium text-[#A3A3A3]">
-                AI-generated courses consume 3 XP per lesson. Precision matters.
+    {# --- INTERACTION AREA --- #}
+    <div id="interaction-area" class="flex-1 flex flex-col items-center justify-center px-6 transition-all duration-700 ease-in-out">
+        <div id="initial-content" class="w-full max-w-2xl text-center transition-all duration-500">
+            <h1 class="mb-3 text-[32px] font-medium tracking-[-0.02em] text-[#1C1C1C]">
+                Hi {{ current_user['name'].split(' ')[0] }}, what's on your mind?
+            </h1>
+            <p class="mb-10 text-[15px] text-[#8E8E93] font-normal leading-relaxed">
+                Describe the course you want to learn, and I'll craft it for you.
             </p>
+        </div>
+
+        <div id="input-wrapper" class="w-full max-w-2xl transition-all duration-700 ease-in-out">
+            <form id="chatForm" class="relative group">
+                <div class="relative flex items-center rounded-2xl bg-[#F4F4F5] transition-all duration-200 focus-within:bg-[#EBEBED] focus-within:ring-1 focus-within:ring-[#D4D4D8]">
+                    <input type="text" id="userInput" autocomplete="off" placeholder="Ask anything" 
+                        class="w-full bg-transparent px-6 py-4 pr-14 text-[15px] font-normal text-[#1C1C1C] outline-none placeholder:text-[#8E8E93]">
+                    <button type="submit" id="sendBtn" class="absolute right-3 flex h-8 w-8 items-center justify-center rounded-lg bg-[#1C1C1C] text-white transition-all hover:bg-black active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed">
+                        <i data-lucide="arrow-up" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div id="suggestions" class="mt-6 flex flex-col gap-2 transition-all duration-500">
+                <button onclick="useSuggestion(this)" class="suggestion-chip group flex items-center gap-3 rounded-xl border border-[#E5E5EA] bg-white px-5 py-3.5 text-left transition-all hover:bg-[#F9F9FB] hover:border-[#D1D1D6] active:scale-[0.99]">
+                    <i data-lucide="sparkles" class="h-4 w-4 text-[#C7C7CC] transition-colors group-hover:text-[#8E8E93]"></i>
+                    <span class="text-[14px] font-normal text-[#6B6B6B] group-hover:text-[#1C1C1C] transition-colors">I want to learn NumPy in Python</span>
+                </button>
+                <button onclick="useSuggestion(this)" class="suggestion-chip group flex items-center gap-3 rounded-xl border border-[#E5E5EA] bg-white px-5 py-3.5 text-left transition-all hover:bg-[#F9F9FB] hover:border-[#D1D1D6] active:scale-[0.99]">
+                    <i data-lucide="sparkles" class="h-4 w-4 text-[#C7C7CC] transition-colors group-hover:text-[#8E8E93]"></i>
+                    <span class="text-[14px] font-normal text-[#6B6B6B] group-hover:text-[#1C1C1C] transition-colors">Advanced React Hooks and Patterns</span>
+                </button>
+                <button onclick="useSuggestion(this)" class="suggestion-chip group flex items-center gap-3 rounded-xl border border-[#E5E5EA] bg-white px-5 py-3.5 text-left transition-all hover:bg-[#F9F9FB] hover:border-[#D1D1D6] active:scale-[0.99]">
+                    <i data-lucide="sparkles" class="h-4 w-4 text-[#C7C7CC] transition-colors group-hover:text-[#8E8E93]"></i>
+                    <span class="text-[14px] font-normal text-[#6B6B6B] group-hover:text-[#1C1C1C] transition-colors">Mastering Data Structures with JavaScript</span>
+                </button>
+            </div>
         </div>
     </div>
 </main>
 
 {# --- CONFIRMATION MODAL --- #}
-<div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1C1C]/60 p-6 opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm">
-    <div class="w-full max-w-md scale-95 transform rounded-3xl bg-white p-8 shadow-2xl transition-transform duration-300">
-        <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
-            <i data-lucide="zap" class="h-7 w-7 fill-amber-600"></i>
+<div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm">
+    <div class="w-full max-w-sm scale-95 transform rounded-2xl bg-white p-8 shadow-2xl transition-transform duration-300 border border-[#E5E5EA]">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1C1C1C]">
+                <i data-lucide="sparkles" class="h-5 w-5 text-white"></i>
+            </div>
+            <h2 class="text-lg font-semibold tracking-tight text-[#1C1C1C]">Ready to generate?</h2>
         </div>
-        <h2 class="mb-2 text-xl font-bold text-[#1C1C1C]">Begin Content Generation?</h2>
-        <p class="mb-8 text-[15px] leading-relaxed text-[#6B6B6B]">
-            I have architected the course structure. We are about to generate all lesson content using the **Mosh pedagogical standard**.
-            <br><br>
-            Cost: <span id="modalCost" class="font-bold text-[#1C1C1C]">--</span> XP
+        <p class="mb-8 text-sm leading-relaxed font-normal text-[#6B6B6B]">
+            Your course structure looks great. Generating full lesson content will cost
+            <span id="modalCost" class="font-semibold text-[#1C1C1C]">--</span> XP.
         </p>
         <div class="flex gap-3">
-            <button onclick="hideModal()" class="flex-1 rounded-xl border border-[#E5E5E5] bg-white py-3.5 text-sm font-bold text-[#404040] transition-all hover:bg-[#FAF9F6]">Cancel</button>
-            <button id="finalGenerateBtn" class="flex-1 rounded-xl bg-[#1C1C1C] py-3.5 text-sm font-bold text-white transition-all hover:bg-[#2A2A2A] shadow-lg shadow-black/10">Pay & Generate</button>
+            <button onclick="hideModal()" class="flex-1 rounded-xl border border-[#E5E5EA] bg-white py-3 text-sm font-medium text-[#6B6B6B] transition-all hover:bg-[#F9F9FB]">Cancel</button>
+            <button id="finalGenerateBtn" class="flex-1 rounded-xl bg-[#1C1C1C] py-3 text-sm font-medium text-white transition-all hover:bg-black">Generate</button>
         </div>
     </div>
 </div>
 
 {# --- SUCCESS OVERLAY --- #}
 <div id="successOverlay" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white opacity-0 pointer-events-none transition-opacity duration-1000">
-    <div class="relative mb-8">
-        <div class="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-20"></div>
-        <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-amber-400 text-white shadow-xl shadow-amber-200">
-            <i data-lucide="check" class="h-10 w-10 stroke-[3px]"></i>
-        </div>
+    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F4F4F5] mb-6">
+        <i data-lucide="check" class="h-8 w-8 text-[#1C1C1C]"></i>
     </div>
-    <h2 class="mb-2 text-2xl font-black tracking-tight text-[#1C1C1C]">Course Perfection Attained.</h2>
-    <p class="text-sm font-bold uppercase tracking-widest text-amber-600">Redirecting to your new journey...</p>
+    <h2 class="mb-2 text-xl font-semibold tracking-tight text-[#1C1C1C]">Course created</h2>
+    <p class="text-sm font-normal text-[#8E8E93]">Redirecting to your new course...</p>
 </div>
 
 <style>
-    .message-enter {
-        animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* ═══════════════════════ STATE TRANSITIONS ═══════════════════════ */
+    .state-chat #interaction-area {
+        flex: none;
+        padding-top: 1rem;
+        padding-bottom: 2rem;
+        justify-content: flex-end;
     }
-    @keyframes slide-up {
-        from { opacity: 0; transform: translateY(20px); }
+    .state-chat #initial-content {
+        height: 0; opacity: 0; margin: 0; padding: 0;
+        overflow: hidden; pointer-events: none;
+    }
+    .state-chat #suggestions {
+        height: 0; opacity: 0; margin: 0; padding: 0;
+        overflow: hidden; pointer-events: none;
+    }
+    .state-chat #input-wrapper { max-width: 48rem; }
+    .state-chat #chat-header { opacity: 1; pointer-events: auto; }
+    .state-chat #chatMessages { display: block; opacity: 1; }
+
+    /* ═══════════════════════ MESSAGE ANIMATION ═══════════════════════ */
+    .message-enter {
+        animation: msg-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes msg-in {
+        from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
-    .thinking-dots {
-        display: inline-flex;
-        gap: 2px;
-    }
-    .thinking-dots div {
-        width: 4px;
-        height: 4px;
+
+    /* ═══════════════════════ THINKING INDICATOR ═══════════════════════ */
+    .thinking-orb {
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        background-color: #A3A3A3;
-        animation: dot-pulse 1.4s infinite;
+        background: conic-gradient(from 0deg, #1C1C1C, #E5E5EA, #1C1C1C);
+        animation: orb-spin 1s linear infinite;
     }
-    .thinking-dots div:nth-child(2) { animation-delay: 0.2s; }
-    .thinking-dots div:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dot-pulse {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.2); }
+    @keyframes orb-spin {
+        to { transform: rotate(360deg); }
     }
 
-    #chatMessages::-webkit-scrollbar { width: 6px; }
+    /* ═══════════════════════ TYPING CURSOR ═══════════════════════ */
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.1em;
+        background-color: #1C1C1C;
+        margin-left: 1px;
+        vertical-align: text-bottom;
+        animation: cursor-blink 0.8s ease-in-out infinite;
+    }
+    @keyframes cursor-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    /* ═══════════════════════ CHAT CONTENT STYLES ═══════════════════════ */
+    .chat-content {
+        font-size: 15px;
+        color: #1C1C1C;
+        line-height: 1.75;
+    }
+    .chat-content p {
+        margin-bottom: 1rem;
+        line-height: 1.75;
+    }
+    .chat-content h1 { font-size: 1.375rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #1C1C1C; }
+    .chat-content h2 { font-size: 1.2rem; font-weight: 600; margin: 1.25rem 0 0.625rem; color: #1C1C1C; }
+    .chat-content h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #1C1C1C; }
+    .chat-content ul {
+        list-style-type: none;
+        margin-bottom: 1rem;
+        padding-left: 0;
+    }
+    .chat-content ul li {
+        position: relative;
+        padding-left: 1.25rem;
+        margin-bottom: 0.375rem;
+        line-height: 1.75;
+    }
+    .chat-content ul li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #C7C7CC;
+        font-weight: 700;
+    }
+    .chat-content ol { list-style: decimal; list-style-position: inside; margin-bottom: 1rem; }
+    .chat-content ol li { margin-bottom: 0.375rem; line-height: 1.75; }
+    .chat-content blockquote {
+        border-left: 2px solid #E5E5EA;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #6B6B6B;
+        font-style: italic;
+    }
+    .chat-content code {
+        background-color: #F4F4F5;
+        padding: 0.125rem 0.375rem;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #1C1C1C;
+    }
+    .chat-content pre {
+        background-color: #1C1C1C;
+        color: #E5E5EA;
+        padding: 1.25rem;
+        border-radius: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 1rem 0;
+        overflow-x: auto;
+    }
+    .chat-content pre code {
+        background: none;
+        padding: 0;
+        color: inherit;
+        font-size: inherit;
+    }
+    .chat-content strong { font-weight: 600; color: #1C1C1C; }
+
+    /* ═══════════════════════ SCROLLBAR ═══════════════════════ */
+    #chatMessages::-webkit-scrollbar { width: 4px; }
     #chatMessages::-webkit-scrollbar-track { background: transparent; }
-    #chatMessages::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 10px; }
+    #chatMessages::-webkit-scrollbar-thumb { background: #E5E5EA; border-radius: 10px; }
+    #chatMessages::-webkit-scrollbar-thumb:hover { background: #D1D1D6; }
+
+    /* ═══════════════════════ SUGGESTION ANIMATION ═══════════════════════ */
+    .suggestion-chip {
+        animation: chip-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+    .suggestion-chip:nth-child(1) { animation-delay: 0.1s; }
+    .suggestion-chip:nth-child(2) { animation-delay: 0.2s; }
+    .suggestion-chip:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes chip-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 {% endblock %}
 

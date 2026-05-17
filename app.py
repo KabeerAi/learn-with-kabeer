@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import time
 from functools import wraps
 
 import markdown
@@ -74,6 +75,16 @@ def render_markdown(text):
     if text is None:
         return ""
     html = markdown.markdown(text, extensions=['fenced_code', 'tables'])
+    # ... (rest of the markdown logic)
+    return html
+
+@app.template_filter('comma')
+def comma_filter(value):
+    try:
+        return "{:,}".format(int(value))
+    except (ValueError, TypeError):
+        return value
+
 
     def replace_code_block(match):
         lang_class = match.group(1) or ""
@@ -857,14 +868,41 @@ def admin_lessons_reorder():
 
 #  Course on Demand (COD) Routes 
 
-COD_QUESTIONS = [
-    "What is the core topic/technology? (e.g., TypeScript, Python, Next.js)",
-    "What is the target learner's experience level? (Absolute Beginner, Intermediate, Advanced Switcher)",
-    "What is the single, overarching project built throughout the course? (e.g., A real-time chat app, a CLI expense tracker)",
-    "What is the course scope/depth? (Quick Crash Course [3-5 sections], Comprehensive Masterclass [10+ sections])",
-    "What specific version of the technology are we targeting? (e.g., Python 3.12, React 19)",
-    "What formatting output do you prefer? (Markdown, JSON for LMS database, HTML/MDX) - Note: I will generate JSON for our system."
-]
+SYSTEM_INSTRUCTION_COD = """
+You are an expert curriculum architect. Your role is to design personalized software engineering courses.
+
+PHASE 1: DISCOVERY & ARCHITECTURE
+- Be highly conversational and proactive.
+- Ask the user questions ONE BY ONE to build a comprehensive understanding of their needs:
+  1. What is the core topic/technology? (e.g., Python, React).
+  2. What is the target user's experience level? (Beginner, Intermediate, Advanced).
+  3. What is the overarching project to be built during this course?
+  4. What is the desired depth? (Crash course vs. Comprehensive masterclass).
+- Do not stop until you have a clear, deep understanding of the user's intent.
+- Once you have sufficient info, pivot to designing the curriculum.
+
+PHASE 2: PLANNING
+- Propose a structured curriculum. 
+- You MUST output a JSON object:
+  {
+    "status": "READY",
+    "message": "A summary of the course architecture and curriculum.",
+    "syllabus": {
+        "title": "...",
+        "subtitle": "...",
+        "level": "...",
+        "lessons": [
+            { "number": 1, "title": "Lesson Title", "section": "Section Name" },
+            ...
+        ]
+    }
+  }
+
+OUTPUT RULES:
+- If in PHASE 1, output: {"status": "CHATTING", "message": "Your next question."}
+- If in PHASE 2, output: {"status": "READY", "syllabus": {...}, "message": "..."}
+- ALWAYS output valid JSON. No markdown formatting.
+"""
 
 @app.route("/cod")
 @login_required
@@ -872,9 +910,9 @@ def cod_interface():
     # Clear previous COD session state if starting fresh
     if 'cod_state' not in session or request.args.get('reset'):
         session['cod_state'] = {
-            'step': 0,
-            'answers': {},
-            'history': []
+            'history': [], # List of {"role": "user/assistant", "content": "..."}
+            'pending_course': None,
+            'total_cost': 0
         }
     return render_template("lessons/cod.html")
 
@@ -887,60 +925,67 @@ def cod_chat():
     if not state:
         return {"error": "Session expired"}, 400
 
-    step = state['step']
+    # Prepare chat history for Gemini
+    history = []
+    for msg in state['history']:
+        history.append(types.Content(role=msg['role'], parts=[types.Part(text=msg['content'])]))
     
-    # Save answer to previous question
-    if step > 0:
-        state['answers'][step-1] = user_msg
-        state['history'].append({"role": "user", "content": user_msg})
+    # Add new user message
+    state['history'].append({"role": "user", "content": user_msg})
+    history.append(types.Content(role="user", parts=[types.Part(text=user_msg)]))
 
-    # If we have more questions, ask the next one
-    if step < len(COD_QUESTIONS):
-        next_q = COD_QUESTIONS[step]
-        state['step'] += 1
-        state['history'].append({"role": "assistant", "content": next_q})
-        session['cod_state'] = state
-        return {"response": next_q, "step": state['step'], "done": False}
-
-    # All questions answered! Propose a syllabus.
-    if step == len(COD_QUESTIONS):
-        # Trigger Gemini to generate a syllabus and XP estimate
-        state['step'] += 1
-        session['cod_state'] = state
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    
+    try:
+        response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents=history,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_INSTRUCTION_COD,
+                response_mime_type="application/json",
+                thinking_config=types.ThinkingConfig(thinking_level="low")
+            )
+        )
         
-        try:
-            syllabus_data = generate_cod_syllabus(state['answers'])
-            state['pending_course'] = syllabus_data
-            cost = len(syllabus_data['lessons']) * 3
+        ai_data = json.loads(response.text)
+        ai_message = ai_data.get("message", "I'm processing your request.")
+        state['history'].append({"role": "assistant", "content": ai_message})
+        
+        if ai_data.get("status") == "READY":
+            syllabus = ai_data.get("syllabus")
+            state['pending_course'] = syllabus
+            cost = len(syllabus['lessons']) * 3
             state['total_cost'] = cost
             
             can_afford = g.user["is_pro"] or g.user["total_xp"] >= cost
             
-            response_msg = f"I've architected your custom course: **{syllabus_data['title']}**.\n\n"
+            response_msg = f"{ai_message}\n\n"
             response_msg += f"**Course Report & Syllabus:**\n"
-            for lesson in syllabus_data['lessons']:
+            for lesson in syllabus['lessons']:
                 response_msg += f"- Lesson {lesson['number']}: {lesson['title']}\n"
             
             response_msg += f"\n**Economic Breakdown:**\n"
-            response_msg += f"- Lessons: {len(syllabus_data['lessons'])}\n"
-            response_msg += f"- Cost: **{cost} XP** (3 XP per lesson)\n"
-            response_msg += f"- Your Balance: {g.user['total_xp']} XP\n"
+            response_msg += f"- Lessons: {len(syllabus['lessons'])}\n"
+            response_msg += f"- Cost: **{cost:,} XP**\n"
+            response_msg += f"- Your Balance: {g.user['total_xp']:,} XP\n"
             
             if not can_afford:
-                response_msg += f"\n**Insufficient XP:** You need {cost - g.user['total_xp']} more XP to forge this course. Complete more lessons or quizzes to earn XP."
-                state['history'].append({"role": "assistant", "content": response_msg})
+                response_msg += f"\n**Insufficient XP:** You need {cost - g.user['total_xp']:,} more XP to forge this course."
                 session['cod_state'] = state
-                return {"response": response_msg, "step": state['step'], "done": True, "needs_confirmation": False, "can_afford": False}
+                return {"response": response_msg, "done": True, "needs_confirmation": False, "can_afford": False}
             
-            response_msg += "\nEverything is architected. Shall we proceed with content generation and refactoring?"
-            
-            state['history'].append({"role": "assistant", "content": response_msg})
+            response_msg += "\nEverything is architected. Shall we proceed with content generation?"
             session['cod_state'] = state
-            return {"response": response_msg, "step": state['step'], "done": True, "needs_confirmation": True, "cost": cost, "can_afford": True}
-        except Exception as e:
-            return {"error": str(e)}, 500
-
-    return {"error": "Invalid state"}, 400
+            return {"response": response_msg, "done": True, "needs_confirmation": True, "cost": cost, "can_afford": True}
+        
+        session['cod_state'] = state
+        return {"response": ai_message, "done": False}
+        
+    except Exception as e:
+        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+            return {"error": "rate limit reached, please try again in a minute."}
+        print(f"COD Chat Error: {e}")
+        return {"error": "something went wrong, please try again."}
 
 @app.route("/cod/confirm", methods=("POST",))
 @login_required
@@ -951,81 +996,141 @@ def cod_confirm():
 
     cost = state['total_cost']
     if not g.user["is_pro"] and g.user["total_xp"] < cost:
-        return {"error": f"Insufficient XP. You need {cost} XP, but have {g.user['total_xp']}."}, 400
+        return {"error": f"Insufficient XP."}, 400
 
-    # Deduct XP if not pro
     if not g.user["is_pro"]:
         database.deduct_xp(g.user["id"], cost, "cod_generation")
 
     try:
-        # Generate full content using Gemini
-        full_course = generate_cod_full_content(state['answers'], state['pending_course'])
+        full_course = generate_cod_full_content(state['pending_course'])
         
-        # Save to database
-        course_slug = f"cod-{g.user['id']}-{int(os.times()[4])}"
+        course_slug = f"cod-{g.user['id']}-{int(time.time())}"
         db_course = database.create_course(
             slug=course_slug,
             title=full_course['title'],
             subtitle=full_course['subtitle'],
-            level=state['answers'][1], # Experience level
+            level=state['pending_course'].get('level', 'Beginner'),
             status='active',
             user_id=g.user["id"]
         )
         
-        # Add sections and lessons
-        # Note: AI generates lessons mapped to sections
-        sections = {} # name -> id
+        sections = {}
         for lesson_data in full_course['lessons']:
             section_name = lesson_data.get('section', 'Core Curriculum')
             if section_name not in sections:
-                sec = database.create_section(db_course['id'], len(sections)+1, section_name, "")
+                # Use the AI-assigned background if available, else empty string
+                bg = lesson_data.get('section_background', '')
+                sec = database.create_section(db_course['id'], len(sections)+1, section_name, "", background=bg)
                 sections[section_name] = sec['id']
+            
+            # Normalize AI output to match builder schema and generate HTML
+            raw_blocks = lesson_data.get('builder_json', [])
+            normalized_blocks = normalize_builder_json(raw_blocks)
+            html_content = builder_json_to_html(normalized_blocks)
             
             database.create_lesson(
                 course_id=db_course['id'],
                 number=lesson_data['number'],
-                slug=f"lesson-{lesson_data['number']}",
+                slug=f"lesson-{lesson_data['number']}-{int(time.time())}",
                 title=lesson_data['title'],
-                summary=lesson_data['summary'],
-                content="", # We use builder_json
+                summary=lesson_data.get('summary', ""),
+                content=html_content,
                 content_type='html',
                 section_id=sections[section_name],
-                builder_json=json.dumps(lesson_data['builder_json'])
+                builder_json=json.dumps(normalized_blocks)
             )
         
-        # Enroll user
         database.enroll_user_in_course(g.user["id"], course_slug)
-        
         session.pop('cod_state', None)
         return {"status": "success", "url": url_for("course_overview", course_slug=course_slug)}
     except Exception as e:
-        return {"error": str(e)}, 500
+        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+            return {"error": "rate limit reached, please try again in a minute."}, 429
+        print(f"COD Confirm Error: {e}")
+        return {"error": "something went wrong while generating content."}, 500
 
-def generate_cod_syllabus(answers):
+def generate_cod_full_content(syllabus):
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = "gemini-2.0-flash-lite" # Updated to a stable-like version or 1.5-flash
+    model = "gemini-3-flash-preview"
+    
+    backgrounds = get_available_backgrounds()
     
     prompt = f"""
-    You are Mosh Hamedani, a world-class software engineering instructor.
-    We are architecting a course on: {answers[0]}
-    Learner Level: {answers[1]}
-    Project Goal: {answers[2]}
-    Scope: {answers[3]}
-    Version: {answers[4]}
-    
-    Architect a detailed syllabus. 
-    Rule 1: Section 1 'Getting Started' MUST have exactly 5 lessons: Welcome & Roadmap, How to Think Like a Software Engineer, Your First 5 Lines of Code, Code Readability & Format Rules, Interactive Challenge: The Debugging Test.
-    Rule 2: Subsequent sections should cover core fundamentals and the project.
-    
-    Output JSON:
-    {{
-        "title": "Course Title",
-        "subtitle": "Short catchy subtitle",
-        "lessons": [
-            {{ "number": 1, "title": "Lesson Title", "section": "Section Name" }},
-            ...
-        ]
-    }}
+You are writing lessons for a premium online coding school. Your writing style is inspired by Mosh Hamedani (CodeWithMosh) — friendly, calm, crystal-clear, and never robotic.
+
+WRITING RULES (follow these STRICTLY):
+1. VOICE: Write like you're sitting next to the student, explaining things over coffee. Use "we" and "you" naturally. Be warm but never condescending.
+2. NEVER use filler phrases like "In this lesson, we will learn..." or "Let's dive in" or "In the world of programming". Just START teaching the concept directly.
+3. NEVER start with meta-commentary about the lesson. Jump straight into the meat.
+4. Every paragraph should teach ONE idea. Keep paragraphs to 2-3 sentences max.
+5. Use REAL-WORLD analogies to explain abstract concepts (e.g., "Think of a variable like a labeled box — you put a value inside and refer to it by name").
+6. Show PRACTICAL code examples that solve real problems, not toy examples. Use meaningful variable names.
+7. After each code block, EXPLAIN what the code does line by line in a short paragraph.
+8. Include at least one "common mistake" callout per lesson showing what beginners get wrong and why.
+9. End each lesson with a small hands-on exercise the student can try immediately.
+10. CONTENT DEPTH: Each lesson MUST have 8-15 builder blocks minimum. This is a real course, not a summary.
+
+BLOCK-BASED BUILDER FORMAT:
+Each lesson's "builder_json" is a list of block objects. Here are the EXACT block schemas:
+
+1. HEADING block (use for major topic breaks within a lesson):
+   {{"type": "heading", "data": {{"text": "Your Heading Here"}}}}
+
+2. TEXT block (the main teaching content — make these substantial and conversational):
+   {{"type": "text", "data": {{"text": "Your paragraph content here. You can use <b>bold</b> and <code>inline code</code> for emphasis."}}}}
+
+3. CODE block (always include practical, runnable examples):
+   {{"type": "code", "data": {{"lang": "python", "code": "# Your code here\nresult = 42\nprint(result)"}}}}
+   Supported languages: python, javascript, html, css, json, typescript, shell
+
+4. CALLOUT block (for tips, warnings, common pitfalls):
+   {{"type": "callout", "data": {{"type": "info", "title": "Pro Tip", "body": "Your tip content here."}}}}
+   OR for warnings:
+   {{"type": "callout", "data": {{"type": "warning", "title": "Watch Out", "body": "Common mistake explanation."}}}}
+
+5. QUIZ block (one per lesson, to reinforce the key concept):
+   {{"type": "quiz", "data": {{"question": "What does X do?", "options": ["Answer A", "Answer B", "Answer C"], "correct": 0}}}}
+
+LESSON STRUCTURE TEMPLATE (each lesson should roughly follow this flow):
+1. A heading block introducing the topic
+2. 2-3 text blocks explaining the concept with analogies
+3. A code block showing the concept in action
+4. A text block explaining the code
+5. A heading block for a deeper aspect or variation
+6. More text + code blocks building on the concept
+7. A callout block with a common mistake or pro tip
+8. A heading block "Try It Yourself" with a mini-exercise
+9. A text block describing the exercise
+10. A quiz block testing comprehension
+
+AVAILABLE SECTION BACKGROUNDS: {json.dumps(backgrounds)}
+
+SYLLABUS TO GENERATE CONTENT FOR:
+{json.dumps(syllabus)}
+
+OUTPUT FORMAT — return this exact JSON structure:
+{{
+    "title": "{syllabus['title']}",
+    "subtitle": "{syllabus['subtitle']}",
+    "lessons": [
+        {{
+            "number": 1,
+            "title": "Lesson Title",
+            "section": "Section Name from syllabus",
+            "section_background": "pick_one_from_available_backgrounds.png",
+            "summary": "One sentence describing what the student will learn.",
+            "builder_json": [
+                {{"type": "heading", "data": {{"text": "..."}}}},
+                {{"type": "text", "data": {{"text": "..."}}}},
+                {{"type": "code", "data": {{"lang": "python", "code": "..."}}}},
+                {{"type": "callout", "data": {{"type": "info", "title": "...", "body": "..."}}}},
+                {{"type": "quiz", "data": {{"question": "...", "options": ["..."], "correct": 0}}}}
+            ]
+        }}
+    ]
+}}
+
+CRITICAL: Every lesson MUST have rich, detailed builder_json with AT LEAST 8 blocks. Do NOT return empty or minimal builder_json arrays. The content quality is what makes this course worth paying for.
     """
     
     response = client.models.generate_content(
@@ -1033,59 +1138,152 @@ def generate_cod_syllabus(answers):
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
+            thinking_config=types.ThinkingConfig(thinking_level="medium")
         )
     )
     return json.loads(response.text)
 
-def generate_cod_full_content(answers, syllabus):
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = "gemini-2.0-flash-lite"
+
+def normalize_builder_json(blocks):
+    """Normalize AI-generated builder blocks to match the builder's expected schema.
     
-    # We'll do this in one or more passes if needed, but for now a single robust pass
-    prompt = f"""
-    You are Mosh Hamedani. Generate full content for the architected course.
-    
-    STYLE RULES:
-    1. Tone: Authoritative yet encouraging. Use "we".
-    2. Code Standard: Clean vs. Dirty Code comparisons are MANDATORY.
-    3. 3-Paragraph Rule: Explain concepts in 3 short paragraphs max.
-    4. Layout: Scannable, use bolding, backticks, and warning callouts.
-    5. Section 1 Blueprint: Follow the exact 5 lessons provided.
-    6. Section 2+ Blueprint: 4-part layout (Concept, Syntax, Pitfall, Micro-Exercise).
-    
-    SYLLABUS: {json.dumps(syllabus)}
-    
-    COMPONENTS: We use a block-based builder. Each lesson's 'builder_json' is a list of blocks:
-    - {{"type": "heading", "content": "Title"}}
-    - {{"type": "text", "content": "Paragraph content with **bold** and `code`"}}
-    - {{"type": "code", "lang": "python", "content": "code snippet"}}
-    - {{"type": "callout", "variant": "warning/info", "content": "tip content"}}
-    
-    Output JSON for the ENTIRE course:
-    {{
-        "title": "{syllabus['title']}",
-        "subtitle": "{syllabus['subtitle']}",
-        "lessons": [
-            {{
-                "number": 1,
-                "title": "...",
-                "section": "...",
-                "summary": "Short 1-sentence summary",
-                "builder_json": [ {{ "type": "text", "content": "..." }}, ... ]
-            }},
-            ...
-        ]
-    }}
+    The AI might output blocks in either format:
+      - New format: {"type": "text", "data": {"text": "..."}}
+      - Old/flat format: {"type": "text", "content": "..."}
+    This ensures all blocks use the correct {"type": ..., "data": {...}} structure.
     """
+    normalized = []
+    for block in blocks:
+        block_type = block.get('type', 'text')
+        
+        # If block already has a proper 'data' dict, keep it
+        if 'data' in block and isinstance(block['data'], dict):
+            normalized.append({"type": block_type, "data": block['data']})
+            continue
+        
+        # Otherwise, convert flat format to data-based format
+        if block_type == 'heading':
+            normalized.append({"type": "heading", "data": {"text": block.get('content', 'Heading')}})
+        elif block_type == 'text':
+            normalized.append({"type": "text", "data": {"text": block.get('content', '')}})
+        elif block_type == 'code':
+            normalized.append({"type": "code", "data": {
+                "lang": block.get('lang', 'python'),
+                "code": block.get('content', '')
+            }})
+        elif block_type == 'callout':
+            normalized.append({"type": "callout", "data": {
+                "type": block.get('variant', block.get('callout_type', 'info')),
+                "title": block.get('title', 'Note'),
+                "body": block.get('content', block.get('body', ''))
+            }})
+        elif block_type == 'quiz':
+            normalized.append({"type": "quiz", "data": {
+                "question": block.get('question', ''),
+                "options": block.get('options', ['Option A', 'Option B']),
+                "correct": block.get('correct', 0)
+            }})
+        elif block_type == 'image':
+            normalized.append({"type": "image", "data": {"url": block.get('url', block.get('content', ''))}})
+        else:
+            # Fallback: wrap as text
+            normalized.append({"type": "text", "data": {"text": block.get('content', str(block))}})
     
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-        )
-    )
-    return json.loads(response.text)
+    return normalized
+
+
+def builder_json_to_html(blocks):
+    """Convert builder_json blocks into HTML content (server-side equivalent of
+    the lesson builder's generateFinalHtml JS function)."""
+    import html as html_module
+    
+    parts = []
+    for blk in blocks:
+        btype = blk.get('type', '')
+        data = blk.get('data', {})
+        
+        if btype == 'heading':
+            text = data.get('text', '')
+            parts.append(f'<h2 class="mb-8 mt-12 text-3xl font-extrabold tracking-tight text-gray-900">{text}</h2>')
+        
+        elif btype == 'text':
+            text = data.get('text', '')
+            parts.append(f'<p class="text-lg leading-relaxed text-gray-600 mb-6 font-medium">{text}</p>')
+        
+        elif btype == 'image':
+            url = data.get('url', '')
+            if url:
+                parts.append(f'<div class="my-12 rounded-2xl overflow-hidden border border-gray-200 shadow-sm"><img src="{html_module.escape(url)}" class="w-full h-auto block"></div>')
+        
+        elif btype == 'code':
+            lang = data.get('lang', 'python')
+            code = html_module.escape(data.get('code', ''))
+            parts.append(f"""
+<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl my-10 not-prose group">
+    <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
+        <div class="flex items-center gap-4">
+            <div class="flex gap-1.5">
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
+            </div>
+            <div class="h-4 w-[1px] bg-gray-800"></div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">{lang}</span>
+        </div>
+        <button onclick="copyToClipboard(this)" data-code="{code}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+        </button>
+    </div>
+    <div class="p-8 font-mono text-[14px] leading-relaxed text-gray-300 overflow-x-auto whitespace-pre">{code}</div>
+</div>""")
+        
+        elif btype == 'callout':
+            callout_type = data.get('type', 'info')
+            title = data.get('title', 'Note')
+            body = data.get('body', '')
+            is_warn = callout_type == 'warning'
+            
+            border_bg = 'border-amber-200 bg-amber-50' if is_warn else 'border-sky-200 bg-sky-50'
+            icon = 'alert-triangle' if is_warn else 'info'
+            icon_color = 'text-amber-600' if is_warn else 'text-sky-600'
+            
+            parts.append(f"""
+<div class="my-10 rounded-2xl border {border_bg} p-8 flex gap-6 not-prose shadow-sm">
+    <div class="w-14 h-14 shrink-0 rounded-2xl bg-white border border-inherit flex items-center justify-center shadow-sm">
+        <i data-lucide="{icon}" class="w-6 h-6 {icon_color}"></i>
+    </div>
+    <div>
+        <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">{title}</h4>
+        <div class="text-base font-medium leading-relaxed text-gray-700">{body}</div>
+    </div>
+</div>""")
+        
+        elif btype == 'quiz':
+            question = data.get('question', '')
+            options = data.get('options', [])
+            correct = data.get('correct', 0)
+            
+            options_html = ''
+            for i, opt in enumerate(options):
+                options_html += f"""
+        <button type="button" onclick="checkQuiz(this, {i})" class="group flex items-center justify-between p-5 border border-gray-100 rounded-xl text-left font-bold transition-all hover:border-gray-900 hover:bg-gray-50">
+            <span class="text-gray-700">{opt}</span>
+            <div class="w-5 h-5 rounded-full border border-gray-200 group-hover:border-gray-900"></div>
+        </button>"""
+            
+            parts.append(f"""
+<div class="quiz-container my-12 p-10 rounded-2xl border border-gray-200 bg-white shadow-sm" data-correct="{correct}">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-8 h-8 rounded-xl bg-gray-900 flex items-center justify-center text-xs text-white font-bold">?</div>
+        <h3 class="text-xl font-bold tracking-tight text-gray-900">{question}</h3>
+    </div>
+    <div class="grid gap-3">{options_html}
+    </div>
+</div>""")
+    
+    return '\n'.join(parts)
+
 
 #  Init 
 

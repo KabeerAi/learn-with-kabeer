@@ -196,10 +196,14 @@ def init_db():
         from werkzeug.security import generate_password_hash
         admin_pass = generate_password_hash("admin123")
         db.execute(
-            "INSERT INTO users (name, email, password_hash, is_admin) VALUES (?, ?, ?, ?)",
-            ("Administrator", "admin@example.com", admin_pass, 1)
+            "INSERT INTO users (name, email, password_hash, is_admin, total_xp) VALUES (?, ?, ?, ?, ?)",
+            ("Administrator", "admin@example.com", admin_pass, 1, 100000)
         )
         db.commit()
+
+    # Ensure all admins have 100,000 XP
+    db.execute("UPDATE users SET total_xp = 100000 WHERE is_admin = 1 AND total_xp < 100000")
+    db.commit()
 
 
     db.commit()
@@ -549,12 +553,6 @@ def create_course(slug, title, subtitle, level, status, user_id=None):
         (slug, title, subtitle, level, status, user_id),
     )
     course_id = cursor.lastrowid
-    
-    # Create a default "Curriculum" section
-    db.execute(
-        "INSERT INTO sections (course_id, number, title, description) VALUES (?, ?, ?, ?)",
-        (course_id, 1, "Curriculum", "Main course content")
-    )
     
     db.commit()
     return db.execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
