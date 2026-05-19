@@ -49,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (err) {
-            appendMessage('assistant', '**Error:** Could not connect to the server.');
+            console.error('Chat exception:', err);
+            appendMessage('assistant', `**System Error:** ${err.message || 'Could not connect.'}`);
         } finally {
             setThinking(false);
         }
@@ -117,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         scrollToBottom();
-        if (window.lucide) lucide.createIcons();
     }
 
     // ─── Character-by-Character Typing Animation ───────────────────
@@ -282,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatNumber(num) {
+        if (num == null) return '0';
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
