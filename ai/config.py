@@ -6,7 +6,7 @@ import os
 
 # ─── Models ─────────────────────────────────────────────────────────────────
 
-GENERATION_MODEL = "gemini-2.5-flash"
+GENERATION_MODEL = "llama-3.3-70b-versatile"
 EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIMENSIONS = 768
 

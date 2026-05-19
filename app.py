@@ -6,8 +6,7 @@ import threading
 from functools import wraps
 
 import markdown
-from google import genai
-from google.genai import types
+from groq import Groq
 
 from flask import (
     Flask,
@@ -894,29 +893,29 @@ def cod_chat():
     if not state:
         return {"error": "Session expired"}, 400
 
-    # Prepare chat history for Gemini
-    history = []
+    # Prepare chat history for Groq
+    messages = [
+        {"role": "system", "content": SYSTEM_INSTRUCTION_COD}
+    ]
     for msg in state['history']:
-        history.append(types.Content(role=msg['role'], parts=[types.Part(text=msg['content'])]))
+        messages.append({"role": msg['role'], "content": msg['content']})
     
     # Add new user message
     state['history'].append({"role": "user", "content": user_msg})
-    history.append(types.Content(role="user", parts=[types.Part(text=user_msg)]))
+    messages.append({"role": "user", "content": user_msg})
 
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
     
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=history,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION_COD,
-                response_mime_type="application/json",
-                thinking_config=types.ThinkingConfig(thinking_level="low")
-            )
+        from ai.config import GENERATION_MODEL
+        response = client.chat.completions.create(
+            model=GENERATION_MODEL,
+            response_format={"type": "json_object"},
+            messages=messages,
+            temperature=0.3
         )
         
-        ai_data = json.loads(response.text)
+        ai_data = json.loads(response.choices[0].message.content)
         ai_message = ai_data.get("message", "I'm processing your request.")
         state['history'].append({"role": "assistant", "content": ai_message})
         

@@ -11,8 +11,7 @@ Generates a single lesson through multiple stages:
 import json
 import os
 
-from google import genai
-from google.genai import types
+from groq import Groq
 
 from ai.config import GENERATION_MODEL, MIN_BLOCKS_PER_LESSON
 from ai.prompts.lesson_plan import build_lesson_plan_prompt
@@ -37,7 +36,7 @@ def generate_lesson(
     Returns a dict with:
       title, summary, section, section_background, number, builder_json
     """
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
     # ── Stage 1: Retrieve educational references ───────────────────────
     print(f"    [RETRIEVE] Searching dataset for: {lesson_title}")
@@ -56,17 +55,15 @@ def generate_lesson(
         teaching_patterns=teaching_patterns,
     )
 
-    plan_response = client.models.generate_content(
+    plan_response = client.chat.completions.create(
         model=GENERATION_MODEL,
-        contents=plan_prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            thinking_config=types.ThinkingConfig(thinking_level="low"),
-        ),
+        messages=[{"role": "user", "content": plan_prompt}],
+        response_format={"type": "json_object"},
+        temperature=0.3
     )
 
     try:
-        plan_data = json.loads(plan_response.text)
+        plan_data = json.loads(plan_response.choices[0].message.content)
         lesson_plan = plan_data.get("lesson_plan", plan_data)
     except (json.JSONDecodeError, AttributeError):
         # Fallback plan if parsing fails
@@ -97,17 +94,15 @@ def generate_lesson(
         section_name=section_name,
     )
 
-    gen_response = client.models.generate_content(
+    gen_response = client.chat.completions.create(
         model=GENERATION_MODEL,
-        contents=gen_prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            thinking_config=types.ThinkingConfig(thinking_level="medium"),
-        ),
+        messages=[{"role": "user", "content": gen_prompt}],
+        response_format={"type": "json_object"},
+        temperature=0.3
     )
 
     try:
-        lesson_data = json.loads(gen_response.text)
+        lesson_data = json.loads(gen_response.choices[0].message.content)
     except (json.JSONDecodeError, AttributeError):
         # If JSON parsing fails, create a minimal lesson
         lesson_data = {

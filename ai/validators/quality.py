@@ -8,8 +8,7 @@ dimensions and identifies weak sections for regeneration.
 import json
 import os
 
-from google import genai
-from google.genai import types
+from groq import Groq
 
 from ai.config import GENERATION_MODEL, QUALITY_THRESHOLD
 from ai.prompts.quality_eval import build_quality_eval_prompt
@@ -32,22 +31,20 @@ def validate_lesson(
             "summary": str
         }
     """
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
     lesson_json_str = json.dumps(builder_json, indent=2)
     prompt = build_quality_eval_prompt(lesson_json_str, lesson_title, difficulty)
 
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=GENERATION_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                thinking_config=types.ThinkingConfig(thinking_level="low"),
-            ),
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            temperature=0.3
         )
 
-        result = json.loads(response.text)
+        result = json.loads(response.choices[0].message.content)
 
         # Ensure verdict is based on our threshold
         overall = result.get("overall_score", 0)
