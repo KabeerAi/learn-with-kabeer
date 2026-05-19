@@ -2,3 +2,18 @@
 .env
 .env.local
 .env.*.local
+
+# Ignore local databases, ChromaDB vector stores, and instance folder
+instance/
+
+# Ignore Python caches and temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Ignore Python virtual environments
+venv/
+env/
+.venv/
