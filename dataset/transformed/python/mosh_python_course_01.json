@@ -1,0 +1,646 @@
+{
+  "course": {
+    "title": "Python Programming with Mosh",
+    "description": "Learn the core concepts of Python from scratch. Build your confidence by writing cool programs, including a guessing game, a car simulator, and various interactive applications.",
+    "difficulty_level": "Beginner",
+    "learning_outcomes": [
+      "Understand how Python interpreter executes code.",
+      "Store complex and simple data using variables, lists, tuples, and dictionaries.",
+      "Receive input from users and seamlessly convert data types.",
+      "Utilize advanced string manipulation and formatted strings.",
+      "Build complex logical decisions using comparison and logical operators.",
+      "Automate tasks using while loops, for loops, and nested loops."
+    ],
+    "chapters": [
+      {
+        "chapter_title": "Chapter 1: Getting Started",
+        "lessons": [
+          {
+            "lesson_title": "Intro to Code Editors",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Writing Code"
+              },
+              {
+                "type": "paragraph",
+                "content": "To write code, we use a Code Editor, which is basically Microsoft Word but designed for programmers. A popular one is PyCharm, which is an IDE (Integrated Development Environment). Think of an IDE as a code editor on steroids."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Your First Program",
+            "components": [
+              {
+                "type": "heading",
+                "content": "The Print Function"
+              },
+              {
+                "type": "paragraph",
+                "content": "Let's make the computer talk! We use the `print()` function for this. Inside the parentheses, you place what you want to say inside quotes (either single or double quotes work)."
+              },
+              {
+                "type": "code",
+                "content": "print(\"I am Mosh Hamedani\")"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Execution Flow",
+            "components": [
+              {
+                "type": "heading",
+                "content": "How Python Reads Code"
+              },
+              {
+                "type": "paragraph",
+                "content": "How does the computer understand this? We have a program called the Python Interpreter. It reads your code line by line from the top and translates it into instructions the computer can understand."
+              },
+              {
+                "type": "code",
+                "content": "print(\"o-----\")\nprint(\" ||||\")"
+              },
+              {
+                "type": "paragraph",
+                "content": "When you run this, Python executes line 1 first (drawing the head of a dog), and then moves to line 2 (drawing the legs)."
+              },
+              {
+                "type": "recap",
+                "content": "Code executes from top to bottom. Use the `print()` function to display text on the screen."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Expressions",
+            "components": [
+              {
+                "type": "heading",
+                "content": "What is an Expression?"
+              },
+              {
+                "type": "paragraph",
+                "content": "An expression is simply a piece of code that produces a value. Let's look at a cool trick you can do with strings and expressions."
+              },
+              {
+                "type": "code",
+                "content": "print('*' * 10)"
+              },
+              {
+                "type": "paragraph",
+                "content": "Here, we are multiplying a string by 10. The Python interpreter evaluates this expression first, produces 10 asterisks, and then prints them out!"
+              },
+              {
+                "type": "exercise",
+                "content": "Write a program that uses print statements to draw a simple shape, like a heart or a triangle, using multiple lines."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 2: Variables & User Input",
+        "lessons": [
+          {
+            "lesson_title": "Variables and Memory",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Storing Data"
+              },
+              {
+                "type": "paragraph",
+                "content": "Variables are used to temporarily store data in a computer's memory. "
+              },
+              {
+                "type": "analogy",
+                "content": "Imagine the computer's memory is a giant warehouse. When you create a variable, you are putting an item inside a box and slapping a label on it. You can use that label later to find your item."
+              },
+              {
+                "type": "code",
+                "content": "price = 10\nprint(price)"
+              },
+              {
+                "type": "paragraph",
+                "content": "When this runs, Python allocates memory, stores the number 10, attaches the label `price` to it, and later retrieves it for the print statement."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Common Data Types",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Different Kinds of Boxes"
+              },
+              {
+                "type": "paragraph",
+                "content": "There are different types of data you can store in variables:"
+              },
+              {
+                "type": "code",
+                "content": "age = 20           # Integer (Whole number)\nrating = 4.9       # Float (Decimal number)\nname = \"Mosh\"      # String (Text)\nis_published = True # Boolean (True or False)"
+              },
+              {
+                "type": "warning_box",
+                "content": "Python is case-sensitive! Booleans must be capitalized (`True` or `False`). If you write `true`, Python won't understand it."
+              },
+              {
+                "type": "exercise",
+                "content": "Imagine a hospital program. Create three variables for a patient named John Smith: his name, his age (20), and a boolean stating whether he is a new patient."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Receiving Input",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Talking to the User"
+              },
+              {
+                "type": "paragraph",
+                "content": "We use the `input()` function to ask the user a question. The program will pause and wait for them to hit Enter."
+              },
+              {
+                "type": "code",
+                "content": "name = input(\"What is your name? \")\nprint(\"Hi \" + name)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "The Type Conversion Trap",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Strings Disguised as Numbers"
+              },
+              {
+                "type": "paragraph",
+                "content": "Let's say we want to calculate someone's age based on their birth year."
+              },
+              {
+                "type": "code",
+                "content": "birth_year = input(\"Birth year: \")\n# age = 2019 - birth_year  <-- THIS WILL CRASH"
+              },
+              {
+                "type": "paragraph",
+                "content": "Why does it crash? Because `input()` ALWAYS returns a string. Even if the user types 1982, Python sees it as the text '1982'. You cannot subtract text from a number!"
+              },
+              {
+                "type": "paragraph",
+                "content": "We fix this using built-in conversion functions like `int()`, `float()`, or `bool()`."
+              },
+              {
+                "type": "code",
+                "content": "birth_year = input(\"Birth year: \")\nage = 2019 - int(birth_year)\nprint(age)"
+              },
+              {
+                "type": "info_box",
+                "content": "If you are ever confused about what type of data a variable holds, use the `type()` function (e.g., `print(type(age))`)."
+              },
+              {
+                "type": "exercise",
+                "content": "Write a program that asks the user for their weight in pounds, converts it to kilograms (multiply by 0.45), and prints the result."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 3: Deep Dive into Strings",
+        "lessons": [
+          {
+            "lesson_title": "Quotes Inside Strings",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Handling Quotes"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you want an apostrophe inside your text, you must wrap the entire string in double quotes so Python doesn't get confused."
+              },
+              {
+                "type": "code",
+                "content": "course = \"Python's Course for Beginners\"\nmessage = 'He said \"Hello\" to me.'"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you need a string that spans multiple lines (like an email), use triple quotes `'''`."
+              },
+              {
+                "type": "code",
+                "content": "email = '''\nHi John,\nHere is our first email to you.\nThank you,\nSupport Team\n'''"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Formatted Strings",
+            "components": [
+              {
+                "type": "heading",
+                "content": "F-Strings"
+              },
+              {
+                "type": "paragraph",
+                "content": "String concatenation (using the `+` sign) gets messy quickly. Formatted strings let you inject variables directly into the text using curly braces `{}`."
+              },
+              {
+                "type": "code",
+                "content": "first = \"John\"\nlast = \"Smith\"\nmsg = f\"{first} [{last}] is a coder.\"\nprint(msg) # Output: John [Smith] is a coder."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Indexing Characters",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Accessing Single Characters"
+              },
+              {
+                "type": "paragraph",
+                "content": "Strings are sequences of characters. You can grab individual characters using square brackets `[]`. In Python, we start counting at zero."
+              },
+              {
+                "type": "code",
+                "content": "course = \"Python\"\nprint(course[0])  # 'P'\nprint(course[-1]) # 'n' (Negative index counts from the end!)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Slicing Strings",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Extracting Chunks"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can extract a chunk of characters by using a colon `[start:end]`."
+              },
+              {
+                "type": "code",
+                "content": "course = \"Python Course\"\nprint(course[0:3]) # Output: Pyt (excludes index 3)\nprint(course[7:])  # Output: Course (Goes to the end)\nprint(course[:])   # Output: Python Course (Copies the whole string)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Essential String Methods",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Functions vs Methods"
+              },
+              {
+                "type": "paragraph",
+                "content": "A function like `len()` or `print()` is a general-purpose tool. But when a function belongs specifically to an object (like a string), we call it a 'method'."
+              },
+              {
+                "type": "code",
+                "content": "course = \"Python for Beginners\"\n\n# General function\nprint(len(course)) \n\n# String methods (accessed using a dot)\nprint(course.upper())\nprint(course.lower())\nprint(course.find('P'))    # Returns index 0\nprint(course.replace('Beginners', 'Absolute Beginners'))"
+              },
+              {
+                "type": "info_box",
+                "content": "Methods like `.upper()` do NOT change the original string. They return a brand new modified string!"
+              },
+              {
+                "type": "heading",
+                "content": "The 'In' Operator"
+              },
+              {
+                "type": "paragraph",
+                "content": "To quickly check if a word exists inside a string, use `in`. This returns a boolean."
+              },
+              {
+                "type": "code",
+                "content": "print('Python' in course)  # Returns True"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 4: Math and Making Decisions",
+        "lessons": [
+          {
+            "lesson_title": "Math Operators",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Basic Math"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python supports all standard math operations. Let's look at division and exponents."
+              },
+              {
+                "type": "code",
+                "content": "print(10 / 3)   # Floating point division (3.333)\nprint(10 // 3)  # Integer division (3)\nprint(10 % 3)   # Modulus / Remainder (1)\nprint(10 ** 3)  # Exponent / Power (1000)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Operator Precedence",
+            "components": [
+              {
+                "type": "heading",
+                "content": "PEMDAS"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python follows standard math rules (PEMDAS). Exponentiation happens first, then multiplication/division, then addition/subtraction. You can use parentheses `()` to override this."
+              },
+              {
+                "type": "code",
+                "content": "x = 10 + 3 * 2  # Multiplication happens first. Result is 16.\ny = (10 + 3) * 2 # Parentheses override. Result is 26."
+              }
+            ]
+          },
+          {
+            "lesson_title": "The Math Module",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Built-in Math Tools"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python has some built-in tools like `round(2.9)` and `abs(-2.9)`. But for advanced math, you must import the `math` module."
+              },
+              {
+                "type": "analogy",
+                "content": "Think of a module like a section in a supermarket. The 'math' module is an aisle filled with reusable mathematical functions."
+              },
+              {
+                "type": "code",
+                "content": "import math\n\nprint(math.ceil(2.9))  # Output: 3 (Ceiling)\nprint(math.floor(2.9)) # Output: 2 (Floor)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "If Statements",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Making Decisions"
+              },
+              {
+                "type": "paragraph",
+                "content": "If statements allow programs to run different code depending on certain conditions."
+              },
+              {
+                "type": "code",
+                "content": "is_hot = True\nis_cold = False\n\nif is_hot:\n    print(\"It's a hot day\")\n    print(\"Drink plenty of water\")\nelif is_cold:\n    print(\"It's a cold day\")\nelse:\n    print(\"It's a lovely day\")"
+              },
+              {
+                "type": "warning_box",
+                "content": "Notice the indentation. Any code indented under the `if` belongs to that block. To break out of the block, simply remove the indentation."
+              },
+              {
+                "type": "exercise",
+                "content": "Price of a house is $1,000,000. If the buyer has good credit, they need to put down 10%. Otherwise, they need to put down 20%. Print the down payment."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Logical and Comparison Operators",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Logical Operators (And, Or, Not)"
+              },
+              {
+                "type": "paragraph",
+                "content": "Use these when you need to combine multiple conditions."
+              },
+              {
+                "type": "code",
+                "content": "has_high_income = True\nhas_good_credit = True\n\n# AND: Both must be true\nif has_high_income and has_good_credit:\n    print(\"Eligible for loan\")"
+              },
+              {
+                "type": "heading",
+                "content": "Comparison Operators"
+              },
+              {
+                "type": "paragraph",
+                "content": "We use these to compare a variable against a value. (`>`, `>=`, `<`, `<=`, `==`, `!=`)"
+              },
+              {
+                "type": "code",
+                "content": "temperature = 35\nif temperature > 30:\n    print(\"It's a hot day\")"
+              },
+              {
+                "type": "info_box",
+                "content": "Remember: `==` is an equality operator (it compares two values). `=` is an assignment operator (it sets a variable to a value)."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 5: Loops and Games",
+        "lessons": [
+          {
+            "lesson_title": "The While Loop",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Repeating Blocks of Code"
+              },
+              {
+                "type": "paragraph",
+                "content": "A `while` loop executes a block of code repeatedly as long as a condition evaluates to True."
+              },
+              {
+                "type": "code",
+                "content": "i = 1\nwhile i <= 5:\n    print(i)\n    i += 1 # Critical: This prevents an infinite loop!"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Building a Guessing Game",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Putting it Together"
+              },
+              {
+                "type": "paragraph",
+                "content": "Let's use a while loop to let a user guess a secret number up to 3 times."
+              },
+              {
+                "type": "code",
+                "content": "secret_number = 9\nguess_count = 0\nguess_limit = 3\n\nwhile guess_count < guess_limit:\n    guess = int(input(\"Guess: \"))\n    guess_count += 1\n    \n    if guess == secret_number:\n        print(\"You won!\")\n        break # Breaks out of the loop immediately\nelse:\n    print(\"Sorry, you failed.\")"
+              },
+              {
+                "type": "info_box",
+                "content": "The `else` block on a while loop is unique to Python. It executes ONLY if the loop finishes without hitting a `break` statement."
+              }
+            ]
+          },
+          {
+            "lesson_title": "For Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Iterating Over Collections"
+              },
+              {
+                "type": "paragraph",
+                "content": "While loops run until a condition stops them. `For` loops are designed to iterate over items of a collection, such as characters in a string, items in a list, or a range of numbers."
+              },
+              {
+                "type": "code",
+                "content": "for item in ['Mosh', 'John', 'Sarah']:\n    print(item)\n\nfor i in range(5, 10, 2):\n    print(i) # Starts at 5, stops before 10, steps by 2"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Nested Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Loops within Loops"
+              },
+              {
+                "type": "paragraph",
+                "content": "A nested loop is a loop inside another loop. We can use this to generate coordinates."
+              },
+              {
+                "type": "code",
+                "content": "for x in range(4):\n    for y in range(3):\n        print(f\"({x}, {y})\")"
+              },
+              {
+                "type": "paragraph",
+                "content": "The outer loop runs, then the inner loop runs to completion, then the outer loop takes its next step, triggering the inner loop to run completely again."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 6: Data Structures",
+        "lessons": [
+          {
+            "lesson_title": "Working with Lists",
+            "components": [
+              {
+                "type": "heading",
+                "content": "The List Data Structure"
+              },
+              {
+                "type": "paragraph",
+                "content": "Lists are defined using square brackets `[]`. They are flexible containers that let you add, modify, or remove items."
+              },
+              {
+                "type": "code",
+                "content": "names = ['John', 'Bob', 'Mosh', 'Sarah', 'Mary']\nprint(names[0])    # John\nprint(names[-1])   # Mary\nprint(names[2:])   # ['Mosh', 'Sarah', 'Mary']\n\nnames[0] = \"Jack\"  # Modifying a list item"
+              }
+            ]
+          },
+          {
+            "lesson_title": "2D Lists (Matrices)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Lists inside Lists"
+              },
+              {
+                "type": "paragraph",
+                "content": "A 2D list is a list where each item is another list. This is perfect for modeling a grid or matrix."
+              },
+              {
+                "type": "code",
+                "content": "matrix = [\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9]\n]\nprint(matrix[0][1]) # Output: 2 (Row 0, Column 1)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "List Methods",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Mutating Lists"
+              },
+              {
+                "type": "paragraph",
+                "content": "Lists come with powerful built-in methods to change their contents:"
+              },
+              {
+                "type": "code",
+                "content": "numbers = [5, 2, 1, 7, 4]\nnumbers.append(20)      # Adds to the end\nnumbers.insert(0, 10)   # Inserts 10 at index 0\nnumbers.remove(5)       # Removes the number 5\nnumbers.sort()          # Sorts ascending\nprint(50 in numbers)    # Safe way to check existence (False)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Tuples & Unpacking",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Immutable Tuples"
+              },
+              {
+                "type": "paragraph",
+                "content": "Tuples are like lists, but they use parentheses `()` and they are IMMUTABLE. You cannot change, add, or remove items after creating them."
+              },
+              {
+                "type": "code",
+                "content": "numbers = (1, 2, 3)\n# numbers[0] = 10 <-- THIS CAUSES AN ERROR"
+              },
+              {
+                "type": "heading",
+                "content": "The Power of Unpacking"
+              },
+              {
+                "type": "paragraph",
+                "content": "Unpacking is a clean shorthand to extract values from a tuple or list into separate variables instantly."
+              },
+              {
+                "type": "code",
+                "content": "coordinates = (1, 2, 3)\nx, y, z = coordinates # Unpacks the tuple instantly!\nprint(y) # Output: 2"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Dictionaries",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Key-Value Pairs"
+              },
+              {
+                "type": "paragraph",
+                "content": "Use dictionaries `{}` when you need to store data that maps a 'key' to a 'value'. Keys must be unique."
+              },
+              {
+                "type": "code",
+                "content": "customer = {\n    \"name\": \"John Smith\",\n    \"age\": 30,\n    \"is_verified\": True\n}\nprint(customer[\"name\"])"
+              },
+              {
+                "type": "warning_box",
+                "content": "If you try to access a key that doesn't exist using square brackets, Python will throw a KeyError and crash."
+              },
+              {
+                "type": "heading",
+                "content": "The Safe .get() Method"
+              },
+              {
+                "type": "paragraph",
+                "content": "To avoid crashes, use the `.get()` method. It will return `None` (or a default value) instead of crashing."
+              },
+              {
+                "type": "code",
+                "content": "print(customer.get(\"birthdate\", \"Jan 1 1980\"))"
+              },
+              {
+                "type": "exercise",
+                "content": "Write a program that takes a phone number as input (e.g. \"1234\") and translates it to words (\"One Two Three Four\") using a dictionary."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

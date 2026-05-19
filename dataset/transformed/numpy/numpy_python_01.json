@@ -1,0 +1,440 @@
+{
+  "course": {
+    "title": "NumPy for Beginners",
+    "description": "A simple, step-by-step guide to learning NumPy. We will break down arrays, fast math, and data analysis into bite-sized lessons that are easy to understand.",
+    "difficulty_level": "Beginner",
+    "learning_outcomes": [
+      "Understand why NumPy is much faster than standard Python lists.",
+      "Create, view, and change 1D, 2D, and 3D arrays.",
+      "Filter and grab specific pieces of data using simple slicing.",
+      "Do math on thousands of numbers instantly without writing a single loop.",
+      "Understand how the 'axis' works for calculating totals and averages.",
+      "See how NumPy is used in the real world for images and grade books."
+    ],
+    "chapters": [
+      {
+        "chapter_title": "Chapter 1: Getting Started with NumPy",
+        "lessons": [
+          {
+            "lesson_title": "Why Use NumPy? Lists vs. Arrays",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Welcome to NumPy"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you want to do data science, machine learning, or AI in Python, you have to learn NumPy[cite: 2]. NumPy stands for Numerical Python[cite: 35]. It is a tool built specifically to handle large grids of numbers quickly."
+              },
+              {
+                "type": "heading",
+                "content": "The Speed Problem"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python is a great language, but standard Python lists are very slow when you have thousands or millions of numbers. If you want to add 10 to every number in a list, you have to write a 'for loop' to check each number one by one[cite: 62]."
+              },
+              {
+                "type": "analogy",
+                "content": "Think of a Python list like a delivery driver dropping off packages one house at a time. A NumPy array is like a cargo plane that drops off all the packages at the exact same time."
+              },
+              {
+                "type": "paragraph",
+                "content": "NumPy is built using C and C++ code under the hood[cite: 37]. This means it talks to your computer's memory much faster than standard Python can."
+              },
+              {
+                "type": "heading",
+                "content": "Proof That It's Faster"
+              },
+              {
+                "type": "paragraph",
+                "content": "Let's look at a real speed test. If we make a standard Python list with 1 million numbers and a NumPy array with 1 million numbers, and we try to add the number 1 to all of them, what happens? [cite: 68-70]"
+              },
+              {
+                "type": "info_box",
+                "content": "In our test, the Python list took 0.035 seconds. The NumPy array took 0.001 seconds. That makes NumPy over 35 times faster! [cite: 74-75]"
+              },
+              {
+                "type": "paragraph",
+                "content": "This ability to apply math to a whole array at once without writing a loop is called 'vectorization'[cite: 65]. It makes your code shorter and much faster."
+              },
+              {
+                "type": "recap",
+                "content": "NumPy is a tool for doing fast math on large groups of numbers. It is way faster than standard Python lists because it runs on optimized C code."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Installing and Making Your First Array",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Setting Up"
+              },
+              {
+                "type": "paragraph",
+                "content": "Before writing code, we need to install NumPy. Open your terminal and type `pip install numpy`[cite: 12]. This installs it directly into your Python setup."
+              },
+              {
+                "type": "paragraph",
+                "content": "To write code, we recommend using a Jupyter Notebook. This is a common tool for data science because you can write a tiny block of code, run it, and see the result right underneath it [cite: 18-19, 25]."
+              },
+              {
+                "type": "heading",
+                "content": "Your First Array"
+              },
+              {
+                "type": "paragraph",
+                "content": "Whenever we use NumPy, we import it as `np`. This is a strict rule in the Python community[cite: 43]. Let's turn a normal Python list into a NumPy array using `np.array()`[cite: 51]."
+              },
+              {
+                "type": "code",
+                "content": "import numpy as np\n\n# A normal Python list\nnormal_list = [1, 2, 3, 4, 5]\n\n# Making it a NumPy array\nmy_array = np.array(normal_list)\n\nprint(normal_list)  # Result: [1, 2, 3, 4, 5]\nprint(my_array)     # Result: [1 2 3 4 5]"
+              },
+              {
+                "type": "note",
+                "content": "Notice how the NumPy array prints without commas between the numbers[cite: 57]. If you check its type, Python will tell you it is an `ndarray`, which just means an array that can have any number of dimensions [cite: 59-60]."
+              },
+              {
+                "type": "exercise",
+                "content": "Install NumPy. Open a new Python file or Jupyter Notebook, import `np`, and make an array out of the list `[100, 200, 300]`."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 2: Creating Arrays and Data Types",
+        "lessons": [
+          {
+            "lesson_title": "Creating Arrays Automatically",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Why Type It Out?"
+              },
+              {
+                "type": "paragraph",
+                "content": "Typing out lists by hand is fine for small examples, but in data science, you need to create big arrays from scratch. NumPy has built-in functions to do this instantly."
+              },
+              {
+                "type": "heading",
+                "content": "Number Sequences"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you want a range of numbers, use `np.arange()`. You just give it a start, stop, and step size [cite: 96-97]."
+              },
+              {
+                "type": "code",
+                "content": "# Start at 0, stop before 10, count by 2\nevens = np.arange(0, 10, 2)\nprint(evens)  # Result: [0 2 4 6 8]"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you want NumPy to space the numbers out for you, use `np.linspace()`. Tell it the start, the stop, and exactly how many items you want [cite: 99-100]."
+              },
+              {
+                "type": "code",
+                "content": "# Give me 5 numbers perfectly spaced between 0 and 1\nspaced = np.linspace(0, 1, 5)\nprint(spaced)  # Result: [0.   0.25 0.5  0.75 1.  ]"
+              },
+              {
+                "type": "heading",
+                "content": "Zeros, Ones, and Full Arrays"
+              },
+              {
+                "type": "paragraph",
+                "content": "Sometimes you just need an empty array to fill with data later. You can create arrays filled completely with zeros, ones, or a specific number [cite: 102-106]."
+              },
+              {
+                "type": "code",
+                "content": "zeros = np.zeros(5)      # [0. 0. 0. 0. 0.]\nones = np.ones(3)        # [1. 1. 1.]\nsevens = np.full(5, 7)   # [7 7 7 7 7]"
+              },
+              {
+                "type": "recap",
+                "content": "Use `arange` for stepping through numbers, `linspace` for evenly spaced numbers, and `zeros`/`ones`/`full` to create quick placeholder arrays."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Understanding Data Types (dtype)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "The Rule of Same Types"
+              },
+              {
+                "type": "paragraph",
+                "content": "Here is a major rule in NumPy: Every single item inside an array MUST be the exact same data type [cite: 94-95]. You cannot mix text with numbers."
+              },
+              {
+                "type": "analogy",
+                "content": "A Python list is like a messy drawer where you can put anything. A NumPy array is an egg carton. It works perfectly because every slot holds the exact same shape."
+              },
+              {
+                "type": "paragraph",
+                "content": "This uniform type is called the `dtype` (data type)."
+              },
+              {
+                "type": "heading",
+                "content": "What Happens When You Break the Rule?"
+              },
+              {
+                "type": "paragraph",
+                "content": "What if you mix whole numbers (integers) with decimals (floats) inside an array?"
+              },
+              {
+                "type": "code",
+                "content": "mixed = np.array([1, 2.5, 3])\nprint(mixed.dtype)"
+              },
+              {
+                "type": "warning_box",
+                "content": "Because the number 2.5 has a decimal, NumPy will automatically turn the integers 1 and 3 into floats (1.0 and 3.0). It 'promotes' them so no data gets lost [cite: 123-124]. The whole array becomes type `float64`."
+              },
+              {
+                "type": "paragraph",
+                "content": "If you want to manually force your array to be a certain type, you can use `.astype()`. This is helpful if you want to save computer memory by using smaller data types like `int32` instead of `float64`[cite: 129, 132]."
+              },
+              {
+                "type": "recap",
+                "content": "NumPy arrays only hold one data type at a time. If you mix whole numbers and decimals, it turns everything into decimals."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 3: Working with 2D and 3D Arrays",
+        "lessons": [
+          {
+            "lesson_title": "Shapes and Dimensions",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Going Beyond a Single Line"
+              },
+              {
+                "type": "paragraph",
+                "content": "So far, we have only looked at flat lists of numbers (1D arrays). But real-world data has shapes. An excel sheet has rows and columns (2D). An image has height, width, and colors (3D) [cite: 140-142]."
+              },
+              {
+                "type": "heading",
+                "content": "Creating a 2D Array"
+              },
+              {
+                "type": "paragraph",
+                "content": "To make a 2D array (a matrix), we just put lists inside of a list[cite: 141]."
+              },
+              {
+                "type": "code",
+                "content": "grid = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9]\n])"
+              },
+              {
+                "type": "heading",
+                "content": "Checking the Shape"
+              },
+              {
+                "type": "paragraph",
+                "content": "The most important tool you have is `.shape`. When you check the shape of a 2D array, it will always tell you `(rows, columns)` [cite: 147, 151-152]."
+              },
+              {
+                "type": "code",
+                "content": "print(grid.shape) # Result: (3, 3)\nprint(grid.ndim)  # Result: 2 (Dimensions)\nprint(grid.size)  # Result: 9 (Total items)"
+              },
+              {
+                "type": "paragraph",
+                "content": "If we had a 3D array, the shape might be `(2, 3, 4)`. You can read this as a book: It has 2 pages, and each page has 3 rows and 4 columns [cite: 158-161]."
+              },
+              {
+                "type": "exercise",
+                "content": "Create a 2D array that looks like a Tic-Tac-Toe board filled with zeros. Use `.shape` to prove it is a `(3, 3)` grid."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Getting Specific Data (Indexing and Slicing)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Picking Numbers out of a Grid"
+              },
+              {
+                "type": "paragraph",
+                "content": "To get a single number out of a 2D array, you use brackets with a comma inside. The format is `array[row, column]`."
+              },
+              {
+                "type": "code",
+                "content": "grid = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9]\n])\n\n# Get row 1, column 2 (Remember, we count from 0!)\nprint(grid[1, 2]) # Result: 6 [cite: 193-195]"
+              },
+              {
+                "type": "heading",
+                "content": "Grabbing Whole Rows or Columns"
+              },
+              {
+                "type": "paragraph",
+                "content": "What if you want a whole column? We use the colon `:` symbol. A single colon means 'give me everything'[cite: 198]."
+              },
+              {
+                "type": "code",
+                "content": "# Give me ALL rows, but only column 1\ncolumn_one = grid[:, 1]\nprint(column_one) # Result: [2 5 8] [cite: 200-201]"
+              },
+              {
+                "type": "heading",
+                "content": "Filtering Data (Boolean Indexing)"
+              },
+              {
+                "type": "paragraph",
+                "content": "Sometimes you don't know the exact row or column. You just want numbers that meet a rule. For example, 'Give me numbers bigger than 5'."
+              },
+              {
+                "type": "code",
+                "content": "data = np.array([1, 6, 2, 8, 3, 9])\n\n# Put the rule inside the brackets!\nbig_numbers = data[data > 5]\nprint(big_numbers) # Result: [6 8 9] [cite: 216-220]"
+              },
+              {
+                "type": "recap",
+                "content": "Use `[row, column]` to grab a specific item. Use `:` to grab entire rows or columns. Put true/false rules inside the brackets to quickly filter your data."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 4: Changing Shapes and Doing Math",
+        "lessons": [
+          {
+            "lesson_title": "Math Without Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Fast Math on Whole Arrays"
+              },
+              {
+                "type": "paragraph",
+                "content": "As we learned in Chapter 1, NumPy does math quickly. You can easily add, multiply, or subtract numbers across a whole array with normal math symbols."
+              },
+              {
+                "type": "code",
+                "content": "a = np.array([1, 2, 3])\n\nprint(a + 10)  # Result: [11 12 13] [cite: 234]\nprint(a * 2)   # Result: [2 4 6] [cite: 235]"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you have two arrays that are the exact same size, you can add them together. NumPy will pair up the items one by one."
+              },
+              {
+                "type": "code",
+                "content": "a = np.array([1, 2, 3])\nb = np.array([5, 6, 7])\n\nprint(a + b)  # Result: [6 8 10] (1+5, 2+6, 3+7) [cite: 230-231, 244-245]"
+              },
+              {
+                "type": "recap",
+                "content": "You don't need 'for loops' in NumPy. Just use `+`, `-`, `*`, or `/` directly on the arrays, and it will apply to every item instantly."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Changing the Shape of Your Data",
+            "components": [
+              {
+                "type": "heading",
+                "content": "The Reshape Tool"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can take a flat array of 12 numbers and bend it into a 2D grid with 3 rows and 4 columns. We use the `.reshape()` tool [cite: 259-261]."
+              },
+              {
+                "type": "code",
+                "content": "flat = np.arange(1, 13) # Numbers 1 through 12\n\n# Bend it into 3 rows, 4 columns\ngrid = flat.reshape(3, 4)\nprint(grid.shape) # Result: (3, 4) [cite: 259-263]"
+              },
+              {
+                "type": "warning_box",
+                "content": "The math has to work perfectly! You cannot put 13 numbers into a 3x4 grid because 3 times 4 is 12. NumPy will give you an error [cite: 267-270]."
+              },
+              {
+                "type": "heading",
+                "content": "The Lazy Shortcut (-1)"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you know you want 2 rows, but don't want to do the math to figure out how many columns that takes, just type `-1`. NumPy will figure it out automatically [cite: 275-276]."
+              },
+              {
+                "type": "code",
+                "content": "lazy_grid = flat.reshape(2, -1)\nprint(lazy_grid.shape) # Result: (2, 6) [cite: 278-283]"
+              },
+              {
+                "type": "paragraph",
+                "content": "If you ever want to take a 2D grid and crush it back down into a flat 1D line, just use `.flatten()` [cite: 272-273]."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 5: Real-World Examples",
+        "lessons": [
+          {
+            "lesson_title": "Understanding the Axis (Rows and Columns)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "The Trickiest Part of NumPy"
+              },
+              {
+                "type": "paragraph",
+                "content": "When you have a 2D grid and ask NumPy for the `.sum()`, it will just add up every single number. But what if you want the total for each row separately? You have to use the `axis` [cite: 322-323]."
+              },
+              {
+                "type": "info_box",
+                "content": "The secret is to think about what direction you want to 'collapse'.\n\n* **Axis 0 (Rows):** Collapse down the rows. This gives you an answer for every column at the bottom [cite: 324-326].\n* **Axis 1 (Columns):** Collapse across the columns. This gives you an answer for every row on the side [cite: 337-339]."
+              },
+              {
+                "type": "code",
+                "content": "grid = np.array([\n    [1, 2],\n    [3, 4]\n])\n\n# Add down the rows (Answer per column)\ncol_sums = np.sum(grid, axis=0)\nprint(col_sums) # Result: [4 6] (1+3, 2+4) [cite: 334-335]\n\n# Add across columns (Answer per row)\nrow_sums = np.sum(grid, axis=1)\nprint(row_sums) # Result: [3 7] (1+2, 3+4) [cite: 337-338]"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Mini-Project: Fixing Images and Student Grades",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Project 1: Brightening a Photo"
+              },
+              {
+                "type": "paragraph",
+                "content": "A black-and-white picture is really just a 2D NumPy array, where numbers range from 0 (black) to 255 (white). To make the picture brighter, we just add a number (like 50) to the whole array [cite: 406-407, 414]."
+              },
+              {
+                "type": "paragraph",
+                "content": "But there is a catch. If a pixel is already at 220, adding 50 pushes it past 255 to 270, which breaks the image data rules. To fix this, we use `np.clip()`. It forces the numbers to stop exactly at 255 [cite: 416-418]."
+              },
+              {
+                "type": "code",
+                "content": "pixels = np.array([100, 220, 240])\n\n# Make brighter, but cap at 255\nbrighter = np.clip(pixels + 50, 0, 255)\nprint(brighter) # Result: [150 255 255]"
+              },
+              {
+                "type": "heading",
+                "content": "Project 2: Analyzing Student Grades"
+              },
+              {
+                "type": "paragraph",
+                "content": "Imagine a grid where rows are students and columns are tests [cite: 422-423]. We can use NumPy to quickly figure out who is doing the best."
+              },
+              {
+                "type": "code",
+                "content": "# Find the single highest score in the class\ntop_score = np.max(scores) [cite: 431]\n\n# Find the INDEX (seat number) of the top student\ntop_seat = np.argmax(scores) [cite: 430]"
+              },
+              {
+                "type": "paragraph",
+                "content": "To find all students who scored an A, we use the boolean rules we learned earlier: `scores > 90` [cite: 436-437]. It is way faster and cleaner than writing normal Python code[cite: 441]."
+              },
+              {
+                "type": "recap",
+                "content": "Congratulations! You have completed 'NumPy for Beginners'. You now know how to build arrays, grab data, do fast math, and solve real problems just like a data scientist."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

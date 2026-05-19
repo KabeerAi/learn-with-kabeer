@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Generate Confirmation ─────────────────────────────────────
     finalGenerateBtn.addEventListener('click', async () => {
         hideModal();
-        setThinking(true, 'Generating course');
+        setThinking(true, 'Initializing generation...');
 
         try {
             const response = await fetch('/cod/confirm', {
@@ -86,17 +86,62 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
 
-            if (data.status === 'success') {
+            if (data.status === 'generating') {
+                // Start polling for progress
+                pollGenerationProgress();
+            } else if (data.status === 'success') {
                 showSuccess(data.url);
             } else {
-                appendMessage('assistant', `**Something went wrong:** ${data.error}`);
+                appendMessage('assistant', `**Something went wrong:** ${data.error || 'Unknown error'}`);
                 setThinking(false);
             }
         } catch (err) {
-            appendMessage('assistant', '**Error:** Could not save the course.');
+            appendMessage('assistant', '**Error:** Could not start course generation.');
             setThinking(false);
         }
     });
+
+    // ─── Progress Polling ─────────────────────────────────────────
+    async function pollGenerationProgress() {
+        const pollInterval = 2500; // ms
+
+        const poll = async () => {
+            try {
+                const res = await fetch('/cod/status');
+                const data = await res.json();
+
+                if (data.status === 'complete') {
+                    showSuccess(data.url);
+                    return;
+                }
+
+                if (data.status === 'error') {
+                    appendMessage('assistant', `**Generation failed:** ${data.error || 'Unknown error.'}`);
+                    setThinking(false);
+                    return;
+                }
+
+                if (data.status === 'generating') {
+                    const lesson = data.current_lesson || 0;
+                    const total = data.total_lessons || 0;
+                    const title = data.current_title || '';
+                    const pct = data.percent || 0;
+
+                    let statusMsg = `Generating lesson ${lesson}/${total}`;
+                    if (title) statusMsg += ` — ${title}`;
+                    statusMsg += ` (${pct}%)`;
+                    statusText.innerText = statusMsg;
+                }
+
+                setTimeout(poll, pollInterval);
+            } catch (err) {
+                // Network error, retry
+                setTimeout(poll, pollInterval * 2);
+            }
+        };
+
+        setTimeout(poll, pollInterval);
+    }
 
     // ─── Message Rendering ─────────────────────────────────────────
     function appendMessage(role, content) {

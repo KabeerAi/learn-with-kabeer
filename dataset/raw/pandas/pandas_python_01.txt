@@ -1,0 +1,877 @@
+Video Overview
+hey what's up everyone and welcome back to another video super excited for this one in it we're going to be doing
+another complete python pandas tutorial walkth through so first off super grateful for all the support on the
+previous iteration of this video but it's been like 5 years and I've learned a lot more about pandas there's been a
+lot of updates to the pandas library and there's just a lot more modern tools that we can incorporate into a tutorial
+like this so figured it was a great time to do another walk through this video will be great for for someone that's
+just getting started with python pandas you'll learn all of the basics that you need to know working with and analyzing
+manipulating spreadsheet tabular data with python pandas but this video will also be great for more experienced users
+that have maybe used pandas a bunch in the real world but really want to uplevel that skill set and apply new
+types of things to your day-to-day I know personally that I'm learning new things about pandas almost every day it
+is really a goal of mine to communicate some of that and hopefully everyone can walk away from this video with some
+concrete action items that you can apply to your own data sets enough of me talking though let's get right into the
+tutorial there's many different ways you can get started with pandas probably the easiest is by going to cab. research.com
+Getting Started with Python Pandas | Google Colab
+and you can edit code and use pandas right there in your browser but if you
+Getting Started with Python Pandas | Local Environment Setup (Cloning code, using virtual environment, VS Code)
+prefer to work locally maybe you like using visual studio code or pycharm or Jupiter lab then you can go to the repo
+that is corresponding responding to this video you can copy this link you can open open up a terminal window and clone
+the repo so I'm going to go into my code folder I'm going to colog the link that
+I just copied and now we have once it loads there's a
+bunch of data files here so it might take a second then I can go into that folder and we can look at the files
+there and then a good next step is to this is just good python practice is to
+create a virtual environment and activate that virtual
+environment I'll make sure to put the corresponding Windows command up Source
+M tutorial is where I just created the virtual environment bin activate and now
+we can see we have it activated and I want to install all the necessary libraries for this tutorial
+which can be done with Pip 3 install requirements requirements.txt again though don't
+worry if you don't follow these exact steps this is just kind of the best practice for most python projects but
+you can kind of install packages as you go and you don't necessarily need to have a virtual environment set up like
+if you're using Jupiter if you're using the cab. research. gooogle totally fine okay perfect now next step I use Visual
+Studio code personally usually so I'm going to open up the folder that we just
+created and I'm going to go ahead and create a IPython notebook so I'll call
+this tutorial. I python notebook and in here I can start running python commands
+I do want to set my python interpreter to what we just set up for that virtual environment so I'm going to do command
+shift p on my Mac I think it will be control shift p if you're on Windows select interpreter and we see we have
+this new virtual environment tutorial select that and we can go ahead and and do print hello
+world and then we can go ahead and import pandas as PD and that will
+accomplish the first step perfect we now have pandas installed again if you're using
+collab research. Google just run import panas at PD ASD already exists all right
+Intro to Dataframes | Creating DataFrames, Index/Columns, Basic Functionality
+given you imported pandas correctly let's start learning about data frames and a data frame is really the main data
+structure of the Python Panda's library and you can basically think of data frames as tables with all sorts of extra
+functionality sprinkled sprinkled on so it allows us to work with spreadsheets and other types of tables very easily
+within python okay so what is a data frame look like well we can create our own data frame very easily by doing
+something like DF equals pd. dataframe I'm going to just sprinkle in some dummy
+data one two three we'll make this a little 2D array 1 two 3 four five 6 7
+8 nine run that well we can start looking at things within this data frame
+and start seeing the components that make it a data frame so we can do data frame. head to see the first five rows
+in this case is just three rows and there's a couple different things that we see there I'm going to also add real
+quick columns equals a b and
+c all right there's already a few things that we can look at first off we have the header here so we specified with
+that with columns but oftentimes in our files that we load in this will be kind of populated by default and we see that
+we can view the data with DF head I could look at just the first row by
+doing DF head one I could look at the first two rows by doing DF head 2 I could look at the bottom two rows by
+doing uh DF tail 2 but there's some useful functions that
+we should know first off if I just wanted to see what the headers are I can do DF do columns if I wanted to see if
+we look at the data frame again these values right here this is known as the index and I can access those by doing DF
+do index and I guess you could also do two list to really see it index can be helpful we
+can also specify this as a non-numeric it's going to automatically populate as you know 0 1 two Etc by default but we
+could also specify our index we're doing something like x
+y z and now if we look at our data frame
+get this and if I did DF do index we see we get YZ other useful things to know
+about data frame right out of the box is we can do do DF doino to see information
+about our data frame we see right now that we have three different columns they're all int 64 types that means they
+use 64 bytes bite is eight bits of information so we're using a little bit
+more than we should probably right here if you want to be more efficient this is one thing that you'd play around with is
+like these data types it's going to be using numpy under the hood by default later on in this video we'll see how we
+can change kind of the the engine under the hood to make things more efficient we see the size here 96 bytes another
+thing that's useful to do is we can do DF do describe and this will tell us some
+meaningful information about our data such as uh the number of items in each column the mean of the items in those
+columns standard deviation Min value Etc and it might be look helpful to look at
+this side by side with the actual data frame you can see that we can also do unique
+to find the unique values in each number unique to find how many unique values
+are in each column uh this is sometimes also helpful if you do you know filter
+by specific column and then you can find those specific unique values not that interesting in this very toy example but
+useful in other examples also very useful to know we can do do
+shape which gives us the shape of our data frame if we added an extra let's say row 10 11
+12 and we see that it has four rows three columns row columns useful in info
+it shows us the memory impact so 128 bytes we could also just see the total
+number of items by doing size all sorts of useful things defining a data frame like this manually is one way to do
+Loading in DataFrames from Files (CSV, Excel, Parquet, etc.)
+things but in the real world we're going to be loading our data in from files so let's start with some warm-up data there
+and work our way up into more complex real world in this video we'll be doing Olympics data set analysis using pandas
+let's work our way up there in the repository that we cloned and don't worry if you didn't clone the repository I'll show you how to load these data
+files in in another way but we have two folders We have data and warm-up data the first thing we'll want to see is how
+we can load in a simple data frame using the pd. read CSV function and you can
+see this is just a week of coffee sales at a madeup coffee store CSV means comma
+separated values file and we can load this in with python pandas by doing the
+following pd. read CSV we're going to go into our warm-up data folder and then
+we're going to load in coffee. CSV we'll save that as coffee equals pd. read CSV
+coffee and if we look coffee. head we see we have that file loaded in one
+really cool trick you can do with pandas is if you didn't download this file
+locally you can actually go to the repository you can click on warmup data
+and this is all Linked In the description you can click on copy. CSV you can see the sample right there but
+what we actually want to click on is raw and you can copy this URL and actually
+paste it in within quotes to our
+repository and we'll see that we still have coffee file there for the sake of
+this tutorial I'm going to go back to the other version but this is good to know some things you should know about
+loading in files is that CSV is probably the most popular file format but it's not always the best file format
+depending on your use case one nice thing about csvs is that it is they are
+readable you can look at a big CSV file and understand what's going on within it
+but one of the big issues with CSV files is if we look at the size of a CSV file
+so for example we'll look at this results which is Olympic Results for all sorts of athletes for I think the
+Olympic data from like 1860 onward we see that this file results. CSV is 31
+megabytes there's other file formats that we can use such as the feather file
+format which is 12.2 megabytes for that same exact data or a paret file which is
+very popular in the data engineering World which is only 4.74 megabytes for that same file alternatively you could
+combine multiple CSV files into an Excel file and that would work too but it's
+going to also be a bit of a larger file format within python we can load in all
+these other files by doing the following so we'll say results which is Olympic
+Results equals pd. reads we'll do Park of
+data results. par run that and we do results. head we
+see that we get all these Olympic results in a data frame pretty easily we could also load in a Excel file by doing
+the following we could do Olympics data equals pd. read Excel pass in that Excel
+file which was data/ Olympics data I think it was Excel
+X is that right ah give it a shot it looks like it's loading it took a lot
+longer to load in though and then with that Olympic data we see that we get the Olympics
+bios information by default but we can also specify specific sheets within an Excel file such as
+let's say there's a results sheet here and we could rerun this and we'll see that when we run the Olympics data. head
+that the results change again look at how much longer it took to read an Excel file versus the parquet
+file if Speed and Performance is high priority for you probably better to work with pares but if you have to work and
+collaborate with people that maybe aren't comfortable with format like paret or feather then probably stick to
+CSV or Excel CSV is usually a pretty safe bet for most situations and if we
+run olympics. head we see that that now changes note if you're curious about where this data comes from it's all SCP
+from a site called olympia.org and I actually did a tutorial on cleaning this
+data set that I'll link right here so there's going to be
+three different data files that we're working with throughout this video and just to simplify things I'll just load
+them all in now so we'll also have Olympic bio information and I'll read in that CSV file corresponding to
+that also worth mentioning while we're here but you'll see later on in the the video there's also a similar two CSV two
+Park two Excel functions that you can apply directly on data frames that make
+your life easier if you have to resave these okay next let's see how we can access data and different ways using
+Accessing Data | .head() .tail() .sample()
+pandas so we have this coffee data frame again we can see the first five rows of
+it by doing coffee. head we can see the full data frame by just listing out coffee and if you're using a different
+editor that doesn't automatically show this stuff when you run a cell you could do something like print coffee just
+within most notebooks they give you some nice syntax out of the box you could
+also get that same syntax with these notebooks by doing display and running
+that but this is our data frame it's some coffee sales for a week at some
+random madeup store and we got that by just doing coffee okay so again we can
+access the first five rows by doing coffee head we can access the first 10 rows by
+doing coffee. head and passing in a value we can get the last five rows by doing coffee. tail we see that it's you
+know Friday and Saturday and Sunday versus Monday Tuesday Wednesday and you know if we didn't pass in a value there
+also would give us five by default could do 10 that's one way to access data if you wanted to just access random data
+you can do coffee. sample and you could pass in some values this is helpful if you you know your data scattered and
+maybe the top and the bottom isn't that important but you kind of want to get a sense of things and so you'll see if we
+keep running this cell and I'm doing control enter to keep running this we see we get different
+pieces of data as we run this you can also pass in a random state to make this
+uh what is the word I'm looking for like repeatable so like it doesn't change I forget the actual technical word here
+next things you want to know is that's great for getting the top and bottom and r rows but what if we wanted to access
+Accessing Data | .loc() .iloc()
+specific values well the two functions you'll want to know about are Lo and IO
+so let's start with lo lo allows us to filter by rows and Columns of our data
+frame so our data frame again is coffee and we can use Lo and then rows comma
+columns is what we kind of pass in to this so what rows do we want and what
+columns do we want within this l function so to start let's say we wanted all rows or like maybe just the first
+row we could do coffee. lo0 and that's based on these indexes here and that
+would give us you know just this first day of our data frame I'll show the data
+frame again just so you can easily follow along see this is correct if we
+wanted the let's say zeroth first and second
+location we could do do this and we'll see do we get the first three rows this
+is nice because we could also you know put in like the fifth row here and get different things we can also use
+actually the slice syntax so I could do 0 to three I could also do something
+like zero onwards maybe it would be more interesting if I did five
+onwards you could do 5 to 12 5 uh eight all sorts of things you
+can do here and then additionally as I mentioned before this is rows and column so if I do a comma I can also grab rows
+so maybe I wanted to grab the day only the day maybe I wanted to grab the day
+and the number of units
+sold we see that so you can combine these things if you wanted all rows and
+just certain columns you can do this IO is pretty similar but instead of using labels like this it uses just index
+locations so if I did IO of this we see we'll get an error error but if I
+grabbed the zeroth indexed and the second
+index we'll see we get the same exact information in this situation the io so
+passing in values like this because the index is a integer value it is actually the index it's the same exact thing but
+one thing that you can do is I could do something like coffee.
+index equals coffee.day and so I can access specific
+columns by doing Dot column name or by doing
+Coffee Day if I set the index now if we look at our data
+frame we see that there's no numerical values there anymore and if I used a DOT
+a Lo and tried to grab just the first three rows we'll get an error but I
+could now do something like L Monday just get the Monday values I
+could even do something like Monday through Wednesday and filter by just those
+values and maybe I just wanted to grab units sold so you can combine all these things very useful
+so to you know in summary Lo allows us to get the rows and columns I look lets
+us grab the rows and columns as well but only using index
+values and then finally I think one thing that's worth mentioning just going to reload this
+coffee data frame so it has the index back to normal and finally one thing that I think is worth mentioning is
+Setting DataFrame Values w/ loc() & iloc()
+let's say I wanted to set a specific value so look at our data frame coffee
+maybe we had a mistake in our data in the unit sold on Monday for lattes was
+actually off maybe it was actually 10 units sold I can modify that value by doing something like coffee the row
+would be dolo one because it's the first index the
+value I want to edit is going to be units sold and I want to set it now to
+be equal to 10 if we look at our data frame after this
+step we see now it is 10 you could also set multiple values so maybe multiple
+values were 10 and if we run our data frame again we see we get 10 for all of
+those values so you can start modifying values within your data frame using L as
+well going to rerun coffee again worth really quickly mentioning that there's a slightly more optimized way to get
+Accessing Single Values | .at() .iat()
+specific values and that's using I at and at so if I did at and I specifically
+wanted zeroth index unit sold and just one single value could do that but if I try to pass
+in multiple values here it's gon to yell at me same thing with integer at it's not
+going to like me if I try to grab multiple things at once but I can grab a specific item like Monday
+this way but this only works for specific values I could also very similar just do IO here I find I use IO
+and lo way more than I would use and I but if you really needed to efficiently grab one single value quickly those
+would be the ones to do it all right this is all good but there's other ways to access data first off as we mentioned
+Accessing Data | Grab Columns, Sort Values, Ascending/Descending
+before to grab columns you can do brackets column name we can also if it's
+a single word you can do coffee dot just the value of that so I could do coffee
+unit sold like this but I think it you there's no way because it has a space in it I don't think you can
+do maybe you can yeah it's not going to work like that so if it is a single word you can do the dot syntax to grab a
+column but you can do bracket syntax always so bracket syntax is a bit more
+robust that graes us a column one thing we may want to do is sort our
+data so we can do sort values and we can provide a column name such as units sold
+and run this and we see now it's in increasing order if we wanted that instead to be in decreasing order we can
+pass ascending equals false now it's in decreasing order you could also filter
+by two parameters so I could do first filter by let's say unit sold and then I
+want you to fil or to sort by the coffee
+type so this means there will be it will first sort by unit sold and if there's ever a value Val such as this first one
+that has the same exact unit sold for both then it will sort by coffee type in
+this case coffee type is a string so that would be in alphabetical order by default and you can specify different
+things to be in in a sending descending differently by doing something like 01
+so this would say unit sold is false don't make it ascending but for coffee
+type make that ascending so this would be alphabetical order and this would be
+decreasing order also I don't really recommend this
+Iterating over a DataFrame (df) with a For Loop | df.iterrows()
+for a lot of use cases but there are times that you just need to iterate through row by Row in your data frame
+this is going to lose you some of the memory performance benefits of python pandas but if you wanted to do that you
+could do for index comma Row in coffee. Itor
+rows and you could then print index print row and I'll print some spaces
+here just so you know that I'm actually getting each row one one at a time so
+output is truncated but you can see what I mean and this is helpful because for a specific row I could grab like just the
+units sold so iterating but you lose some
+performance by doing something like that but still good to know my recommendation is use that sparingly but oftentimes
+performance isn't the most crucial thing if you're just doing some analysis fine to do it that way but just know it's not
+the most pandas syntax it doesn't align as closely with the panda syntax and
+what pandas has been optimized for so try to stick to pandas built-in methods when you can let's get into some more
+Filtering Data | Syntax Options, Numeric Values, Multiple Conditions
+interesting items and we'll start with filtering data so I think for the most of the rest of this tutorial let's work
+with more interesting data and start manipulating those Olympics data sets that we loaded in so we'll look up
+specifically the Buy so looking at the BIOS information we see this is like
+tons and tons of Olympic athletes throughout the years and we see some information about them we could also do
+bios. tale to get the end of this but what would be interesting to do here and
+filter on so I think it might be interesting to start with filtering by
+let's say height and weight so if I look at this data frame and do do info we see
+that height is a float 64 and weight is a float 64 if I wanted to filter based
+on that I could do something like bios. Loke and I want to let's say let's
+figure out what athletes are greater than
+220 centimeters tall so quite quite or 20 let's say 10 centimeters tall what
+these are the tallest Olympic athletes probably I could do bios. Lo bios height
+cm is greater than 215 and I want to grab all
+columns do that and we'll probably see I guess it doesn't say exactly what sport
+these people comp competed with but knowing basketball players I know that Shaquille O Neil is very much a
+basketball player and is on this list probably going to see a lot of Olympic basketball players by doing this filter
+if you wanted to just make this a little bit simpler you could grab specific
+columns by doing let's say name and and height centimeters like that and get a
+reduced list here so we filter the rows based on this
+condition and grabb these specific columns one nice thing that we can do here is there's a shorthand syntax that
+allows us to filter a little bit more simply I could have just done bios
+bracket bios height is greater than 200 5 and I could have run that and we see
+you get the same exact name Shaquille oio still there we can see their heights
+and I could have grabbed the specific columns by doing bracket let's say name
+and height centimeters here we get that so two different ways this bracket
+syntax this kind of binary syntax is kind of a shorthand method cool what if we wanted to combine things things what
+if we wanted to have multiple conditions that we filter on well we can add parentheses to this we can add an and
+character and then parentheses again and add some additional conditions so if we
+looked at our data one of the parameters is their born country so maybe I'd be curious about basketball players that
+were born specifically in the USA so I could do um bios born
+country equals equals USA and now if we look at that we see
+it's a much smaller list and Shaquille O'Neal is still there holding it down
+and look how much more he weigh has weighed as an Olympic Athlete than some of these other people big big man Shaq
+if you're watching this probably not but it'd be cool if you were shout out to Shaq cool that's two
+conditions and this is based on a string condition we can start getting more more
+Filtering Data | String Operations, Regular Expressions (Regex)
+interesting with our conditionals by doing some specific filters based on string operations so one thing that I
+like to do is maybe I wanted to look at just the names that start with Keith bios
+name. string do contains let's say
+Keith run this oh no there's no keiths in the Olympics I guess well there was a
+small mistake there I probably should capitalize this this is going to by default be case sensitive so there's
+this string method that gets the string property of a data frame field and
+there's items like contains that are very useful contains has some additional things such as case which I could set
+case equals false and if I run this again with the lower case we see we do get all these names Duncan Keith I'm an
+ice hockey player so I always thought about getting a Duncan Keith Jersey that would been cool cool bunch of keiths
+maybe I want it to see if it contains Keith
+or Patrick so this you can start using regex
+syntax this is saying or Patrick I don't know why I I was totally thinking
+SpongeBob that's why I said Patrick cool real quick I want to just stress how powerful these regular Expressions can
+be in pandas so some additional examples of what you could do with regular expressions with be finding all athletes
+born in cities that start with just a vowel you could find athletes with names
+that contain exactly two
+vowels you could find athletes with names that have repeated consecutive letters like Erin and EMT and if you
+started this with a carrot and added a case equals false here you could just
+get double letters at the start there's all sorts of things you could do find out athlete names ending with sun or sen
+do that and if you added made this a space instead of a dollar sign dollar sign means end you could have it just be
+the first name of sin or sen so Carson Jason Tyson Etc the na equals false is
+just how you handle null values in the row name so by making it false it makes
+the contains always false so it just kind of filters those out find athletes born in the year starting with 19 could
+do something like this find athletes with names that do not contain any vowels you could do this find athletes
+whose name contains a hyphen or an apostrophe find athletes with names that
+start and end with the same letter find athletes with a born city that has exactly seven
+characters uh find athletes with names containing three or more vels so you can
+see there's a lot you can do pretty much anything you can imagine you could probably create a regular expression to filter by that if you want to understand
+regular Expressions more I did make a video on Regular Expressions I'll link it up above and also in the description
+but I do want to just stress that these can be very very powerful regular Expressions combined with pandas and if
+you ever wanted to turn off the regx search capability you can also pass in the keyword argument to do that you just
+do regx equals false and then we'll see this Keith or Patrick will not return anything because there's never a exact
+match of this it's no longer using the Reg X search functionality you can other
+there's other methods such as like string. is in and this is going to be a
+trickier thing it's going to say okay you have a list so maybe my list is just Keith and it's saying which of these
+names is in Keith we run
+this it fails fails again I think maybe we just run do is in
+sorry no no value specifically is in Keith but this is more interesting if we did maybe
+like born country and we use some abbreviations so if I did like
+USA France Great Britain would that work I don't know if it's gbr yeah it is gbr we
+can filter based on that condition and again we can combine this so I could do and bios name equals equals
+or string. contains I think I can even do starts
+with Keith so if I didn't want last name Keith I could do this run that and we
+see some keiths from USA Great Britain and I don't think there's any french
+keiths but you can do this with your own name see what Olympic athletes there were cool given I'm being super full of
+myself and using myself in all the examples I think I think this is a good time to shamelessly plug if you've
+learned something from this tutorial so far make sure to hit that subscribe button and throw this video a like but
+let's keep moving on another cool thing we can do by filtering data is we can
+Filtering Data | Query Functions
+use so like one issue sometimes is that like by doing this there's just a lot of
+like repeat characters it seems a little bit clunky to have to do bios and then bios again and then bios again so one
+cool thing that we can do is we can use a query function and I could get stuff
+like born I pass it into string here and I basically say born country equals equals USA it's like kind of another way
+I guess I have to use single quates sorry it's another way to oh foreign country equals USA and I
+need to pass this in in quotes but it's another way to filter data based on a condition so look at query functions may
+be useful I honestly don't see it a ton in the wild but maybe that's just because not enough people know about it
+and forign City equals
+Seattle cool so another way you can do
+that I think that's good for filtering data all right let's go ahead and see how we can add and remove coms from our
+Adding / Removing Columns | Basics, Conditional Values, Math Operations, Renaming Columns
+data frame so looking at this data frame we do couple different things here let's
+say we just wanted to add some sort of price column and maybe the price for
+both espressos and lattes is a flat coffee is expensive these days it's
+like you know $4.99 right run
+that and we see that we now have this new column called price cool that's a good start but what if we wanted to be a
+little bit more I guess specific with the column we added so one thing we
+might want to do is let's say we had one price for espresso one price for latte well we can do that with call this new
+price we can leverage a numpy helper method here so we're going to import
+nump as NP and we can do this np. wear
+which allows us to use conditionals so let's say we said espressos were a
+little bit cheaper than latte so we could do coffee coffee type equals
+equals espresso if that's the case if that's true then we want it to be about
+3.99 and otherwise we want it to be 5.99 so lattes are actually quite
+expensive and let's see our coffee that latte is now
+5.99 and espresso is 3.99 that looks cool but now we kind of have two prices
+we don't want two prices so how do we drop that one column we could do coffee.
+drop and we can specify so if we don't specify it's going to drop an index so
+if I dropped let's say Monday oh I guess that didn't work I
+guess it's not the label because it's not the index right now but I could do drop zero and we get rid of the zeroth
+index the nice thing is if we look at coffee again we didn't actually modify the actual data frame we just ran that
+command and that returned a modified version of it so we could do drop and
+because we couldn't just pass in like price it won't work we need to specify
+that we want to drop the columns equal to
+price and now you see that it's only the new price there however again if we look
+at coffee we see that it still has that price because we didn't actually modify it if
+we want to actually modify it we need to do in place equals true and now we'll
+see now we'll see just what we expect couple caveats here that I want to
+mention so I'm going to load in the file from scratch
+again let's say I want to do this all on a new new data frame so I'm going to say
+how about coffee new equals
+coffee now I want to modify make all these modifications on coffee new so if we look at Coffee new we'll see it has
+that price column cool the thing is that's weird is
+that if we also looked at Coffee we see that it also has the price thing this kind of comes down to how panda stes
+memory right now the way we set this coffee new is just pointing to the same memory space as our data frame coffee so
+if we wanted to actually make this separate we'd have to
+do coffee new equals coffee. copy and just so you can see what's actually
+happening here I'm going to load in coffee one more time and I know I said I was going to use the Olympic data but I
+feel like this little data set is easy to use for some educational points like a coffee
+no price but if we did coffee new. copy and then we looked at Coffee
+we see no price that's cool but if we looked at Coffee new dude I need coffee right now uh it
+worked cool cool I don't really care to mod like I'm fine modifying the original one though so I'm not going to do the
+copy necessarily maybe I'll leave this code in here anyway though um okay so
+coffee new price equals NP Weare I going to bring this back
+to normal though coffee equals
+this all right we're going to rerun this line if we look at this we have two
+things so we saw that in place true works we also could have done this same exact Line Coffee equals coffee. drop
+columns price this also would have worked we're basically just dropping that one column and then resetting it to
+coffee and now if we looked at Coffee uh we see we just have the new
+price another thing we could have done is we could have said coffee equals let's say like coffee and we only we
+could have just set it to equal it with only the columns that we wanted so like day
+coffee type unit sold this is a little bit slower of a way but it can be
+helpful if we you only need a couple specific columns this also would have worked to drop out that price column all
+right now we have a data frame that looks like this I could see it being very useful to have a column that's
+called Revenue so I might do coffee Revenue equals coffee units sold times
+coffee new price and you so you can actually
+multiply and combine columns like this and if we see what we
+get if you want to do the math in your head but 25 * 3.99 so that's like close
+to 25 * 4 that' be 100 and 100 minus the 1 C off that's 9975 so that looks good
+another thing we might want to do is not new price we might want to rename that column so coffee.
+rename and now you can specify what you want to rename so I'm going to say
+columns and I'm going to pass in a dictionary I'm going to say if the column is new price I want it to be
+equal to price and now we see we get price there
+instead of new price but once again if I look at Coffee it still says new price
+because we need to do input Place equals true or set
+this um back equal like this so I typically I feel like like resetting
+something like this look at that couple of additional
+Adding / Removing Columns | String Operations, Datetime (pd.to_datetime) Operations
+things you might want to see so let's now move over to our bio bio information
+on our athletes esape y to make this a code cell after being marked down and I
+think a good thing would be maybe to get just the first name from these people or maybe to just get the birth year from
+this date how might we do that few different things we can do so if I wanted to just get the first name I
+might do bios first name
+equals and let's make a copy of this real quick bios new equals
+bios. copy if I wanted to just get the first
+name I might do bios new first name equals bios
+new dotname dolit or string and sometimes I
+really recommend having a editor that gives you autocompletes because you can see all the functions you have available
+and this definitely is helpful but string dot split basically all of our string Methods are going to go off of
+this do string method split we'll split on a space and then we want to grab just
+the first element from that I think we'll do this think that this will work let's try it
+bios new and we're going to see the new column all the way over at the right
+here and now if I looked at bios new um let's say query first name name
+equals equals Keith we'll get some results I guess not oh it always it
+needs to be in quotes because this is a string cool other new columns we might want to
+add another new column we might want to add is just the birth year so if we look at bios new. info and we check out the
+data types we see like we have this athlete ID that's int then we have a
+bunch of objects some floats and some more objects to work with dates like this more easily I recommend converting
+them to a datetime type object so if we go to bios new and we do born date we
+can set this to a date time object by doing bios new or I guess we can do pd.
+two date time and then pass in this bios new and how about we call this uh could
+either set it as a new column let call it a new column let's do born date time how about just so it's it's separate
+bios new born date we run this and now if we
+look at now if we look at this and we look at the new column that was created doesn't look any different
+but if we look at the info we see that it is a datetime object
+and why is this useful well what you can do with this new column is you could
+create a year column by doing bios new have a born
+year equals bios new born date
+time date this is this is like string where if you do DT once it's a daytime
+object you have access to all sorts of useful things so you could even like
+create a column based on like the day of the week they are born but we want specifically the year and run this we
+look at our data I'll just show the how about two columns name and born year we
+see we just get that year cool and this gives you access to all sorts
+of useful things that would be hard to write from scratch like one thing I just saw there is like is leap year you could
+add and if you wanted to find just the Olympic athletes that were born in a leap year or even on leap day you could
+do that with useful date functions off of this converted using this two date time one thing you should know about the
+two date time is that sometimes you'll to get errors because the format won't be the same so you can like course your
+errors which will help resolve them gracefully you also can specify a format
+and I recommend looking at the documentation to understand this more so if you know your column is set up in a way that it's like year
+month day let's say you can pass in the format explicitly and that will help
+this to date time convert things properly these percentage symbols I'll
+link in the description a cheat sheet of all the different things you can use here very useful to know especially
+because like here in the United States we use month day year and I feel like
+everywhere else in the world does day month year so it's helpful to specify
+what you're converting and then if we wanted to save our updated bios new data frame this is
+Saving our Updated DataFrame (df.to_csv, df.to_excel, df.to_parquet, etc)
+just making explicit something I casually mentioned earlier we could do2 CSV we could do SL dat bios new. CSV I
+typically recommend doing index equals false otherwise it will save a extra column with all these values which
+aren't really necessary but because of kind of how pandas was built and backwards compatibility they keep in
+Saving the index by default save that and if we looked in our data we would
+now see this bio's new that has the updates that we made in the new columns that we added taking this a bit further
+Adding / Removing Columns | Using Lambda & Custom Functions w/ .apply()
+we could add custom columns to our data frame by doing something like following let's say we wanted to classify people
+into short average and Tall we could do something like bios height category
+equals bios height cm and then we could apply use this do apply method and apply
+a Lambda function that looks at the values so just going to say short if the
+x value is less then let's say
+165 and then we could do lse average if x is less than about
+185 and then we could do else or else
+tall run that we look at our data
+frame we look at the final thing tall average tall and you know you can find
+someone that would be short in there as well so that's applying a custom function you can do anything with I'm
+using Lambda again because this is custom it's not going to be optimized perfectly with Panda's built-in so use a
+built-in whenever you can but something like this Lambda function can be helpful if you need to do something you know
+very specific another thing if we wanted to take this even further maybe we gave them like a weight category like you
+know how big is this person and big could either mean tall or heavy we could do something like Define a function that
+would be called like categorize athlete take in row data for this function and
+how about if you know the row height is less than how about
+175 and row weight is less than 70 they
+are considered light weight and we could add any custom logic we want in here we
+do lsf row height centim have a less than 185 so kind of keep copying what we
+had before I guess slightly different cuz we had 1 75 the first one and row or how about or row weight kg is less than
+or equal to 80 then we return middle
+weight then finally else I return heavy
+weight and we could apply this to our data frame by
+doing bios app so just like we had the Lambda function before but this time we want to pass in our
+function and we need to specify that this is on rows so we need to say axis equals one one is rows zero is columns
+and we run this again it not optimized for pandas by doing this custom functions but
+sometimes you just need to apply something and it doesn't matter how fast or slow it runs if we look at
+bios we get you know this and we could add any logic we want to here very very
+useful but I'm going to go ahead real quick and reset our bios to be what it was
+Merging & Concatenating Data | pd.merge(), pd.concat(), types of joins
+default all right next we'll build on the adding and removing columns and we're going to do that at scale with
+merging and concatenating data so looking at our bios information one
+thing that we might want to do is take this born country and we see we just have a three-letter code we might want
+to convert into the actual country name and that actually could be separate from where they compete so there's definitely
+people that compete for example we see born in Great Britain and competed in France so I think we want to make it
+more explicit ways to compare where they are born and where they competed and maybe just filter on data based on that
+so in the data folder within those repo there's a file called we'll just call it
+NOC equals pd. read CSV
+data/ regions. CSV I found this file on a pre-existing kaggle data set so shout
+out to that I'll link the kaggle data set in the description we look at this
+file we see there's this code threel code and the region SL country so what
+we can do here is we can go ahead and merge the dat data so we had our data
+looked like this and we want to take this column
+it's a little bit confusing because we also have a column called National Olympic Committee and we basically want to do a born country full or something
+like that so we can do pd. merge our
+BIOS with the no's and because they're two different column names we're not going to use the
+same column for both normally we just do on equals say nooc but we actually want
+to compare no from this data frame with a different column this born country for
+this one so we can actually specify left on is born country and right on equals
+nooc we want to specify the how so this is very important I think by default
+it's inner which basically just looks at takes basically all the rows that both have in actual match so like the born
+country exists and it pairs up nicely with something in the no's and you just
+take those rows but if you wanted to make sure all of your rows in this original bios were kept and even if
+there wasn't a perfect match for one of these country codes it didn't it just used like a nan which is like a null
+value you could do how equals left I'll pop up here a little visual that can
+help you understand [Music] this cool and and we could set this you
+know either back to our original data frame or we could call it like iOS new
+we run this now we look
+at we're going to see over here on the right we have this region now and so it
+might make more sense to call this we'll do a
+rename to how about born country full
+and we'll do that in place equals
+true and we see now it's called Born country full and one thing to note is
+that because both of the original data frame and the new data frame had this
+nooc column it adds a suffix to both of them and you can specify that suffix by
+doing left suffix oh suffixes equals
+I think if you just do a single thing oh I think you actually have to pass in two so I could do like bios and I could do
+nodf or something like that if I ran this again we would see the new suffix is
+this specifying it but I don't really like that new suffix but I just wanted to show you that you could do that if you had duplicate
+columns run that I hate these suffixes go back to the original
+and we will compare bios new nooc
+X is not equal to believe not equals this way we want to compare it to bio
+new uh born country
+full this was a lowercase x cool so
+there's actually a decent number of people I guess we actually wanted to compare it
+to yeah that looks good and you might simplify this just to
+see you might want to just grab the rows you want do it this
+way cool and so in some situations it looks like we just didn't properly convert
+things so you might want to do some n filtering and whatnot here too but this
+gives you an idea another thing you might want to do is let's say we just wanted to take
+people from the USA USA equals bios bios forign
+country equals equals USA we'll make a
+copy and maybe we wanted to have a Great Britain equals bios bios born country
+equals equals gbr do
+copy we can look at these two data frames see everyone is
+USA everyone's USA gbr
+doad everyone's England cool if we wanted to make a new data frame that's just USA and England so new DF we could
+do pd. concat and we can pass in a list of data frames so USA gbr and by default
+it should just append them top to bottom there might be some situations where you would want to append on them to the
+other side but usually I think You' just use a merge in that situation like you would just want to append two data frames together but if
+we look at our new data frame and now we look at the taale of
+that we'll see the Great Britain so that was us joining both of those with con P
+so that's putting one on top of the other an additional example of merging that we might want to see is we take our
+results here and we see that this is a specific event for a specific person and
+because we have an athlete ID we can tie that with their bio information so I might do combined DF equals pd. merge
+First Data frame will be our results in this situation second data frame will be the BIOS the on here will be a Elite
+ID and the how we really want to just make sure that all of these events are
+kept we don't care if the events are most important this time we want to attach the bio information to the the
+event information so we'll say how equals left run that and if we looked at our
+combined DF now we're going to have a bunch of
+columns because now we've appended that so another example of merging two data
+frames together in this case we had a shared column name athlete ID and it worked a little bit more straightforward
+Handling Null Values (NaNs) | .fillna() .interpolate() .dropna() .isna() .notna()
+next let us look at how we can handle no values in our data so going back to the simple coffee data frame let's imagine
+we didn't have all this information let's say we had some null values going
+back to previous stuff we learned we could maybe say like maybe there was a null value on the unit
+sold for specifically the indexes zero
+and one so this row and this row that's going to equal np. na I think we can do
+this if we look at our coffee data frame now just look at the full thing we see
+we get these not a numbers here you'll see these all over the place with your
+data frames and you can keep track of them if you do the dataframe doino you'll see that part of this has the
+non-null count so like 12 in this situation can use the is Na and do like a sum here to see the number of explicit
+n values but what would we do if in the real world we looked at our data frame
+and saw we didn't have unit sold for our Monday value here well there's a few
+things we could do one of them is you can do
+a Phill a and in this situation there's a couple things you could do you could
+just arbitrarily P pick like you know 10,000 and run that and you see changes
+that obviously that's you know maybe not the smartest thing we can do but it does work a smarter thing would be to do
+coffee do unit sold and we can actually do a do mean I'll show some more about
+this in a bit but we run this then it's 35 and that's you know a much more realistic value because that's the mean
+of that whole column so make sense even smarter still might be to like conditionally fill this based on the
+coffee type another cool thing you could do is use this
+interpolate fill that oh I guess it didn't work in this situation it didn't quite know how to do it but interpolate
+is cool because if there's a pattern with your data it will know to continue that pattern in the column and
+interpolate basically looks at the neighbors of this so because we're doing interpolate on the first one I think
+that's why we got the N so I'm going to try this again but instead of doing the
+unit sold here I'll do two and three rerun this look at coffee again I guess
+now we need to repopulate the initial values for one and two we could say like you know 15 how
+about oh I guess it was zero and
+one look at coffee we can do the interpolate which if we
+look at this right looks like they're kind of steadily going up they get the highest around the weekend so we would
+hope for a value between 25 and 35 and 15 here if we interpolate on the Tuesday
+values so I'll do coffee units sold do
+interpolate and watch what happens we run this we get values there and you see
+that those two values that were added are nicely between kind of the values that we expect in our data frame so
+that's cool to see and to set this to the actual value you could do coffee
+units
+sold and you look at that interpolate is another cool way to handle Nan's um you
+could also maybe just drop the rows that are are n so again we reset this to
+Nan's maybe you just wanted to throw out any data that had n you could do drop
+Na and we see that we get the data frame back without those missing na rows this
+is a little bit you want to be careful on because it drops the full entire row maybe you wanted to do something like
+only if unit sold was n do you want to do this whereas if the price was n you
+could fit fill it you can do subset equals like just unit sold to only drop
+rows if it's the unit sold that's specifically na uh and then again remember if you want to actually change
+this in memory you have to do in place equals true or you have to reset this using coffee equals
+that one last thing that we might be useful here is going back to looking at a data frame if I wanted to just get the
+rows that had Nas in them I could do you know coffee oh oops what just
+happened do isna we could do something like this to just get those rows and if we wanted a
+rows that didn't have unit sold we could do a na and do our filtering conditions
+like we've seen in the past cool stuff here that's kind of the basics of null values find that if they exist in our
+data frame fill them if you think it makes sense but sometimes it also just makes sense to let them be and not worry
+too much about them in our data as we continue down the tutorial one thing that's super useful is how we can
+Aggregating Data | value_counts()
+aggregate data so combine things group things uh use pivot tables Etc probably
+the most basic aggregation that I find super useful is going to be value accounts so if we look at our bio
+information on our athletes maybe I'm really curious what the top cities for
+Olympic athletes to come from are I could do bios. value counts and I would
+explicitly want to do the value counts on the column born City and we see
+Budapest leading the charge with Moscow second Oslo third and we can start
+combining things here I could do bios bios born
+country equals equals USA and then maybe I want to do get the born
+region and do value counts on that so filtering only on people from the us and
+we see that of the states in the US most Olympic athletes have come from California makes sense California is
+massive then you get New York second definitely makes sense Chicago and Illinois third uh Massachusetts where I
+am at most of the time rounding out the top five and you could you know look at
+the tale of this as well well uh Wyoming not producing many Olympic athletes I was proud to see New
+Hampshire had a decent amount I think I had all the go all the way back yeah to
+the I guess right at like 83 not many but probably some skiers and stuff when
+we're beating Vermont so that's important I'm from New Hampshire so cool that's some value counts what else can
+Aggregating Data | Using Groupby - groupby() .sum() .mean() .agg()
+we do here so bios cool maybe we would want to group by a specific Sport and then then check
+what the average weight or height is based on that sport or maybe like we
+would want to sort by country and see what the average height of athletes coming from that country are you could
+imagine doing all sorts of things one interesting thing might be shorting by like birth de and seeing the height and
+weight and how it changes over time so a useful function in the pandas world is
+Group by and I think it'll be easier to understand some of this stuff if we start with the the toy coffee examples
+I'm going reload it from maybe I'll just use the
+interpolated
+value just going to fill this data so we have no nans guess it doesn't really make sense
+to have a fractional unit sold but that is Life okay aggregating data group buys are useful so we could do group bu and
+maybe we wanted to just do some calculations on the coffee type so you do group by do coffee type
+and then maybe we wanted to grab just the total number of units sold based on
+that coffee type and we can do a sum like this we see 246 for the espresso
+203 for the lot we can also do like the average per day for each of those types
+one thing that's cool is let's say we wanted to calculate different things based on our data we could doag and
+actually pass in a dictionary here so maybe for our unit sold we wanted to
+calculate the sum but for our price it wouldn't make sense to calculate the sum
+of the price but maybe that one we would want to calculate the average price and we see we get that because the price
+never changed for either of those we see it's just $3.99 and $5.99 but it's cool that we can see like the unit sold this
+and then taking the average price you'd get like a and you multiplying that you could get something useful there Group
+by very very important very helpful you can actually Group by multiple
+properties so you could also like group by the day of the week here too wouldn't be as useful in this situation because I
+think we only have one day of the week for each but you could imagine in a different use case where you wouldd want to group by multiple things and then do
+these aggregations similar to group buys another useful thing is what's known as
+Aggregating Data | Pivot Tables
+a pivot table so we have our coffee right one way to do the same type of
+things but maybe is a little bit more easy to work with longer term is to create a pivot on our data so what I
+mean by this is we have this original data frame looks like this how about we get espresso and Latte as columns and we
+just look at the units sold based on the day of the week or like the revenue four of those based
+on the day of the week so we could do pivot equals coffee. pivot The Columns
+will be equal to Coffee type the the index will be equal to the
+day and the values will be how about our
+Revenue so pivot table takes our data that looks like this as is on the screen right now and it converts it into into a
+format that looks like this one thing that we see is
+a little bit annoying here is that it did make this weird order of our day a bit different you can leverage
+categorical variables to reorder this the way that you want I don't know if I'll cover that right now but with these
+pivot tables one thing that's cool is like now you can you have a new way to access this information that's pretty
+easy like I could grab Monday's latte count very easily like this I could also
+do a sum on the table and see the total revenue for both espresso and Latte we
+could also look at the total revenue on a day count by doing sum AIS equals
+one and we see we get the total revenue summed the other way so sum is useful
+pivot tables are useful let's do some more I guess Advanced examples maybe with our sports information
+let's say we wanted to group people by the year they were born to do that we could do something like bios. group by
+Groupby combined with Datetime Operations
+you know we maybe have to add a I think we could actually just do could do born date I just want to make sure this is a
+date time first date. year and then we could do a DOT
+count count here and we see not as useful looking at
+it like this I could even just do name.
+count and we can see how many people were born by each year maybe it would be more useful to to sort
+values you can reset the index which basically if we look at our
+grouped by right looks like this if we reset the
+index it's going to look more like a nice table with these values here and a
+born date and then a new index looks like that and that's easier to do sort values
+on name uh and we see if we do
+ascending equals false 1972 most popular year for Olympics athlete athletes to be
+born so far I feel like you'll probably see uh this shift maybe uh as they add
+more Sports and as people that you know they're still probably our athletes they're very much still our athletes you
+know in the 75 beyond that are competing in the Olympics so you you probably
+expect these number to taper off and maybe some of these
+that you could even aggregate by like the month born and the
+year doing a lot here
+now apparently I can't close my
+parentheses I think if we converted this a bit different way and did this ahead of time it would probably work for
+us we want a first group by the year born then we'd want
+to group by the month
+born and you could see there that 1971 in January most popular month you see it
+seems like there's a lot of January born dates I don't know if that's because maybe these months are missing or
+something and it's just defaulting to January or maybe it gives you an advantage to be born it definitely makes
+sense at the start of your year because if things are separated by birth year
+let's say the people born in January compared to the people born in the same
+year all the way in December the people in January are much older than the people in December so they kind of have this upper hand I know that that was the
+case at least in ice hockey you'll see a lot more early month borns January
+February March even though I'm a February birthday I guess I didn't reap that Advantage because I'm very much not
+a Olympic ice hockey player but uh it's something interesting to think about group by cool I think that's good for
+group by for now you could play around with other aggregations cool that is group buys
+Advanced Functionality | .shift() .rank() .cumsum() .rolling()
+let's quickly touch on some more advanced functionality some things that come to mind to me are shift rank
+rolling functions trying to think if there's anything else cumulative sum I
+guess sum is a rolling function specific one start with shift let's say
+you wanted to see how your Revenue was doing compared to the day before or something like that or you can imagine
+like aggregating things by week and then shifting to compare last week to this
+week Etc can be useful so in our coffee data if we did like yesterday Revenue
+that would be equal to Coffee
+revenue. shift one and we look at now our new
+coffee so now you could compare like I guess this wouldn't be a perfect fit I would have to shift it to to get it
+perfectly to fit because there's two
+types but now you could easily compare like okay on Tuesday we had a revenue of
+$120 roughly yesterday's Revenue was
+99.75 and you could do like a percent increase which would be percent change
+would be equal to revenue divided by yesterday Revenue
+might error out because of the N I'm not sure hopefully it will just fill the nans with
+n cool so like this was a 120% increase and if you really wanted to make things
+explicit I guess you could even multiply this resulting value by 100 and we get
+this so this would be the actual percent but if you wanted the fraction it was what we had before so that was a shift
+by two periods you could also shift backwards um by doing negative values here what else might you want to do well
+if we go to our biographical data here on our athletes maybe you would want to
+look at where someone's height and weight compared to the rest of the athlete so you could do bios height rank
+equals bios height C Rank and that will compare the heights
+you know to everyone and give someone a rating so if we now sorted our values based on height
+Rank and we'll say ascending equals
+false guess probably would want to do short values pass this
+in we see that Yao Ming is number one so it is cool to see and we'll see that his
+height rank um the way that it's done is I guess this is the max value and we can
+specify I guess uh how do we specify this another Advanced functionality is
+using GitHub co-pilot so if you are using uh Visual Studio code you can install GitHub co-pilot I think through
+the extensions extensions
+GitHub co-pilot install this and I think Co co-pilot chat you might want too I
+guess that would be using this both are useful but if you have co-pilot installed I could do something like set
+height rank to bios height
+centim do rank but make but make make tallest
+person have rank one we can use GitHub co-pilot to help us
+here so ascending equals false is what we'd want to pass here accept that so I use co-pilot a lot to help me figure out
+things like this and now if we sort values we get some really tall probably
+gymnasts here but if I now have it set like this we see Yao Ming again and this
+time his uh height rank will be one and this is just cool because if you're looking
+at a sample of the data frame let say like get like 10 rows you
+could see how someone's height compares to every other Olympic Athlete like right here in the so how about we do
+like name height rank uh right there in the data frame
+and if they don't have a height you know it's going to be an N here but it's kind of cool if you're like looking at a
+specific athlete that you like you could see how their height has compared to other people in the Olympics so rank is
+useful rolling functions coffee dot
+head a rolling function might or we'll look at the full coffee maybe you would want to see the last three days of
+Revenue so I could do cumulative sum or actually cumulative sum would take your
+total revenue over time I could run that oh shoot and maybe I would want to just
+get the integer data type columns you can use this select D types function
+cumulative sum that did not work I guess maybe in
+64 let's go
+back I guess these are all floats so if we want to grab our
+floats columns and then do commun of sum and maybe I think reset the
+index that did not work how about this this grabs all the float columns but
+maybe we just want to do r
+now and we could do cumulative sum on that and set it
+to this would work and you see that it is adding
+things up as we go can be useful you could also do like Revenue over like the
+past three days and that would be something like
+rolling so how about we do a data frame of just our espresso or just our lattes
+because it's a shorter
+word maybe I wanted to do a cumulative sum over 3 days I could do
+rolling then I think we can do periods window equals 3 and sum and we probably
+would want to do that specifically on let's say like unit sold and you could call this latte 3day
+or something like that and now if we look at
+latte we see 15 + 28 is 43 plus 25 is 68
+and there's that 33 so this gives us 3 days and there's ways to fill these values but just useful to know cool
+Advanced functionality let's quickly go into some of the new functionality of pandas and really the big switch from my
+New Functionality | Pandas 1.0 vs Pandas 2.0 - pyarrow
+previous tutorial to this one is the jump from pandas 1.0 version you know 1.x to 2 point I think it's like 2.2
+right now or 2.3 as I record this video but we could actually I guess check that for explicitly by doing pd.
+verion I guess I need to type it Fly 2.2.2
+2.2.2 point2 point2 is the incorporation of the pi Arrow back end and basically
+the difference between pi arrow and what was there in version 1.0 which was a numpy back end is that Pi Aro gives us a
+lot more optimization and can do things more efficiently and can interupt with a
+lot of other data engineering uh data sciency type tools probably more robustly than we can with numpy and some
+of the key things that you'll actually see as a user though come down to Performance so if I load both of these
+files in if I did something like results numpy Dost string. contains have or
+let's look at the just the the data frame real quick right we got this and and let's
+look at info cool we have some floats objects Etc if we go down and look at our
+results arrow and do a.info we'll see that we have some different
+stuff first off we'll see we have these string types here uh versus the object
+types here and string operations is one of the biggest optimizations within the arrow backend versus numpy numpy is
+definitely not designed to handle string stuff stuff great you know super efficiently but in practice we can just
+basically do a lot more things efficiently uh another difference and
+and I'm not going to get into all the details here of optimizations I'll link a blog post that was posted when pandas
+2.0 is first release that I I recommend checking out but just as a simple example if I did something like results
+numpy do uh let's say there's a name column which is basically as and you
+know it's an object here do as. string tains uh use my my name again
+that work what's going
+on run that I guess it did it pretty
+quick but basically nothing functionally changes this is still data frame in both
+situations but by using more specific types like these string types within Pi
+Arrow we can optimize at scale with operations that you know include strings
+that include Boolean values lot of different things we can optimize for here so really the this back end in most
+situations if performance matters I recommend switching to the pi Arrow back end you'll have to install pi Arrow but
+that was in the requirements.txt that was included with this video definitely recommend checking out the blog post
+New Functionality | GitHub Copilot & OpenAI ChatGPT
+that's one of the biggest things other new functionality and it's not necessarily like Panda specific but I
+think in this AI driven world right now it's worth knowing and doing a bit more
+with AI stuff so command I will open up co-pilot chat so maybe I said you know
+bios. head I could do like co-pilot chat and just say use my BIOS data frame
+to grab people that are Olympians from either New
+Hampshire from the Bourne region New Hampshire or from the born City San
+Francisco pretty complex query but copilot is pretty smart so this can be
+really helpful if you are trying to do some Panda stuff quickly so so let's look at
+filtered bios and look at that did a pretty dang good job shout out to Ral Garcia from
+New Hampshire could look it even more I could do a sample to check out more rows of this we're going to see probably a
+lot more people from San Francisco oh hey another New
+Hampshire cool so that was one thing with copilot chat another thing we could do though is
+I could pass that same type of query into chat
+GPT um to do that I could do something like I have a data frame called
+bios that looks like this and I just copied the you know the
+head there please give me the pandas code to filter the data BAS
+on finding someone either from New Hampshire or from I guess I probably
+should specify either from the Bourne region New Hampshire or the Bourne City San
+Francisco and it's going to give me something similar yeah as we can see that looks
+exactly like what co-pilot gave us another cool thing you can do with chat GPT I'm using GPT for but it should work
+well with GPD 3.5 as well but you can do something like please give me a toy data
+frame I can use to play around with pivot
+tables and so really interactively I feel like working on certain skills like this with little toy data frames can be
+super useful to understand how these things operate and I'm gonna actually
+copy this code and show you what I'm talking about here paste this in I don't like print DF I
+like just doing DF and I bet you it's G to have us pivot this based on the salesperson the salesperson will
+probably be our columns I would think and maybe the unit sold our values and
+probably could maybe keep the dates the same we'll see what they recommend and
+then it gives us this pivot table so the values are the unit sold
+index stays the date columns item a function sum oh interesting so
+it's summing the total number of items depend not not not worrying about the
+salesperson so if we look at the pivot
+table we see the total number of apples bananas and oranges sold we can also
+like look at the total number of units sold uh irregardless of it
+by the salespeople by doing salesperson
+here um so useful things you can do by
+interacting with chat GPT and I might ask like is there a
+difference between pd. pivot and pd. pivot table
+okay so it seems like pivot table has a little bit more than just
+pivot like such as the a function here so that's cool to know chat gbt very
+helpful all right uh is there anything else another way you might use chat gbt
+is let's say create a histogram plot based on my initial
+Olympic athletes data set of people's Heights in
+the Olympics use a log scale if you need
+to so plotting can be super helpful with the use of chat GPT and whatnot see some
+useful stuff here copy that paste it in run it if it ever says you don't have a
+library you can actually write in your um code editor do pip install with a
+explanation point I'll do M plot
+lib now it's installed didn't even have to open up any fancy terminal or
+anything and look at that we got our distribution of heights this is using I
+think a log scale this is the number of athletes with a log scale scale just so we can see the outliers so Shaquille
+O'Neal is up here somewhere you got some really short people over here but everyone large count of people in this
+range looks like a normal distribution cool another useful AI helper I think
+that's some of the the key things to know about for new functionality one recommendation I have is like you can
+get wild with the types of queries you send to chat gbt can be super helpful so definitely leverage that but I would say
+don't rely on it 100% you want to know the basics and have an intuition understand kind of what's working behind
+under the hood but use it to help speed up use the AI to help speed up your processes so I I recommend next to just
+What Next?? | Continuing your Python Pandas Learning…
+keep practicing on your skills use your own data sets maybe explore these Olympics data set a bit more or have
+chat gbd generate you novel things to test out different pandis functionality all super useful stuff explicitly as far
+as tutorials go I recommend checking out a tutorial that I did cleaning the Olympic data set that you saw in a lot
+of this tutorial I'll link that right here or here I also did 100 minus some I
+think the the full repo had like 66 pandas puzzles and I find like doing all sorts of pandas puzzles super helpful so
+also did a video on that here or here or I'll link it in the description if not definitely recommend checking that out
+you can check out some other real world data analysis videos that I have also like platforms like strata scratch or
+analyst Builder also linked in the description that you can check out honestly too like I've learned a lot
+recently by just watching YouTube videos like kind of exploring you should I would say spend 75% of or more of your
+time actually building and using this code but do spend some time just reading papers or reading watching YouTube
+videos even though I have I don't know like 10 years of experience with has Panda's been around for 10 years yeah it
+definitely has uh like maybe not fully 10 years but like up there years of experience with pandas I'm still
+learning new things every day so you never know what you'll find even if you think you're an expert it doesn't hurt to check out videos and and blog posts
+that people post on these libraries there's always like little tricks and tips that you know never can be covered in just one single video alone
+definitely recommend that but I think that's all we're going to do in this video hopefully you enjoyed this tutorial happy to be back with an
+updated version if you felt like there was things that I was missing in this tutorial please let me know in the comments it will not only help me make
+better tutorials in the future but also let everyone watching this video know some other useful stuff to check out but
+I think with that that's all we're going to do if you like this video make sure to throw it a thumbs up subscribe if you
+haven't more tutorials on the way pandas baby we love it thank you all for
+watching peace

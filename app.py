@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+import threading
 from functools import wraps
 
 import markdown
@@ -24,6 +25,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from dotenv import load_dotenv
 
 import database
+from ai.generators.blueprint import get_blueprint_system_instruction
+from ai.pipelines.course_pipeline import generate_course as ai_generate_course, get_progress as ai_get_progress, clear_progress as ai_clear_progress
 
 load_dotenv()
 
@@ -868,41 +871,7 @@ def admin_lessons_reorder():
 
 #  Course on Demand (COD) Routes 
 
-SYSTEM_INSTRUCTION_COD = """
-You are an expert curriculum architect. Your role is to design personalized software engineering courses.
-
-PHASE 1: DISCOVERY & ARCHITECTURE
-- Be highly conversational and proactive.
-- Ask the user questions ONE BY ONE to build a comprehensive understanding of their needs:
-  1. What is the core topic/technology? (e.g., Python, React).
-  2. What is the target user's experience level? (Beginner, Intermediate, Advanced).
-  3. What is the overarching project to be built during this course?
-  4. What is the desired depth? (Crash course vs. Comprehensive masterclass).
-- Do not stop until you have a clear, deep understanding of the user's intent.
-- Once you have sufficient info, pivot to designing the curriculum.
-
-PHASE 2: PLANNING
-- Propose a structured curriculum. 
-- You MUST output a JSON object:
-  {
-    "status": "READY",
-    "message": "A summary of the course architecture and curriculum.",
-    "syllabus": {
-        "title": "...",
-        "subtitle": "...",
-        "level": "...",
-        "lessons": [
-            { "number": 1, "title": "Lesson Title", "section": "Section Name" },
-            ...
-        ]
-    }
-  }
-
-OUTPUT RULES:
-- If in PHASE 1, output: {"status": "CHATTING", "message": "Your next question."}
-- If in PHASE 2, output: {"status": "READY", "syllabus": {...}, "message": "..."}
-- ALWAYS output valid JSON. No markdown formatting.
-"""
+SYSTEM_INSTRUCTION_COD = get_blueprint_system_instruction()
 
 @app.route("/cod")
 @login_required
@@ -938,7 +907,7 @@ def cod_chat():
     
     try:
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-2.5-flash",
             contents=history,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION_COD,
@@ -954,18 +923,32 @@ def cod_chat():
         if ai_data.get("status") == "READY":
             syllabus = ai_data.get("syllabus")
             state['pending_course'] = syllabus
-            cost = len(syllabus['lessons']) * 3
+            # Count lessons from sections-based or flat format
+            total_lessons = 0
+            if syllabus.get('sections'):
+                for sec in syllabus['sections']:
+                    total_lessons += len(sec.get('lessons', []))
+            else:
+                total_lessons = len(syllabus.get('lessons', []))
+            cost = total_lessons * 3
             state['total_cost'] = cost
             
             can_afford = g.user["is_pro"] or g.user["total_xp"] >= cost
             
             response_msg = f"{ai_message}\n\n"
             response_msg += f"**Course Report & Syllabus:**\n"
-            for lesson in syllabus['lessons']:
-                response_msg += f"- Lesson {lesson['number']}: {lesson['title']}\n"
+            # Handle sections-based or flat lesson lists
+            if syllabus.get('sections'):
+                for sec in syllabus['sections']:
+                    response_msg += f"\n**{sec['title']}**\n"
+                    for lesson in sec.get('lessons', []):
+                        response_msg += f"- Lesson {lesson.get('number', '?')}: {lesson['title']}\n"
+            else:
+                for lesson in syllabus.get('lessons', []):
+                    response_msg += f"- Lesson {lesson['number']}: {lesson['title']}\n"
             
             response_msg += f"\n**Economic Breakdown:**\n"
-            response_msg += f"- Lessons: {len(syllabus['lessons'])}\n"
+            response_msg += f"- Lessons: {total_lessons}\n"
             response_msg += f"- Cost: **{cost:,} XP**\n"
             response_msg += f"- Your Balance: {g.user['total_xp']:,} XP\n"
             
@@ -1001,147 +984,106 @@ def cod_confirm():
     if not g.user["is_pro"]:
         database.deduct_xp(g.user["id"], cost, "cod_generation")
 
-    try:
-        full_course = generate_cod_full_content(state['pending_course'])
-        
-        course_slug = f"cod-{g.user['id']}-{int(time.time())}"
-        db_course = database.create_course(
-            slug=course_slug,
-            title=full_course['title'],
-            subtitle=full_course['subtitle'],
-            level=state['pending_course'].get('level', 'Beginner'),
-            status='active',
-            user_id=g.user["id"]
-        )
-        
-        sections = {}
-        for lesson_data in full_course['lessons']:
-            section_name = lesson_data.get('section', 'Core Curriculum')
-            if section_name not in sections:
-                # Use the AI-assigned background if available, else empty string
-                bg = lesson_data.get('section_background', '')
-                sec = database.create_section(db_course['id'], len(sections)+1, section_name, "", background=bg)
-                sections[section_name] = sec['id']
-            
-            # Normalize AI output to match builder schema and generate HTML
-            raw_blocks = lesson_data.get('builder_json', [])
-            normalized_blocks = normalize_builder_json(raw_blocks)
-            html_content = builder_json_to_html(normalized_blocks)
-            
-            database.create_lesson(
-                course_id=db_course['id'],
-                number=lesson_data['number'],
-                slug=f"lesson-{lesson_data['number']}-{int(time.time())}",
-                title=lesson_data['title'],
-                summary=lesson_data.get('summary', ""),
-                content=html_content,
-                content_type='html',
-                section_id=sections[section_name],
-                builder_json=json.dumps(normalized_blocks)
+    # Generate a session ID for progress tracking
+    session_id = f"cod-{g.user['id']}-{int(time.time())}"
+    session['cod_session_id'] = session_id
+
+    user_id = g.user["id"]
+    pending = state['pending_course']
+
+    def _generate_in_background():
+        """Run course generation in a background thread."""
+        try:
+            backgrounds = get_available_backgrounds()
+            full_course = ai_generate_course(
+                syllabus=pending,
+                backgrounds=backgrounds,
+                session_id=session_id,
             )
-        
-        database.enroll_user_in_course(g.user["id"], course_slug)
+
+            # Save to database inside app context
+            with app.app_context():
+                course_slug = session_id
+                db_course = database.create_course(
+                    slug=course_slug,
+                    title=full_course['title'],
+                    subtitle=full_course['subtitle'],
+                    level=pending.get('level', 'Beginner'),
+                    status='active',
+                    user_id=user_id,
+                )
+
+                sections = {}
+                for lesson_data in full_course['lessons']:
+                    section_name = lesson_data.get('section', 'Core Curriculum')
+                    if section_name not in sections:
+                        bg = lesson_data.get('section_background', '')
+                        sec = database.create_section(db_course['id'], len(sections)+1, section_name, "", background=bg)
+                        sections[section_name] = sec['id']
+
+                    raw_blocks = lesson_data.get('builder_json', [])
+                    normalized_blocks = normalize_builder_json(raw_blocks)
+                    html_content = builder_json_to_html(normalized_blocks)
+
+                    database.create_lesson(
+                        course_id=db_course['id'],
+                        number=lesson_data['number'],
+                        slug=f"lesson-{lesson_data['number']}-{int(time.time())}",
+                        title=lesson_data['title'],
+                        summary=lesson_data.get('summary', ""),
+                        content=html_content,
+                        content_type='html',
+                        section_id=sections[section_name],
+                        builder_json=json.dumps(normalized_blocks),
+                    )
+
+                database.enroll_user_in_course(user_id, course_slug)
+
+                from ai.pipelines.course_pipeline import _update_progress
+                _update_progress(session_id, status="complete", url=f"/course/{course_slug}")
+
+        except Exception as e:
+            print(f"COD Background Error: {e}")
+            from ai.pipelines.course_pipeline import _update_progress
+            _update_progress(session_id, status="error", error=str(e))
+
+    # Launch generation in background thread
+    thread = threading.Thread(target=_generate_in_background, daemon=True)
+    thread.start()
+
+    return {"status": "generating", "session_id": session_id}
+
+
+@app.route("/cod/status", methods=("GET",))
+@login_required
+def cod_status():
+    """Poll generation progress."""
+    session_id = session.get('cod_session_id', '')
+    if not session_id:
+        return {"status": "idle"}
+
+    progress = ai_get_progress(session_id)
+
+    # If complete, clean up and return the URL
+    if progress.get("status") == "complete":
+        url = progress.get("url", f"/course/{session_id}")
+        ai_clear_progress(session_id)
         session.pop('cod_state', None)
-        return {"status": "success", "url": url_for("course_overview", course_slug=course_slug)}
-    except Exception as e:
-        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-            return {"error": "rate limit reached, please try again in a minute."}, 429
-        print(f"COD Confirm Error: {e}")
-        return {"error": "something went wrong while generating content."}, 500
+        session.pop('cod_session_id', None)
+        return {"status": "complete", "url": url}
 
+    if progress.get("status") == "error":
+        ai_clear_progress(session_id)
+        return {"status": "error", "error": progress.get("error", "Unknown error")}
+
+    return progress
+
+# Legacy generate_cod_full_content has been replaced by
+# ai.pipelines.course_pipeline.generate_course()
+# The old function is kept as a thin compatibility wrapper.
 def generate_cod_full_content(syllabus):
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = "gemini-3-flash-preview"
-    
     backgrounds = get_available_backgrounds()
-    
-    prompt = f"""
-You are writing lessons for a premium online coding school. Your writing style is inspired by Mosh Hamedani (CodeWithMosh) — friendly, calm, crystal-clear, and never robotic.
-
-WRITING RULES (follow these STRICTLY):
-1. VOICE: Write like you're sitting next to the student, explaining things over coffee. Use "we" and "you" naturally. Be warm but never condescending.
-2. NEVER use filler phrases like "In this lesson, we will learn..." or "Let's dive in" or "In the world of programming". Just START teaching the concept directly.
-3. NEVER start with meta-commentary about the lesson. Jump straight into the meat.
-4. Every paragraph should teach ONE idea. Keep paragraphs to 2-3 sentences max.
-5. Use REAL-WORLD analogies to explain abstract concepts (e.g., "Think of a variable like a labeled box — you put a value inside and refer to it by name").
-6. Show PRACTICAL code examples that solve real problems, not toy examples. Use meaningful variable names.
-7. After each code block, EXPLAIN what the code does line by line in a short paragraph.
-8. Include at least one "common mistake" callout per lesson showing what beginners get wrong and why.
-9. End each lesson with a small hands-on exercise the student can try immediately.
-10. CONTENT DEPTH: Each lesson MUST have 8-15 builder blocks minimum. This is a real course, not a summary.
-
-BLOCK-BASED BUILDER FORMAT:
-Each lesson's "builder_json" is a list of block objects. Here are the EXACT block schemas:
-
-1. HEADING block (use for major topic breaks within a lesson):
-   {{"type": "heading", "data": {{"text": "Your Heading Here"}}}}
-
-2. TEXT block (the main teaching content — make these substantial and conversational):
-   {{"type": "text", "data": {{"text": "Your paragraph content here. You can use <b>bold</b> and <code>inline code</code> for emphasis."}}}}
-
-3. CODE block (always include practical, runnable examples):
-   {{"type": "code", "data": {{"lang": "python", "code": "# Your code here\nresult = 42\nprint(result)"}}}}
-   Supported languages: python, javascript, html, css, json, typescript, shell
-
-4. CALLOUT block (for tips, warnings, common pitfalls):
-   {{"type": "callout", "data": {{"type": "info", "title": "Pro Tip", "body": "Your tip content here."}}}}
-   OR for warnings:
-   {{"type": "callout", "data": {{"type": "warning", "title": "Watch Out", "body": "Common mistake explanation."}}}}
-
-5. QUIZ block (one per lesson, to reinforce the key concept):
-   {{"type": "quiz", "data": {{"question": "What does X do?", "options": ["Answer A", "Answer B", "Answer C"], "correct": 0}}}}
-
-LESSON STRUCTURE TEMPLATE (each lesson should roughly follow this flow):
-1. A heading block introducing the topic
-2. 2-3 text blocks explaining the concept with analogies
-3. A code block showing the concept in action
-4. A text block explaining the code
-5. A heading block for a deeper aspect or variation
-6. More text + code blocks building on the concept
-7. A callout block with a common mistake or pro tip
-8. A heading block "Try It Yourself" with a mini-exercise
-9. A text block describing the exercise
-10. A quiz block testing comprehension
-
-AVAILABLE SECTION BACKGROUNDS: {json.dumps(backgrounds)}
-
-SYLLABUS TO GENERATE CONTENT FOR:
-{json.dumps(syllabus)}
-
-OUTPUT FORMAT — return this exact JSON structure:
-{{
-    "title": "{syllabus['title']}",
-    "subtitle": "{syllabus['subtitle']}",
-    "lessons": [
-        {{
-            "number": 1,
-            "title": "Lesson Title",
-            "section": "Section Name from syllabus",
-            "section_background": "pick_one_from_available_backgrounds.png",
-            "summary": "One sentence describing what the student will learn.",
-            "builder_json": [
-                {{"type": "heading", "data": {{"text": "..."}}}},
-                {{"type": "text", "data": {{"text": "..."}}}},
-                {{"type": "code", "data": {{"lang": "python", "code": "..."}}}},
-                {{"type": "callout", "data": {{"type": "info", "title": "...", "body": "..."}}}},
-                {{"type": "quiz", "data": {{"question": "...", "options": ["..."], "correct": 0}}}}
-            ]
-        }}
-    ]
-}}
-
-CRITICAL: Every lesson MUST have rich, detailed builder_json with AT LEAST 8 blocks. Do NOT return empty or minimal builder_json arrays. The content quality is what makes this course worth paying for.
-    """
-    
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            thinking_config=types.ThinkingConfig(thinking_level="medium")
-        )
-    )
-    return json.loads(response.text)
+    return ai_generate_course(syllabus=syllabus, backgrounds=backgrounds)
 
 
 def normalize_builder_json(blocks):
@@ -1242,16 +1184,23 @@ def builder_json_to_html(blocks):
             callout_type = data.get('type', 'info')
             title = data.get('title', 'Note')
             body = data.get('body', '')
-            is_warn = callout_type == 'warning'
             
-            border_bg = 'border-amber-200 bg-amber-50' if is_warn else 'border-sky-200 bg-sky-50'
-            icon = 'alert-triangle' if is_warn else 'info'
-            icon_color = 'text-amber-600' if is_warn else 'text-sky-600'
+            # Extended callout type styling
+            callout_styles = {
+                'warning':        {'border': 'border-amber-200 bg-amber-50',  'icon': 'alert-triangle',  'color': 'text-amber-600'},
+                'common_mistake': {'border': 'border-red-200 bg-red-50',      'icon': 'x-circle',        'color': 'text-red-600'},
+                'analogy':        {'border': 'border-violet-200 bg-violet-50','icon': 'lightbulb',       'color': 'text-violet-600'},
+                'beginner_tip':   {'border': 'border-emerald-200 bg-emerald-50','icon': 'heart',         'color': 'text-emerald-600'},
+                'recap':          {'border': 'border-indigo-200 bg-indigo-50','icon': 'list-checks',     'color': 'text-indigo-600'},
+                'expected_output':{'border': 'border-gray-200 bg-gray-50',   'icon': 'terminal',        'color': 'text-gray-600'},
+                'info':           {'border': 'border-sky-200 bg-sky-50',     'icon': 'info',            'color': 'text-sky-600'},
+            }
+            style = callout_styles.get(callout_type, callout_styles['info'])
             
             parts.append(f"""
-<div class="my-10 rounded-2xl border {border_bg} p-8 flex gap-6 not-prose shadow-sm">
+<div class="my-10 rounded-2xl border {style['border']} p-8 flex gap-6 not-prose shadow-sm">
     <div class="w-14 h-14 shrink-0 rounded-2xl bg-white border border-inherit flex items-center justify-center shadow-sm">
-        <i data-lucide="{icon}" class="w-6 h-6 {icon_color}"></i>
+        <i data-lucide="{style['icon']}" class="w-6 h-6 {style['color']}"></i>
     </div>
     <div>
         <h4 class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2">{title}</h4>
@@ -1288,6 +1237,14 @@ def builder_json_to_html(blocks):
 #  Init 
 
 database.init_app(app)
+
+# Auto-ingest educational dataset on startup
+try:
+    from ai.ingestion import ensure_ingested
+    with app.app_context():
+        ensure_ingested()
+except Exception as e:
+    print(f"[STARTUP] Dataset ingestion skipped: {e}")
 
 
 if __name__ == "__main__":

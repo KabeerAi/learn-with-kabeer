@@ -1,0 +1,499 @@
+{
+  "course": {
+    "title": "Python for Beginners by Bro Code",
+    "description": "Learn the fundamentals of Python programming in this highly interactive, beginner-friendly course. Perfect for those who have never written a line of code.",
+    "difficulty_level": "Beginner",
+    "learning_outcomes": [
+      "Set up your development environment and write your first Python program.",
+      "Understand and manipulate fundamental data types (integers, floats, strings, booleans).",
+      "Perform basic and complex mathematical operations.",
+      "Receive and process user input safely.",
+      "Control program flow using if/else statements and logical operators.",
+      "Automate repetitive tasks using while and for loops.",
+      "Store and manage collections of data using lists, sets, tuples, and dictionaries."
+    ],
+    "chapters": [
+      {
+        "chapter_title": "Chapter 1: Getting Started with Python",
+        "lessons": [
+          {
+            "lesson_title": "Print Statements",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Hello World!"
+              },
+              {
+                "type": "paragraph",
+                "content": "Welcome to Python! The very first thing any programmer learns is how to make the computer \"speak.\" We do this using the `print()` function."
+              },
+              {
+                "type": "code",
+                "content": "print(\"I like pizza!\")\nprint(\"It's really good!\")"
+              },
+              {
+                "type": "info_box",
+                "content": "Everything inside the quotes is called a \"string\" of text. You can use single quotes (' ') or double quotes (\" \")."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Variables",
+            "components": [
+              {
+                "type": "heading",
+                "content": "What is a Variable?"
+              },
+              {
+                "type": "paragraph",
+                "content": "A variable is like a container or a box where you can store a value. It behaves exactly as the value that it contains."
+              },
+              {
+                "type": "analogy",
+                "content": "Think of a variable as a labeled box. You can put a toy in the box and write \"Favorite Toy\" on the label. Whenever you need the toy, you just ask for the \"Favorite Toy\" box."
+              },
+              {
+                "type": "code",
+                "content": "first_name = \"Bro\"\nprint(first_name)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Data Types (Numbers)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Integers and Floats"
+              },
+              {
+                "type": "paragraph",
+                "content": "In Python, there are different types of boxes for different types of data. Let's look at numbers."
+              },
+              {
+                "type": "code",
+                "content": "# Integer (Whole number)\nage = 21\n\n# Float (Decimal number)\ngpa = 3.2"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can perform math with these numeric variables directly."
+              },
+              {
+                "type": "code",
+                "content": "age = age + 1\nprint(\"Your age is: \" + str(age))"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Data Types (Strings & Bools)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Text and Truth"
+              },
+              {
+                "type": "paragraph",
+                "content": "A **String** is a series of characters (text). A **Boolean** represents True or False logic."
+              },
+              {
+                "type": "code",
+                "content": "# String\nname = \"Bro\"\n\n# Boolean (Must be capitalized!)\nis_online = True\nif is_online:\n    print(\"User is online\")\nelse:\n    print(\"User is offline\")"
+              },
+              {
+                "type": "recap",
+                "content": "The 4 basic data types: Int (whole numbers), Float (decimals), String (text), and Boolean (True/False)."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 2: Working with Data",
+        "lessons": [
+          {
+            "lesson_title": "Typecasting",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Changing Data Types"
+              },
+              {
+                "type": "paragraph",
+                "content": "Typecasting is the process of converting a value of one data type (integer, string, float, etc.) to another data type. Why do we need this? Because some operations only work on specific types."
+              },
+              {
+                "type": "code",
+                "content": "name = \"Bro\"\nage = 21\ngpa = 3.2\n\n# Convert a float to an integer (it drops the decimal)\ngpa = int(gpa)\nprint(gpa) # Output: 3"
+              },
+              {
+                "type": "paragraph",
+                "content": "You must cast numbers to strings before you can stick them onto another string."
+              },
+              {
+                "type": "code",
+                "content": "print(\"I am \" + str(age) + \" years old\")"
+              }
+            ]
+          },
+          {
+            "lesson_title": "User Input",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Asking Questions"
+              },
+              {
+                "type": "paragraph",
+                "content": "To make programs interactive, we use the `input()` function to ask the user a question."
+              },
+              {
+                "type": "code",
+                "content": "name = input(\"What is your name? \")\nprint(\"Hello \" + name)"
+              },
+              {
+                "type": "warning_box",
+                "content": "`input()` ALWAYS returns a string. If you ask for their age and want to do math with it, you must cast it to an integer first!"
+              },
+              {
+                "type": "code",
+                "content": "age = int(input(\"How old are you? \"))\nage = age + 1"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Number Operations",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Basic Math"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python can act like a giant calculator."
+              },
+              {
+                "type": "code",
+                "content": "friends = 5\n\nfriends = friends + 1\nfriends = friends - 2\nfriends = friends * 3\nfriends = friends / 2\nfriends = friends ** 2 # Exponent (Squared)\nfriends = friends % 2  # Modulo (Returns the remainder of division)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Math Functions",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Built-in Math Tools"
+              },
+              {
+                "type": "paragraph",
+                "content": "Python has built-in functions for common math operations."
+              },
+              {
+                "type": "code",
+                "content": "pi = -3.14\n\nprint(abs(pi))    # Absolute value: 3.14\nprint(pow(pi, 2)) # Power: pi squared\nprint(round(pi))  # Rounds to nearest whole number"
+              },
+              {
+                "type": "paragraph",
+                "content": "For more advanced math, you can import the `math` module."
+              },
+              {
+                "type": "code",
+                "content": "import math\n\nprint(math.ceil(pi))  # Always rounds UP\nprint(math.floor(pi)) # Always rounds DOWN"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 3: Strings and Formatting",
+        "lessons": [
+          {
+            "lesson_title": "String Indexing",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Accessing Elements"
+              },
+              {
+                "type": "paragraph",
+                "content": "Strings are sequences of characters. The indexing operator `[]` gives access to a sequence's elements."
+              },
+              {
+                "type": "analogy",
+                "content": "Imagine a string as a train. Each letter is inside its own train car. Indexing is how we point to a specific train car. The tricky part? The first car is always car #0, not car #1."
+              },
+              {
+                "type": "code",
+                "content": "name = \"bro Code!\"\n\nfirst_char = name[0] # Returns 'b'\nlast_char = name[-1] # Returns '!'"
+              }
+            ]
+          },
+          {
+            "lesson_title": "String Slicing",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Extracting Substrings"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can extract a slice of the string using the format `[start:stop:step]`."
+              },
+              {
+                "type": "code",
+                "content": "name = \"bro Code!\"\n\nfirst_name = name[0:3] # Returns 'bro'\nlast_name = name[4:]   # Returns 'Code!'\nreversed_name = name[::-1] # A clever trick to reverse a string"
+              }
+            ]
+          },
+          {
+            "lesson_title": "String Methods",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Modifying Text"
+              },
+              {
+                "type": "paragraph",
+                "content": "Strings come with built-in methods to manipulate them."
+              },
+              {
+                "type": "code",
+                "content": "name = \"bro code\"\n\nprint(len(name))       # Length of string\nprint(name.find(\"c\"))  # Finds first occurrence\nprint(name.capitalize()) # Capitalizes first letter\nprint(name.upper())    # Makes everything uppercase\nprint(name.replace(\"o\", \"a\")) # Replaces all 'o's with 'a's"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Formatted Strings",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Cleaner Output"
+              },
+              {
+                "type": "paragraph",
+                "content": "F-strings let you inject variables directly into a string, so you don't have to use typecasting and messy `+` signs."
+              },
+              {
+                "type": "code",
+                "content": "name = \"Bro\"\nage = 21\n\n# The old, messy way:\nprint(\"My name is \" + name + \" and I am \" + str(age))\n\n# The clean, f-string way:\nprint(f\"My name is {name} and I am {age}\")"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 4: Making Decisions",
+        "lessons": [
+          {
+            "lesson_title": "If Statements",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Branching Paths"
+              },
+              {
+                "type": "paragraph",
+                "content": "An `if` statement executes a block of code only if its condition is true."
+              },
+              {
+                "type": "code",
+                "content": "age = int(input(\"How old are you?: \"))\n\nif age >= 18:\n    print(\"You are an adult!\")"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Elif and Else",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Multiple Conditions"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can add multiple conditions using `elif` (else if), and a catch-all block using `else`."
+              },
+              {
+                "type": "code",
+                "content": "age = int(input(\"How old are you?: \"))\n\nif age >= 100:\n    print(\"You are a century old!\")\nelif age >= 18:\n    print(\"You are an adult!\")\nelif age < 0:\n    print(\"You haven't been born yet!\")\nelse:\n    print(\"You are a child!\")"
+              },
+              {
+                "type": "warning_box",
+                "content": "Order matters! The computer checks conditions from top to bottom. As soon as it finds a True condition, it skips the rest."
+              }
+            ]
+          },
+          {
+            "lesson_title": "Logical Operators",
+            "components": [
+              {
+                "type": "heading",
+                "content": "And, Or, Not"
+              },
+              {
+                "type": "paragraph",
+                "content": "Logical operators are used to check if two or more conditional statements are true."
+              },
+              {
+                "type": "code",
+                "content": "temp = 25\n\n# AND: Both must be true\nif temp >= 0 and temp <= 30:\n    print(\"The temperature is good today!\")\n\n# OR: Only one needs to be true\nif temp < 0 or temp > 30:\n    print(\"The temperature is bad today!\")\n\n# NOT: Flips the condition\nif not(temp == 0):\n    print(\"It's not exactly zero degrees.\")"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 5: Loops and Repetition",
+        "lessons": [
+          {
+            "lesson_title": "While Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Repeating Blocks"
+              },
+              {
+                "type": "paragraph",
+                "content": "A `while` loop executes a block of code as long as its condition remains true."
+              },
+              {
+                "type": "code",
+                "content": "name = \"\"\n\nwhile len(name) == 0:\n    name = input(\"Enter your name: \")\n    \nprint(\"Hello \" + name)"
+              },
+              {
+                "type": "paragraph",
+                "content": "This program will trap the user in a loop until they actually type something!"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Controlling Loops (Break/Continue)",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Loop Control Statements"
+              },
+              {
+                "type": "paragraph",
+                "content": "You can change how a loop executes using `break`, `continue`, or `pass`."
+              },
+              {
+                "type": "code",
+                "content": "while True: # Infinite loop!\n    name = input(\"Enter your name: \")\n    if name != \"\":\n        break # Exits the loop entirely"
+              },
+              {
+                "type": "code",
+                "content": "phone_number = \"123-456-7890\"\nfor i in phone_number:\n    if i == \"-\":\n        continue # Skips to the next iteration\n    print(i, end=\"\")"
+              }
+            ]
+          },
+          {
+            "lesson_title": "For Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Iterating Over Ranges"
+              },
+              {
+                "type": "paragraph",
+                "content": "A `for` loop executes a block of code a limited amount of times."
+              },
+              {
+                "type": "code",
+                "content": "for i in range(10):\n    print(i) # Prints 0 through 9\n\nfor i in range(50, 100+1, 2):\n    print(i) # Prints even numbers from 50 to 100\n\nfor i in \"Bro Code\":\n    print(i) # Prints each letter on a new line"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Nested Loops",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Loops inside Loops"
+              },
+              {
+                "type": "paragraph",
+                "content": "The \"inner loop\" will finish all of its iterations before finishing one iteration of the \"outer loop\"."
+              },
+              {
+                "type": "code",
+                "content": "rows = int(input(\"How many rows?: \"))\ncolumns = int(input(\"How many columns?: \"))\nsymbol = input(\"Enter a symbol to use: \")\n\nfor i in range(rows):\n    for j in range(columns):\n        print(symbol, end=\"\")\n    print() # Moves to the next line"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "chapter_title": "Chapter 6: Data Collections",
+        "lessons": [
+          {
+            "lesson_title": "Lists",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Multiple Items in One Variable"
+              },
+              {
+                "type": "paragraph",
+                "content": "A list is used to store multiple items in a single variable. Lists are ordered and changeable."
+              },
+              {
+                "type": "code",
+                "content": "food = [\"pizza\", \"hamburger\", \"hotdog\", \"spaghetti\"]\nprint(food[0])\n\nfood[0] = \"sushi\" # Updating an item\nfood.append(\"ice cream\") # Adding an item\nfood.remove(\"hotdog\") # Removing an item\n\nfor x in food:\n    print(x)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Sets",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Unordered, Unindexed Collections"
+              },
+              {
+                "type": "paragraph",
+                "content": "A set is a collection which is unordered, unindexed, and does NOT allow duplicate values."
+              },
+              {
+                "type": "code",
+                "content": "utensils = {\"fork\", \"spoon\", \"knife\"}\ndishes = {\"bowl\", \"plate\", \"cup\", \"knife\"}\n\nutensils.add(\"napkin\")\nutensils.remove(\"fork\")\n\ndinner_table = utensils.union(dishes) # Combines them (and drops the duplicate 'knife')"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Tuples",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Unchangeable Collections"
+              },
+              {
+                "type": "paragraph",
+                "content": "A tuple is a collection which is ordered and unchangeable. Once created, you cannot add or remove items."
+              },
+              {
+                "type": "code",
+                "content": "student = (\"Bro\", 21, \"male\")\n\nprint(student.count(\"Bro\"))\nprint(student.index(\"male\"))\n\nfor x in student:\n    print(x)"
+              }
+            ]
+          },
+          {
+            "lesson_title": "Dictionaries",
+            "components": [
+              {
+                "type": "heading",
+                "content": "Key-Value Pairs"
+              },
+              {
+                "type": "paragraph",
+                "content": "A dictionary is a changeable, unordered collection of unique key-value pairs. They are fast because they use hashing."
+              },
+              {
+                "type": "code",
+                "content": "capitals = {\n    'USA': 'Washington DC',\n    'India': 'New Delhi',\n    'China': 'Beijing',\n    'Russia': 'Moscow'\n}\n\nprint(capitals.get('Germany')) # Safe way to check: Returns None\ncapitals.update({'Germany': 'Berlin'}) # Adds a new key-value pair\n\nfor key, value in capitals.items():\n    print(key, value)"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
