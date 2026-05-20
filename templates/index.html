@@ -9,7 +9,19 @@
         {% set themes = [
             {'bg': 'bg-[#E4EDE7]', 'text': 'text-[#2D4233]'},
             {'bg': 'bg-[#F4EBE1]', 'text': 'text-[#543E2C]'},
-            {'bg': 'bg-[#E2E8F0]', 'text': 'text-[#0F172A]'}
+            {'bg': 'bg-[#E2E8F0]', 'text': 'text-[#0F172A]'},
+            {'bg': 'bg-[#F1F5F9]', 'text': 'text-[#334155]'},
+            {'bg': 'bg-[#FDF2F8]', 'text': 'text-[#831843]'},
+            {'bg': 'bg-[#FFF7ED]', 'text': 'text-[#7C2D12]'},
+            {'bg': 'bg-[#F0FDF4]', 'text': 'text-[#14532D]'},
+            {'bg': 'bg-[#F5F3FF]', 'text': 'text-[#4C1D95]'}
+        ] %}
+
+        {# Define high-quality gradients for AI courses #}
+        {% set ai_gradients = [
+            'bg-gradient-to-r from-[#FF9800] via-[#FF5252] to-[#D500F9]',
+            'bg-gradient-to-r from-[#00C6FF] via-[#0072FF] to-[#D500F9]',
+            'bg-gradient-to-r from-[#F093FB] via-[#F5576C] to-[#FF9800]'
         ] %}
 
         <div class="mx-auto max-w-6xl px-6 py-12 md:py-20">
@@ -44,13 +56,14 @@
                 
                 <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {% for enrolled_course in enrolled_courses %}
-                        {% set theme = themes[loop.index0 % 3] %}
+                        {% set theme = themes[loop.index0 % themes|length] %}
                         <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
                             
                             {# Card Header #}
                             <div class="p-[3px] pb-0">
                                 {% if enrolled_course['user_id'] %}
-                                    <div class="flex items-center justify-between rounded-t-md bg-gradient-to-r from-[#FF9800] via-[#FF5252] to-[#D500F9] border-b border-[#1C1C1C] px-4 py-2.5">
+                                    {% set ai_grad = ai_gradients[loop.index0 % 3] %}
+                                    <div class="flex items-center justify-between rounded-t-md {{ ai_grad }} border-b border-[#1C1C1C] px-4 py-2.5">
                                         <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
                                             Course on Demand
                                         </span>
@@ -61,7 +74,7 @@
                                             </span>
                                         {% else %}
                                             <span class="flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-sm">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
                                                 ACTIVE
                                             </span>
                                         {% endif %}
@@ -78,7 +91,7 @@
                                             </span>
                                         {% else %}
                                             <span class="flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#1C1C1C]">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C] animate-pulse"></span>
+                                                <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C]"></span>
                                                 ACTIVE
                                             </span>
                                         {% endif %}

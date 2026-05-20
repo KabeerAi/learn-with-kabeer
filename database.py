@@ -295,7 +295,7 @@ def get_course_by_id(course_id):
     return get_db().execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
 
 
-def get_course_library(user=None):
+def get_course_library(user=None, include_private=True):
     db = get_db()
     
     query = """
@@ -309,11 +309,16 @@ def get_course_library(user=None):
     if user:
         if user["is_admin"]:
             # Admins see everything
-            pass
+            if not include_private:
+                query += " WHERE c.user_id IS NULL"
         else:
-            # Users see public courses OR their own private courses
-            query += " WHERE c.user_id IS NULL OR c.user_id = ?"
-            params.append(user["id"])
+            if include_private:
+                # Users see public courses OR their own private courses
+                query += " WHERE c.user_id IS NULL OR c.user_id = ?"
+                params.append(user["id"])
+            else:
+                # Users only see public courses
+                query += " WHERE c.user_id IS NULL"
     else:
         # Guests only see public courses
         query += " WHERE c.user_id IS NULL"

@@ -224,7 +224,7 @@ def home():
 
 @app.route("/courses")
 def courses():
-    return render_template("courses/index.html", courses=database.get_course_library(g.user))
+    return render_template("courses/index.html", courses=database.get_course_library(g.user, include_private=False))
 
 
 @app.route("/career-paths")

@@ -100,10 +100,7 @@
                         <a href="{{ url_for('home') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'home' %}text-[#FAF9F6]{% endif %}">Home</a>
                         <a href="{{ url_for('courses') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'courses' %}text-[#FAF9F6]{% endif %}">Courses</a>
                         <a href="{{ url_for('career_paths') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'career_paths' %}text-[#FAF9F6]{% endif %}">Pathways</a>
-                        <a href="{{ url_for('cod_interface') }}" class="flex items-center gap-2 text-amber-400 transition-colors hover:text-amber-300 {% if request.endpoint == 'cod_interface' %}text-amber-300{% endif %}">
-                            <i data-lucide="sparkles" class="h-4 w-4"></i>
-                            <span>Forge</span>
-                        </a>
+                        <a href="{{ url_for('cod_interface') }}" class="transition-colors hover:text-[#FAF9F6] {% if request.endpoint == 'cod_interface' %}text-[#FAF9F6]{% endif %}">COD</a>
                         {% if current_user['is_admin'] %}
                             <a href="{{ url_for('admin_dashboard') }}" class="text-amber-400 transition-colors hover:text-amber-300 {% if request.endpoint and request.endpoint.startswith('admin_') %}text-amber-300 underline underline-offset-8 decoration-2{% endif %}">Management</a>
                         {% endif %}
