@@ -2,236 +2,230 @@
 
 {% block content %}
 <main id="cod-container"
-    class="state-initial relative flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-[#F7F6F3] text-[#111111]">
+    class="state-initial relative flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-white text-[#333333] font-sans antialiased">
 
-    <!-- subtle grain -->
-    <div class="pointer-events-none absolute inset-0 opacity-[0.018]"
-        style="background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22 viewBox=%220 0 160 160%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22160%22 height=%22160%22 filter=%22url(%23n)%22 opacity=%220.28%22/%3E%3C/svg%3E');">
-    </div>
-
-    <!-- HEADER -->
+    <!-- HEADER (Ultra-minimal, clean borders) -->
     <header id="chat-header"
-        class="pointer-events-none relative z-30 border-b border-black/[0.05] bg-[#F7F6F3]/90 opacity-0 backdrop-blur-xl transition-all duration-500">
+        class="pointer-events-none relative z-30 border-b border-[#EAEAEA] bg-white/90 opacity-0 backdrop-blur-md transition-all duration-500 ease-in-out">
 
-        <div class="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
+        <div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
 
-            <!-- brand -->
-            <div class="flex items-center gap-3">
-
-                <div
-                    class="flex h-9 w-9 items-center justify-center rounded-xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-
-                    <i data-lucide="sparkles" class="h-4 w-4 text-black"></i>
+            <!-- brand indicator -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center justify-center">
+                    <!-- Minimal vibrant icon -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="url(#paint1_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="url(#paint2_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="paint0_linear" x1="2" y1="7" x2="22" y2="7" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FF9800"/>
+                                <stop offset="1" stop-color="#D500F9"/>
+                            </linearGradient>
+                            <linearGradient id="paint1_linear" x1="2" y1="19.5" x2="22" y2="19.5" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FF9800"/>
+                                <stop offset="1" stop-color="#D500F9"/>
+                            </linearGradient>
+                            <linearGradient id="paint2_linear" x1="2" y1="14.5" x2="22" y2="14.5" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FF9800"/>
+                                <stop offset="1" stop-color="#D500F9"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
                 </div>
-
-                <h1 class="text-[15px] font-semibold tracking-[-0.04em] text-black">
-                    Forge
-                </h1>
+                <div class="flex items-center gap-2">
+                    <span class="text-[15px] font-medium tracking-tight text-[#333]">COD</span>
+                    <span class="rounded-full border border-[#EAEAEA] bg-[#FAFAFA] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#777]">PREVIEW</span>
+                </div>
             </div>
 
-            <!-- right -->
-            <div class="flex items-center gap-3">
-
-                <div
-                    class="flex items-center gap-2 rounded-xl border border-black/[0.06] bg-white px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-
-                    <div class="h-1.5 w-1.5 rounded-full bg-black"></div>
-
-                    <span class="text-[12px] font-medium tracking-[-0.02em] text-[#5A5A5A]">
+            <!-- navigation actions -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-[#FF9800]"></span>
+                    <span class="text-[13px] font-medium tracking-tight text-[#555]">
                         {{ current_user['total_xp'] | comma }} XP
                     </span>
                 </div>
 
                 <button onclick="resetChat()"
-                    class="flex h-9 w-9 items-center justify-center rounded-xl border border-black/[0.06] bg-white transition-all duration-200 hover:border-black hover:bg-black hover:text-white">
-
+                    class="flex h-8 w-8 items-center justify-center rounded-full border border-[#EAEAEA] bg-white text-[#666] transition-all hover:bg-[#F5F5F5] hover:text-[#333]"
+                    title="New Synthesis Workspace">
                     <i data-lucide="plus" class="h-4 w-4"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- CHAT -->
+    <!-- CHAT MESSAGES PANEL -->
     <div id="chatMessages"
         class="relative z-10 hidden flex-1 overflow-y-auto px-6 py-12 opacity-0 transition-opacity duration-500">
 
-        <div class="mx-auto w-full max-w-3xl space-y-10">
-            <!-- injected messages -->
+        <div class="mx-auto w-full max-w-3xl space-y-8">
+            <!-- injected messages render here dynamically -->
         </div>
 
-        <!-- THINKING -->
+        <!-- REFINED MINIMALIST THINKING INDICATOR -->
         <div id="statusIndicator" class="mt-8 hidden">
-
             <div class="mx-auto flex max-w-3xl items-center gap-3">
-
-                <!-- silver shimmer -->
                 <div class="thinking-orb relative overflow-hidden">
-
                     <div class="thinking-shine"></div>
                 </div>
-
-                <span id="statusText" class="thinking-text text-[13px] font-medium tracking-[-0.02em] text-[#6B6B6B]">
-
-                    thinking
+                <span id="statusText" class="thinking-text text-[13px] font-medium tracking-tight text-[#888]">
+                    compiling strategy
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- HERO -->
+    <!-- HERO & CORE ACTION INTERACTION SPACE -->
     <section id="interaction-area"
         class="relative z-20 flex flex-1 flex-col items-center justify-center px-6 transition-all duration-500 ease-out">
 
-        <!-- hero -->
+        <!-- initial state hero content -->
         <div id="initial-content" class="w-full max-w-4xl text-center transition-all duration-500">
-
-            <h1
-                class="mx-auto max-w-4xl text-[58px] font-semibold leading-[0.94] tracking-[-0.08em] text-black sm:text-[84px]">
-
-                Learn with
-                <br>
-
-                precision.
+            <h1 class="mx-auto max-w-4xl text-5xl font-semibold leading-tight tracking-[-0.02em] text-[#333] sm:text-6xl md:text-[64px]">
+                Course on <span class="bg-gradient-to-r from-[#FF9800] via-[#FF5252] to-[#D500F9] bg-clip-text text-transparent">Demand</span>
             </h1>
 
-            <p class="mx-auto mt-8 max-w-xl text-[17px] font-medium leading-relaxed tracking-[-0.02em] text-[#6A6A6A]">
-
-                Structured courses generated for serious learning.
+            <p class="mx-auto mt-4 max-w-lg text-[15px] font-medium text-[#666]">
+                We're synthesizing courses dynamically. <a href="#" class="border-b border-[#666] pb-0.5 hover:text-[#333] hover:border-[#333] transition-colors">Learn more</a>
             </p>
         </div>
 
-        <!-- INPUT -->
-        <div id="input-wrapper" class="relative mt-14 w-full max-w-[820px] transition-all duration-500">
+        <!-- COMMAND CONSOLE INPUT AREA -->
+        <div id="input-wrapper" class="relative mt-12 w-full max-w-[840px] transition-all duration-500">
 
-            <!-- soft shadow plate -->
-            <div class="absolute inset-0 translate-y-2 rounded-[30px] bg-black/[0.03] blur-2xl">
+            <div id="input-label" class="mb-3 text-left transition-all duration-300">
+                <label class="text-[14px] font-medium text-[#555]">Synthesize a course with AI</label>
             </div>
 
             <form id="chatForm" class="relative">
+                <!-- Group wrapper for handling robust 2px border animations -->
+                <div class="group relative rounded-[18px] p-[2px] transition-all duration-300 focus-within:shadow-[0_8px_30px_rgba(255,152,0,0.12)]">
+                    
+                    <!-- Static Normal Border Background (Visible when inactive) -->
+                    <div class="absolute inset-0 rounded-[18px] bg-[#EAEAEA] transition-opacity duration-300 group-focus-within:opacity-0"></div>
 
-                <div
-                    class="group overflow-hidden rounded-[30px] border border-black/[0.07] bg-white transition-all duration-300 focus-within:border-black">
+                    <!-- Flowing Gradient Border Background (Visible when active) -->
+                    <div class="absolute inset-0 rounded-[18px] opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 flowing-gradient-border"></div>
 
-                    <!-- top gloss -->
-                    <div
-                        class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent">
-                    </div>
-
-                    <!-- main -->
-                    <div class="flex items-center gap-4 px-5 py-5">
-
-                        <!-- icon -->
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F1F0EC]">
-
-                            <i data-lucide="search" class="h-4.5 w-4.5 text-black"></i>
+                    <!-- Inner White Box -->
+                    <div id="input-inner" class="relative z-10 flex min-h-[140px] flex-col justify-between rounded-[16px] bg-white p-4 transition-all duration-500">
+                        
+                        <!-- Input Row -->
+                        <div class="relative flex w-full flex-1">
+                            <input type="text" id="userInput" autocomplete="off" placeholder="A course that generates..."
+                                class="w-full bg-transparent text-[18px] font-normal text-[#333] outline-none placeholder:text-[#A0A0A0]">
+                            
+                            <div id="tab-hint" class="pointer-events-none absolute right-2 top-0.5 hidden items-center justify-center rounded-[4px] border border-[#E0E0E0] px-2 py-0.5 text-[10px] font-semibold text-[#999] md:flex">
+                                TAB
+                            </div>
                         </div>
 
-                        <!-- input -->
-                        <input type="text" id="userInput" autocomplete="off" placeholder="What do you want to master?"
-                            class="w-full bg-transparent text-[17px] font-medium tracking-[-0.03em] text-black outline-none placeholder:text-[#9A9A9A]">
+                        <!-- Bottom Row: Attachment & Chips -->
+                        <div id="bottom-input-row" class="mt-4 flex items-center justify-between gap-4 transition-all duration-300">
+                            
+                            <button type="button" class="text-[#999] transition-colors hover:text-[#333]">
+                                <i data-lucide="paperclip" class="h-5 w-5"></i>
+                            </button>
 
-                        <!-- send -->
-                        <button type="submit" id="sendBtn"
-                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black text-white transition-all duration-200 hover:scale-[1.015] active:scale-[0.985] disabled:opacity-30">
+                            <!-- Preset Suggested Chips & Submit -->
+                            <div class="flex flex-wrap items-center justify-end gap-2">
+                                
+                                <div id="suggestions" class="flex flex-wrap items-center justify-end gap-2">
+                                    <button type="button" onclick="useSuggestion(this)"
+                                        class="suggestion-chip rounded-full border border-[#E8E8E8] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#666] transition-all duration-200 hover:bg-[#F9F9F9] hover:text-[#333]">
+                                        Operating Systems
+                                    </button>
 
-                            <i data-lucide="arrow-up" class="h-4.5 w-4.5"></i>
-                        </button>
-                    </div>
+                                    <button type="button" onclick="useSuggestion(this)"
+                                        class="suggestion-chip rounded-full border border-[#E8E8E8] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#666] transition-all duration-200 hover:bg-[#F9F9F9] hover:text-[#333]">
+                                        Neural Networks
+                                    </button>
 
-                    <!-- suggestions -->
-                    <div id="suggestions"
-                        class="flex flex-wrap gap-2 border-t border-black/[0.05] px-5 py-4 transition-all duration-300">
+                                    <button type="button" onclick="useSuggestion(this)"
+                                        class="suggestion-chip rounded-full border border-[#E8E8E8] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#666] transition-all duration-200 hover:bg-[#F9F9F9] hover:text-[#333]">
+                                        React Architecture
+                                    </button>
+                                </div>
 
-                        <button onclick="useSuggestion(this)"
-                            class="suggestion-chip rounded-full bg-[#F2F1ED] px-4 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#5A5A5A] transition-all duration-200 hover:bg-black hover:text-white">
+                                <!-- Submit Button (Round black enter icon) -->
+                                <button type="submit" id="sendBtn"
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#111] text-white transition-all duration-200 hover:scale-[1.05] hover:bg-black active:scale-[0.95] disabled:opacity-50">
+                                    <i data-lucide="corner-down-left" class="h-4 w-4"></i>
+                                </button>
+                            </div>
 
-                            Operating Systems
-                        </button>
-
-                        <button onclick="useSuggestion(this)"
-                            class="suggestion-chip rounded-full bg-[#F2F1ED] px-4 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#5A5A5A] transition-all duration-200 hover:bg-black hover:text-white">
-
-                            Neural Networks
-                        </button>
-
-                        <button onclick="useSuggestion(this)"
-                            class="suggestion-chip rounded-full bg-[#F2F1ED] px-4 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#5A5A5A] transition-all duration-200 hover:bg-black hover:text-white">
-
-                            React Architecture
-                        </button>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
     </section>
 
-    <!-- CONFIRM MODAL -->
+    <!-- PREMIUM HIGH-DENSITY XP CONFIRM MODAL -->
     <div id="confirmModal"
-        class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20 opacity-0 backdrop-blur-sm transition-all duration-300">
+        class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/5 opacity-0 backdrop-blur-[2px] transition-all duration-300">
         
-        <div class="relative w-full max-w-[420px] scale-95 overflow-hidden rounded-[24px] border border-black/[0.08] bg-white p-8 shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
+        <div class="relative w-full max-w-[400px] scale-95 overflow-hidden rounded-[20px] border border-[#EAEAEA] bg-white p-8 shadow-[0_20px_40px_rgba(0,0,0,0.04)] transition-all duration-300">
             
-            <button onclick="hideModal()" class="absolute right-6 top-6 text-[#A0A0A0] transition-colors hover:text-black">
+            <button onclick="hideModal()" class="absolute right-5 top-5 text-[#999] transition-colors hover:text-[#333]">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
 
-            <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F4F4F5]">
-                <i data-lucide="zap" class="h-6 w-6 text-black"></i>
-            </div>
-
-            <h3 class="text-[22px] font-semibold tracking-tight text-black">
-                Ready to Forge?
+            <h3 class="text-[20px] font-semibold tracking-tight text-[#333]">
+                Generate Curriculum
             </h3>
             
-            <p class="mt-2 text-[15px] leading-relaxed text-[#6B6B6B]">
-                This will consume <span id="modalCost" class="font-bold text-black"></span> XP from your balance to generate the full curriculum.
+            <p class="mt-2 text-[14px] leading-relaxed text-[#666] font-normal">
+                This process consumes <span id="modalCost" class="font-semibold text-[#333]"></span> XP to compile structured modules dynamically.
             </p>
-
+ 
             <div class="mt-8 flex gap-3">
                 <button type="button" onclick="hideModal()"
-                    class="flex h-12 flex-1 items-center justify-center rounded-xl border border-black/[0.08] bg-transparent text-[14px] font-medium text-black transition-colors hover:bg-black/[0.02]">
+                    class="flex h-10 flex-1 items-center justify-center rounded-full border border-[#EAEAEA] bg-transparent text-[13px] font-medium text-[#555] transition-all hover:bg-[#F9F9F9]">
                     Cancel
                 </button>
                 <button type="button" id="finalGenerateBtn"
-                    class="flex h-12 flex-1 items-center justify-center rounded-xl bg-black text-[14px] font-medium text-white transition-all hover:bg-black/90 active:scale-[0.98]">
-                    Forge Course
+                    class="flex h-10 flex-1 items-center justify-center rounded-full bg-[#FF9800] text-[13px] font-medium text-white shadow-sm transition-all hover:bg-[#F57C00] active:scale-[0.98]">
+                    Confirm
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SUCCESS -->
+    <!-- CLEAN DIRECT SUCCESS REVEAL INTERACTIVE OVERLAY -->
     <div id="successOverlay"
-        class="pointer-events-none fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#F7F6F3] opacity-0 transition-opacity duration-700">
+        class="pointer-events-none fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white opacity-0 transition-opacity duration-700">
 
-        <div
-            class="mb-5 flex h-20 w-20 items-center justify-center rounded-[24px] border border-black/[0.07] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-
-            <i data-lucide="check" class="h-7 w-7 text-black"></i>
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#EAEAEA] bg-[#F9F9F9]">
+            <i data-lucide="check" class="h-6 w-6 text-[#4CAF50]"></i>
         </div>
 
-        <h2 class="text-3xl font-semibold tracking-[-0.06em] text-black">
-            Course Ready
+        <h2 class="text-[24px] font-semibold tracking-tight text-[#333]">
+            Curriculum Secured
         </h2>
 
-        <p class="mt-2 text-[12px] font-medium tracking-[-0.02em] text-[#888888]">
-            opening workspace
+        <p class="mt-2 text-[14px] text-[#888]">
+            Opening workspace modules
         </p>
     </div>
 </main>
 
 <style>
     /* ======================================================
-   BASE
-====================================================== */
+       BASE PRISTINE WHITE WORKSPACE
+    ====================================================== */
 
     body {
-        background: #F7F6F3;
+        background: #FFFFFF;
     }
 
     /* ======================================================
-   STATES
-====================================================== */
+       DYNAMIC SYSTEM INTERACTIVE STATES
+    ====================================================== */
 
     .state-chat #interaction-area {
         flex: none;
@@ -246,6 +240,7 @@
         pointer-events: none;
         height: 0;
         overflow: hidden;
+        margin: 0;
     }
 
     .state-chat #chat-header {
@@ -253,136 +248,150 @@
         pointer-events: auto;
     }
 
+    /* Override hidden to ensure chat visibility */
     .state-chat #chatMessages {
-        display: block;
-        opacity: 1;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible;
+    }
+
+    /* Shrink the input box to a compact dual-row when chatting */
+    .state-chat #input-inner {
+        min-height: 60px !important;
     }
 
     .state-chat #input-wrapper {
-        max-width: 760px;
+        max-width: 768px;
     }
 
-    /* remove suggestions after chat starts */
-    .state-chat #suggestions {
+    .state-chat #input-label {
         opacity: 0;
         height: 0;
+        margin: 0;
         overflow: hidden;
-        padding-top: 0;
-        padding-bottom: 0;
-        border-top-width: 0;
-        pointer-events: none;
+    }
+
+    .state-chat #bottom-input-row {
+        margin-top: 0.5rem;
+    }
+
+    .state-chat #suggestions {
+        display: none !important;
+    }
+
+    .state-chat #tab-hint {
+        display: none !important;
     }
 
     /* ======================================================
-   CHAT TYPOGRAPHY
-====================================================== */
+       ELITE TYPOGRAPHY SYSTEM (DYNAMIC NODES FORMATTING)
+    ====================================================== */
 
     .chat-content {
         font-size: 15px;
-        line-height: 1.9;
+        line-height: 1.7;
         color: #444444;
-        font-weight: 500;
+        font-weight: 400;
         letter-spacing: -0.01em;
     }
 
     .chat-content h1,
     .chat-content h2,
     .chat-content h3 {
-        color: black;
+        color: #222222;
         font-weight: 600;
-        letter-spacing: -0.05em;
+        letter-spacing: -0.02em;
     }
 
     .chat-content h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
         margin: 2rem 0 1rem;
     }
 
     .chat-content h2 {
-        font-size: 1.35rem;
-        margin: 1.7rem 0 1rem;
+        font-size: 1.25rem;
+        margin: 1.7rem 0 0.85rem;
     }
 
     .chat-content h3 {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         margin: 1.4rem 0 0.7rem;
     }
 
     .chat-content p {
-        margin-bottom: 1.3rem;
+        margin-bottom: 1.2rem;
     }
 
     .chat-content ul {
         list-style: none;
         padding-left: 0;
-        margin-bottom: 1.3rem;
+        margin-bottom: 1.2rem;
     }
 
     .chat-content ul li {
         position: relative;
-        padding-left: 1.1rem;
-        margin-bottom: 0.45rem;
+        padding-left: 1.2rem;
+        margin-bottom: 0.5rem;
     }
 
     .chat-content ul li::before {
         content: "";
         position: absolute;
         left: 0;
-        top: 11px;
-        height: 4px;
-        width: 4px;
+        top: 9px;
+        height: 5px;
+        width: 5px;
         border-radius: 999px;
-        background: black;
+        background: #D500F9; /* Highlight accent bullet */
     }
 
+    /* Code Highlight Blocks */
     .chat-content code {
-        border-radius: 6px;
-        background: #F0EFEB;
-        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        background: #F8F8F8;
+        border: 1px solid #EAEAEA;
+        padding: 0.15rem 0.35rem;
         font-family: "JetBrains Mono", monospace;
-        font-size: 0.84em;
-        color: #C92C5C;
+        font-size: 0.88em;
+        color: #FF5252;
     }
 
     .chat-content pre {
         overflow-x: auto;
-        border-radius: 22px;
-        background: #111111;
-        padding: 1.4rem;
-        color: white;
+        border-radius: 12px;
+        background: #FAFAFA;
+        border: 1px solid #EAEAEA;
+        padding: 1.25rem;
+        color: #333333;
+        font-family: "JetBrains Mono", monospace;
         font-size: 13px;
-        line-height: 1.7;
+        line-height: 1.65;
     }
 
     .chat-content pre code {
         background: transparent;
         color: inherit;
         padding: 0;
+        border: none;
     }
 
     .chat-content blockquote {
-        margin: 1.8rem 0;
-        border-left: 2px solid black;
-        padding-left: 1rem;
-        color: #666666;
+        margin: 1.5rem 0;
+        border-left: 3px solid #FF9800; /* Subtle gradient match */
+        padding-left: 1.2rem;
+        color: #777777;
     }
 
     /* ======================================================
-   THINKING
-====================================================== */
+       METALLIC MICRO-ORB LOADING ENGINE
+    ====================================================== */
 
     .thinking-orb {
         width: 14px;
         height: 14px;
         border-radius: 999px;
-        background: linear-gradient(145deg,
-                #d9d9d9,
-                #f4f4f4,
-                #bdbdbd);
-        box-shadow:
-            inset 0 1px 1px rgba(255, 255, 255, 0.7),
-            inset 0 -1px 2px rgba(0, 0, 0, 0.08),
-            0 0 12px rgba(255, 255, 255, 0.5);
+        background: linear-gradient(135deg, #FF9800, #D500F9);
+        box-shadow: 0 2px 4px rgba(213, 0, 249, 0.2);
     }
 
     .thinking-shine {
@@ -390,19 +399,18 @@
         inset: -40%;
         background: linear-gradient(120deg,
                 transparent 20%,
-                rgba(255, 255, 255, 0.95) 50%,
+                rgba(255, 255, 255, 0.6) 50%,
                 transparent 80%);
         animation: silverShine 2s linear infinite;
-        transform: rotate(12deg);
+        transform: rotate(15deg);
     }
 
     @keyframes silverShine {
         from {
-            transform: translateX(-180%) rotate(12deg);
+            transform: translateX(-200%) rotate(15deg);
         }
-
         to {
-            transform: translateX(180%) rotate(12deg);
+            transform: translateX(200%) rotate(15deg);
         }
     }
 
@@ -411,20 +419,39 @@
     }
 
     @keyframes thinkingFade {
-
-        0%,
-        100% {
-            opacity: 0.55;
+        0%, 100% {
+            opacity: 0.5;
         }
-
         50% {
             opacity: 1;
         }
     }
 
     /* ======================================================
-   ANIMATION
-====================================================== */
+       FLOWING GRADIENT BORDER LOGIC
+    ====================================================== */
+
+    .flowing-gradient-border {
+        background: linear-gradient(135deg, #FF9800, #FF5252, #D500F9, #FF9800, #FF5252);
+        background-size: 300% 300%;
+        animation: borderFlow 3.5s ease infinite;
+    }
+
+    @keyframes borderFlow {
+        0% {
+            background-position: 100% 100%;
+        }
+        50% {
+            background-position: 0% 0%;
+        }
+        100% {
+            background-position: 100% 100%;
+        }
+    }
+
+    /* ======================================================
+       TRANSITION LOGICS
+    ====================================================== */
 
     .message-enter {
         animation: messageIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
@@ -435,7 +462,6 @@
             opacity: 0;
             transform: translateY(10px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -447,7 +473,7 @@
         width: 2px;
         height: 1em;
         margin-left: 2px;
-        background: black;
+        background: #D500F9;
         animation: blink 0.8s infinite;
     }
 
@@ -457,54 +483,17 @@
         }
     }
 
-    /* ======================================================
-   SCROLLBAR
-====================================================== */
-
     #chatMessages::-webkit-scrollbar {
         width: 6px;
     }
 
     #chatMessages::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.08);
+        background: #EAEAEA;
         border-radius: 999px;
     }
 
     #chatMessages::-webkit-scrollbar-track {
         background: transparent;
-    }
-
-    /* ======================================================
-   CHIPS
-====================================================== */
-
-    .suggestion-chip {
-        animation: chipIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0;
-    }
-
-    .suggestion-chip:nth-child(1) {
-        animation-delay: 0.08s;
-    }
-
-    .suggestion-chip:nth-child(2) {
-        animation-delay: 0.16s;
-    }
-
-    .suggestion-chip:nth-child(3) {
-        animation-delay: 0.24s;
-    }
-
-    @keyframes chipIn {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 </style>
 
