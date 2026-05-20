@@ -34,24 +34,45 @@
                     
                     {# Card Header #}
                     <div class="p-[3px] pb-0">
-                        <div class="flex items-center justify-between rounded-t-md {{ theme.bg }} border-b border-[#1C1C1C] px-4 py-2.5">
-                            <span class="font-mono text-[13px] font-semibold {{ theme.text }} tracking-wide uppercase">
-                                Course
-                            </span>
-                            {% if course["enrolled"] %}
-                                {% if course["progress_percent"] == 100 %}
-                                    <span class="flex items-center gap-1.5 rounded-full border border-[#16A34A] bg-[#F0FDF4] px-2 py-0.5 font-mono text-[10px] font-bold text-[#16A34A]">
-                                        <i data-lucide="check" class="h-3 w-3"></i>
-                                        COMPLETED
-                                    </span>
-                                {% else %}
-                                    <span class="flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#1C1C1C]">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C] animate-pulse"></span>
-                                        ACTIVE
-                                    </span>
+                        {% if course['user_id'] %}
+                            <div class="flex items-center justify-between rounded-t-md bg-gradient-to-r from-[#FF9800] via-[#FF5252] to-[#D500F9] border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
+                                    Course on Demand
+                                </span>
+                                {% if course["enrolled"] %}
+                                    {% if course["progress_percent"] == 100 %}
+                                        <span class="flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-sm">
+                                            <i data-lucide="check" class="h-3 w-3"></i>
+                                            COMPLETED
+                                        </span>
+                                    {% else %}
+                                        <span class="flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-sm">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                                            ACTIVE
+                                        </span>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center justify-between rounded-t-md {{ theme.bg }} border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold {{ theme.text }} tracking-wide uppercase">
+                                    Course
+                                </span>
+                                {% if course["enrolled"] %}
+                                    {% if course["progress_percent"] == 100 %}
+                                        <span class="flex items-center gap-1.5 rounded-full border border-[#16A34A] bg-[#F0FDF4] px-2 py-0.5 font-mono text-[10px] font-bold text-[#16A34A]">
+                                            <i data-lucide="check" class="h-3 w-3"></i>
+                                            COMPLETED
+                                        </span>
+                                    {% else %}
+                                        <span class="flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#1C1C1C]">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-[#1C1C1C] animate-pulse"></span>
+                                            ACTIVE
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
                     
                     {# Card Body #}
