@@ -40,18 +40,34 @@
             ] %}
 
             {% for course in courses %}
+                {% set is_planned = course['status'] == 'planned' %}
                 {% set theme = themes[loop.index0 % themes|length] %}
 
-                <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
+                <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out 
+                    {% if is_planned %}
+                        opacity-70 grayscale-[0.5] cursor-default
+                    {% else %}
+                        hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]
+                    {% endif %}">
 
                     {# Card Header #}
                     <div class="p-[3px] pb-0">
-                        {% if course['user_id'] %}
+                        {% if is_planned %}
+                            <div class="flex items-center justify-between rounded-t-md bg-gray-100 border-b border-[#1C1C1C] px-4 py-2.5">
+                                <span class="font-mono text-[13px] font-semibold text-gray-500 tracking-wide uppercase">
+                                    Coming Soon
+                                </span>
+                                <span class="flex items-center gap-1.5 rounded-full border border-gray-300 bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-gray-400">
+                                    PLANNED
+                                </span>
+                            </div>
+                        {% elif course['user_id'] %}
                             {% set ai_grad = ai_gradients[loop.index0 % 3] %}
                             <div class="flex items-center justify-between rounded-t-md {{ ai_grad }} border-b border-[#1C1C1C] px-4 py-2.5">
                                 <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
                                     Course on Demand
-                                </span>                                {% if course["enrolled"] %}
+                                </span>
+                                {% if course["enrolled"] %}
                                     {% if course["progress_percent"] == 100 %}
                                         <span class="flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-sm">
                                             <i data-lucide="check" class="h-3 w-3"></i>
@@ -95,7 +111,7 @@
                         </p>
 
                         {# Enrolled Progress #}
-                        {% if course["enrolled"] %}
+                        {% if not is_planned and course["enrolled"] %}
                             <div class="mt-6">
                                 <div class="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C]">
                                     <span>Progress</span>
@@ -112,25 +128,33 @@
 
                         {# Meta & Actions #}
                         <div class="mt-6 flex flex-col gap-3">
-                            <hr class="border-t border-dashed border-[#E5E5E5]">
-                            <div class="text-sm font-semibold text-[#1C1C1C]">Includes {{ course["total_lessons"] if course["total_lessons"] else "--" }} Lessons</div>
-                            
-                            <hr class="border-t border-dashed border-[#E5E5E5]">
-                            <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ course["level"] if course["level"] else "All Levels" }}
+                            {% if is_planned %}
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-gray-400 italic">Course syllabus is being finalized</div>
+                            {% else %}
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="text-sm font-semibold text-[#1C1C1C]">Includes {{ course["total_lessons"] if course["total_lessons"] else "--" }} Lessons</div>
+                                
+                                <hr class="border-t border-dashed border-[#E5E5E5]">
+                                <div class="flex items-center justify-between text-sm font-semibold text-[#1C1C1C]">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="bar-chart-2" class="h-4 w-4 text-[#A3A3A3]"></i> {{ course["level"] if course["level"] else "All Levels" }}
+                                    </div>
+                                    <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
                                 </div>
-                                <i data-lucide="arrow-right" class="h-4 w-4 text-[#A3A3A3] transition-transform group-hover:translate-x-1 group-hover:text-[#1C1C1C]"></i>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     
                     {# Full Card Clickable Link #}
-                    <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="absolute inset-0 z-10">
-                        <span class="sr-only">View {{ course['title'] }}</span>
-                    </a>
+                    {% if not is_planned %}
+                        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="absolute inset-0 z-10">
+                            <span class="sr-only">View {{ course['title'] }}</span>
+                        </a>
+                    {% endif %}
                 </div>
             {% endfor %}
+
         </section>
 
     </div>

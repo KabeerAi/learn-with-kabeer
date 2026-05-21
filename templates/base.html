@@ -56,26 +56,14 @@
         .toast-item.animate-out { animation: slide-out-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         /* Premium XP Animations */
-        @keyframes xp-popup-in {
-            0% { transform: scale(0.9) translateY(20px); opacity: 0; filter: blur(10px); }
-            100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
-        }
-        @keyframes xp-popup-out {
-            0% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
-            100% { transform: scale(1.1) translateY(-20px); opacity: 0; filter: blur(10px); }
-        }
-        .animate-xp-in { animation: xp-popup-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-xp-out { animation: xp-popup-out 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        .xp-glint {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            background-size: 200% 100%;
-            animation: xp-glint 3s infinite linear;
-        }
         @keyframes xp-glint {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+        .ease-premium { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+        .ease-spring { transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+
     </style>
 </head>
 <body class="h-screen overflow-hidden bg-gray-50 text-gray-900 font-sans antialiased flex flex-col">
@@ -154,52 +142,82 @@
     {# --- NOTIFICATION TOASTS --- #}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div id="toast-container" class="fixed top-24 right-6 z-[100] flex flex-col gap-4 max-w-sm w-full pointer-events-none">
+            <div id="toast-container" class="fixed top-24 right-6 z-[10000] flex flex-col gap-4 max-w-sm w-full pointer-events-none opacity-0 invisible transition-all duration-300">
                 {% for category, message in messages %}
-                    <div class="toast-item pointer-events-auto flex items-start gap-4 p-4 rounded-xl border border-gray-900 bg-white shadow-[4px_4px_0_0_#111827] animate-in fade-in slide-in-from-right-4 duration-300" role="alert">
-                        <div class="flex-none mt-0.5">
-                            {% if category == 'error' %}
-                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600">
-                                    <i data-lucide="alert-triangle" class="h-4 w-4"></i>
-                                </div>
-                            {% elif category == 'success' %}
-                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-green-200 bg-green-50 text-green-600">
-                                    <i data-lucide="check" class="h-4 w-4"></i>
-                                </div>
-                            {% else %}
-                                <div class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-700">
-                                    <i data-lucide="info" class="h-4 w-4"></i>
-                                </div>
-                            {% endif %}
+                    {% if category != 'xp_award' %}
+                        <div class="toast-item pointer-events-auto flex items-start gap-4 p-4 rounded-xl border border-gray-900 bg-white shadow-[4px_4px_0_0_#111827] animate-in fade-in slide-in-from-right-4 duration-300" role="alert">
+                            <div class="flex-none mt-0.5">
+                                {% if category == 'error' %}
+                                    <div class="flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600">
+                                        <i data-lucide="alert-triangle" class="h-4 w-4"></i>
+                                    </div>
+                                {% elif category == 'success' %}
+                                    <div class="flex h-7 w-7 items-center justify-center rounded-md border border-green-200 bg-green-50 text-green-600">
+                                        <i data-lucide="check" class="h-4 w-4"></i>
+                                    </div>
+                                {% else %}
+                                    <div class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-700">
+                                        <i data-lucide="info" class="h-4 w-4"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <p class="text-sm font-bold text-gray-900 leading-none">{{ category|capitalize if category != 'message' else 'Notice' }}</p>
+                                <p class="mt-2 text-sm font-medium text-gray-600 leading-snug">{{ message }}</p>
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="flex-none text-gray-400 hover:text-gray-900 transition-colors" aria-label="Close">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
                         </div>
-                        <div class="flex-1 pt-1">
-                            <p class="text-sm font-bold text-gray-900 leading-none">{{ category|capitalize if category != 'message' else 'Notice' }}</p>
-                            <p class="mt-2 text-sm font-medium text-gray-600 leading-snug">{{ message }}</p>
-                        </div>
-                        <button onclick="this.parentElement.remove()" class="flex-none text-gray-400 hover:text-gray-900 transition-colors" aria-label="Close">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             
             <script>
-                // Auto-dismiss toasts after 5 seconds
-                setTimeout(() => {
+                document.addEventListener('DOMContentLoaded', () => {
                     const container = document.getElementById('toast-container');
-                    if (container) {
-                        const toasts = container.querySelectorAll('.toast-item');
-                        toasts.forEach((toast, index) => {
-                            setTimeout(() => {
-                                toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-4');
-                                setTimeout(() => toast.remove(), 300);
-                            }, index * 100);
+                    if (!container || container.children.length === 0) return;
+
+                    const showToasts = () => {
+                        container.classList.remove('opacity-0', 'invisible');
+                        
+                        // Auto-dismiss toasts after 5 seconds
+                        setTimeout(() => {
+                            const toasts = container.querySelectorAll('.toast-item');
+                            toasts.forEach((toast, index) => {
+                                setTimeout(() => {
+                                    toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-4');
+                                    setTimeout(() => toast.remove(), 300);
+                                }, index * 100);
+                            });
+                        }, 5000);
+                    };
+
+                    const checkLoaders = () => {
+                        // Look for anything with 'loader' in ID or class
+                        const loaders = document.querySelectorAll('[id*="loader"], [class*="loader"]');
+                        const activeLoader = Array.from(loaders).find(l => {
+                            const style = window.getComputedStyle(l);
+                            // Consider it active if it's in the DOM and not explicitly hidden
+                            return style.display !== 'none' && style.visibility !== 'hidden' && l.isConnected;
                         });
-                    }
-                }, 5000);
+
+                        if (!activeLoader) {
+                            // Give it one more tiny beat to ensure transitions finished
+                            setTimeout(showToasts, 100);
+                        } else {
+                            setTimeout(checkLoaders, 200);
+                        }
+                    };
+
+                    // Small initial delay to allow page-specific scripts to initialize their loaders
+                    setTimeout(checkLoaders, 100);
+                });
             </script>
         {% endif %}
     {% endwith %}
+
+
 
     {# --- MAIN CONTENT INJECTION --- #}
     {% block content %}{% endblock %}

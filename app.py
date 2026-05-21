@@ -256,6 +256,13 @@ def course_overview(course_slug):
     overview = database.get_course_overview(g.user, course_slug)
     if not overview["course"]:
         abort(404)
+
+    # Prevent access to planned courses for non-admins
+    if overview["course"]["status"] == "planned":
+        if not g.user or not g.user["is_admin"]:
+            flash("This course is coming soon and is not yet available for enrollment.", "info")
+            return redirect(url_for("courses"))
+
     return render_template("courses/overview.html", **overview)
 
 

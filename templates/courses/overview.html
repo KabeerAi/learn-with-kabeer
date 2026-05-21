@@ -625,17 +625,17 @@
     
     <div class="fixed bottom-8 left-1/2 z-[100] w-full max-w-[600px] -translate-x-1/2 px-6 pointer-events-auto">
         <div class="flex flex-col items-center justify-between gap-4 rounded-2xl border-2 border-[#1C1C1C] bg-white p-5 shadow-[0_8px_0_0_#1C1C1C] sm:flex-row sm:gap-6">
-            <div class="text-center sm:text-left flex-1">
+            <div class="text-center sm:text-left flex-1 min-w-0">
                 {% if enrolled %}
                     {% if completed_lessons >= course.total_lessons %}
-                        <h4 class="text-base font-bold text-[#1C1C1C] leading-tight">Course Completed!</h4>
+                        <h4 class="text-base font-bold text-[#1C1C1C] leading-tight truncate">Course Completed!</h4>
                         <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#16A34A] mt-1">100% Mastered — Well done.</p>
                     {% else %}
                         <h4 class="text-base font-bold text-[#1C1C1C] leading-tight truncate">Next: {{ current_lesson.title }}</h4>
                         <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mt-1">Lesson {{ current_lesson.number }} of {{ course.total_lessons }}</p>
                     {% endif %}
                 {% else %}
-                    <h4 class="text-base font-bold text-[#1C1C1C] leading-tight">Master {{ course["title"] }}</h4>
+                    <h4 class="text-base font-bold text-[#1C1C1C] leading-tight truncate">Master {{ course["title"] }}</h4>
                     <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#6B6B6B] mt-1">Enroll to track your progress</p>
                 {% endif %}
             </div>

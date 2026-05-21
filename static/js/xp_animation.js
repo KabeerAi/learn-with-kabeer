@@ -1,6 +1,7 @@
 /**
- * Learn with Kabeer - Professional XP Award Animation
- * Refactored to be simpler, more professional, and fix visual double-counting.
+ * Learn with Kabeer - Premium XP Reward Animation
+ * Redesigned for a minimal, high-end feel (Apple/Vercel/Linear style).
+ * Features: Fly-to-destination effect, glassmorphism, and snappier motion.
  */
 
 async function playXpAnimation(awards) {
@@ -33,8 +34,6 @@ async function playXpAnimation(awards) {
     if (!xpPill || !xpValue) return;
 
     // 1. Fix the "Double Counting" issue
-    // The template already renders the NEW XP from the database.
-    // To animate from OLD -> NEW, we subtract the awards from the current value.
     const totalAwardedXp = awards.reduce((sum, a) => sum + (parseInt(a.xp) || 0), 0);
     const databaseXp = parseInt(xpValue.innerText.replace(/[^0-9]/g, '')) || 0;
     let currentDisplayXp = databaseXp - totalAwardedXp;
@@ -43,15 +42,12 @@ async function playXpAnimation(awards) {
     xpValue.innerText = currentDisplayXp;
 
     const container = document.createElement('div');
-    container.className = 'fixed inset-0 z-[100] pointer-events-none flex items-center justify-center overflow-hidden transition-all duration-500';
+    container.id = 'xp-animation-container';
+    container.className = 'fixed inset-0 z-[100] pointer-events-none flex items-center justify-center overflow-hidden';
     document.body.appendChild(container);
 
     // Play awards in sequence
     for (const award of awards) {
-        // Subtle background dimming
-        container.style.backgroundColor = 'rgba(0, 0, 0, 0.25)';
-        container.style.backdropFilter = 'blur(2px)';
-
         await showAward(award, container, (addedXp) => {
             const startVal = currentDisplayXp;
             currentDisplayXp += addedXp;
@@ -60,45 +56,43 @@ async function playXpAnimation(awards) {
             animateNumber(xpValue, startVal, currentDisplayXp);
             
             // Subtle pulse on the pill
-            xpPill.classList.add('scale-110', 'border-amber-400', 'shadow-[0_0_15px_rgba(245,158,11,0.3)]');
+            xpPill.style.transform = 'scale(1.1)';
+            xpPill.style.borderColor = 'rgba(251, 191, 36, 0.5)';
+            xpPill.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.2)';
+            
             setTimeout(() => {
-                xpPill.classList.remove('scale-110', 'border-amber-400', 'shadow-[0_0_15px_rgba(245,158,11,0.3)]');
-            }, 500);
+                xpPill.style.transform = '';
+                xpPill.style.borderColor = '';
+                xpPill.style.boxShadow = '';
+            }, 600);
         });
 
-        // Clear dimming between awards
-        container.style.backgroundColor = 'transparent';
-        container.style.backdropFilter = 'blur(0px)';
-
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 150));
     }
 
     // Ensure we end at exactly what the database says
     xpValue.innerText = databaseXp;
     
-    setTimeout(() => container.remove(), 1000);
+    setTimeout(() => container.remove(), 2000);
 }
 
 function showAward(award, container, onAddedXp) {
     return new Promise((resolve) => {
         // Create a clean, professional announcement
         const msg = document.createElement('div');
-        msg.className = 'absolute flex flex-col items-center transition-all duration-700 ease-out transform translate-y-8 opacity-0';
+        msg.className = 'absolute flex flex-col items-center transition-all duration-[800ms] ease-premium transform scale-90 opacity-0';
         msg.innerHTML = `
             <div class="relative flex flex-col items-center">
-                <!-- Soft Glow -->
-                <div class="absolute inset-0 bg-amber-400/10 blur-[40px] rounded-full scale-150"></div>
-                
-                <div class="relative flex flex-col items-center">
-                    <span class="text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] mb-3">${award.type}</span>
-                    <div class="flex items-center gap-4 bg-[#1C1C1C] border border-white/10 px-8 py-4 rounded-2xl shadow-2xl backdrop-blur-xl">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-[#1C1C1C]">
-                            <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                <div class="flex items-center gap-4 bg-white/80 border border-gray-200 p-2 pr-8 rounded-full shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-full bg-[#1C1C1C] text-amber-400 shadow-inner">
+                        <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-2xl font-black text-[#1C1C1C] leading-none tracking-tight">+${award.xp}</span>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">XP</span>
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-3xl font-black text-white leading-none tracking-tight">+${award.xp}</span>
-                            <span class="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-widest mt-1">Experience Points</span>
-                        </div>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-none mt-1">${award.type}</span>
                     </div>
                 </div>
             </div>
@@ -107,34 +101,50 @@ function showAward(award, container, onAddedXp) {
         
         // Initialize icons if lucide is available
         if (window.lucide) {
-            window.lucide.createIcons();
+            window.lucide.createIcons({
+                props: { "stroke-width": 3 }
+            });
         }
 
         // Entrance animation
         requestAnimationFrame(() => {
-            msg.style.transform = 'translateY(0)';
+            msg.style.transform = 'scale(1) translateY(0)';
             msg.style.opacity = '1';
         });
+
+        // Small "float" up
+        setTimeout(() => {
+            msg.style.transform = 'translateY(-15px)';
+        }, 1000);
 
         // Award the XP to the counter after a short delay
         setTimeout(() => {
             onAddedXp(parseInt(award.xp) || 0);
-        }, 600);
+            
+            // Fly to pill effect
+            const xpPill = document.querySelector('.xp-pill');
+            const pillRect = xpPill.getBoundingClientRect();
+            const msgRect = msg.getBoundingClientRect();
+            
+            const deltaX = (pillRect.left + pillRect.width/2) - (msgRect.left + msgRect.width/2);
+            const deltaY = (pillRect.top + pillRect.height/2) - (msgRect.top + msgRect.height/2);
+            
+            msg.className = 'absolute flex flex-col items-center transition-all duration-700 ease-spring transform';
+            msg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.1)`;
 
-        // Exit animation
-        setTimeout(() => {
-            msg.style.transform = 'translateY(-20px)';
             msg.style.opacity = '0';
+            msg.style.filter = 'blur(10px)';
+
             setTimeout(() => {
                 msg.remove();
                 resolve();
             }, 700);
-        }, 2200);
+        }, 1800);
     });
 }
 
 function animateNumber(el, start, end) {
-    const duration = 800;
+    const duration = 1000;
     const startTime = performance.now();
 
     const update = (now) => {
@@ -156,3 +166,4 @@ function animateNumber(el, start, end) {
 
     requestAnimationFrame(update);
 }
+
