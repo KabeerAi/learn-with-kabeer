@@ -1,0 +1,1432 @@
+{
+    "course": {
+        "title": "C++ for Beginners: The Ultimate Masterclass",
+        "description": "Learn C++ from scratch and master high-performance programming. This complete course takes you from the absolute basics of C++ syntax and memory management to writing fast, object-oriented applications through highly interactive, hands-on lessons.",
+        "difficulty_level": "Beginner",
+        "learning_outcomes": [
+            "Set up a complete C++ development environment including a compiler and text editor",
+            "Understand core programming concepts like variables, data types, and control flow",
+            "Master memory management using pointers, references, and dynamic allocation",
+            "Implement Object-Oriented Programming (OOP) principles with classes and structs",
+            "Build real-world terminal applications and fast, hardware-optimized programs"
+        ]
+    },
+    "chapters": [
+        {
+            "chapter_id": 1,
+            "chapter_title": "Getting Started with C++",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction & Environment Setup",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Why Learn C++?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Welcome to the course! C++ is a fast language. Like, really fast. It is commonly used in advanced graphics applications, video editing software, embedded systems, and most importantly, creating video games. If you want to build high-performance software, you are in the exact right place."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Programming languages exist on a spectrum. High-level languages (like Python or Java) resemble human language and are very easy to write, but tend to be slower. Lower-level languages resemble hardware instructions. C++ is considered a 'middle-level' language. It takes a little more effort to write, but it has the massive benefit of working closely with machine hardware while still somewhat resembling human language."
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Just a fair warning: there is a learning curve with C++. But if you can learn it, it is incredibly worth it and will make learning any other programming language feel easy."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Tools You Need"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To get started with C++, you need two specific tools: a Text Editor (a few options include VS Code or Code::Blocks) and a Compiler. You write your human-readable code in the text editor, and the compiler translates that code into machine-readable instructions that your computer can actually execute."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that C++ is an incredibly fast, middle-level language perfect for video games and embedded systems, and we identified the need for a text editor and a compiler to start writing code."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Your First C++ Program",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Main Function"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Every C++ program requires a starting point. In C++, this starting point is always a function named `main`. When you execute your program, the computer looks specifically for this function and runs the code inside its curly braces."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    // Your code goes here\n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Notice the `return 0;` at the end? This tells the operating system that our program finished running successfully without any errors. Also, remember that every single statement inside our function must end with a semicolon `;`."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Printing to the Console"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To make our program display text, we use `std::cout` (Standard Character Output). However, to use this tool, we first have to load it at the very top of our file using `#include <iostream>`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    std::cout << \"I like video games!\" << '\\n';\n    std::cout << \"Like, a lot!\" << '\\n';\n    \n    return 0;\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The `<<` symbols are called insertion operators. They push our text string into the output stream. The `\\n` at the end represents a newline character, ensuring our next printed message appears on a brand new line instead of being squished right next to the first one."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We wrote our very first C++ program by setting up the required `main()` function, importing the `iostream` library, and outputting text to the console using `std::cout`."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Code Comments & Readability",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Leaving Notes in Your Code"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "As you write more complex C++ programs, it becomes very important to leave notes explaining what your code does. These notes are called comments. The C++ compiler completely ignores comments when it translates your code; they are exclusively for human eyes."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Single-Line and Multi-Line Comments"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To create a comment that only lasts for a single line, use two forward slashes `//`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "// This is a single-line comment. \n// We use it to explain the code directly below it.\nstd::cout << \"Hello World\";"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you need to write a massive block of text, using `//` on every single line gets tedious. Instead, you can use a multi-line comment block. You start the comment with `/*` and tell it to end with `*/`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "/*\nThis is a multi-line comment.\nI can write a huge paragraph here explaining the logic\nthat is about to happen in the next block of code.\n*/\nint x = 5;"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to cleanly document our C++ programs using single-line (`//`) and multi-line (`/* */`) comments to improve code readability and maintainability for future developers."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 2,
+            "chapter_title": "Variables & Core Data Types",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Variables",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Storing Data in Memory"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To build a useful program, we need a way to store data in our computer's memory. We do this using variables."
+                        },
+                        {
+                            "type": "analogy",
+                            "value": "Think of a variable as a labeled box or a container in your computer's memory. You write a label on the outside of the box (the variable name), and you place something inside it (the value). When you need that value later, you just tell the computer to fetch the contents of that specifically labeled box."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In C++, setting up a variable is a two-step process: Declaration and Assignment. First, you must declare what *type* of data the box is allowed to hold. C++ is a statically-typed language, meaning you cannot put text into a box designed for math."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int x; // Declaration: We create a box named 'x' that only holds integers\nx = 5; // Assignment: We put the number 5 into the box\n\nint y = 6; // Initialization: We declare and assign in a single step!"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You can then print these variables out using `std::cout`, just like we did with text strings."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int age = 21;\nstd::cout << \"I am \" << age << \" years old.\" << '\\n';"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that variables are strictly-typed storage containers in memory, and we explored how to declare, assign, and output them to the console."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Primitive Data Types",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Core Data Types"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Since C++ forces us to declare the type of data a variable will hold, we need to know the fundamental primitive data types built into the language."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "// 1. Integer (whole numbers only)\nint age = 21;\nint year = 2024;\n\n// 2. Double (numbers including a decimal point)\ndouble price = 10.99;\ndouble temperature = 25.5;\n\n// 3. Character (a SINGLE character enclosed in single quotes)\nchar grade = 'A';\nchar initial = 'B';\n\n// 4. Boolean (true or false states)\nbool student = true;\nbool power = false;"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Notice the syntax for the `char` data type. It MUST be enclosed in single quotes ('A'). If you try to use double quotes (\"A\"), C++ will assume it is a string of text, which will cause a type mismatch error and crash your compiler."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered declaring and assigning the four most common primitive data types: integers (int), decimals (double), single characters (char), and logical states (bool)."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "The String Data Type",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Working with Text"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Primitive types are great, but what if you want to store a person's full name, a password, or a whole sentence? For this, we need a sequence of characters. In C++, this is called a String."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Unlike `int` or `double`, a string is an Object, not a raw primitive type. Because of this, it is not available to use by default. You must explicitly include the `<string>` header at the top of your file to unlock it."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string> // You MUST include this to use strings!\n\nint main() {\n    std::string name = \"Bro\";\n    std::string day = \"Friday\";\n\n    std::cout << \"Hello \" << name << '\\n';\n    std::cout << \"Happy \" << day << \"!\" << '\\n';\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Notice that when declaring a string, you must prefix it with `std::` just like you do with `std::cout`. This tells the compiler exactly where to find the standard string object code."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to load the `<string>` library into our files and utilized the `std::string` object to store complex sequences of text wrapped in double quotes."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "The const Keyword",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Protecting Your Data"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "By default, variables are exactly that—variable. Their data can be changed at any time later in the program. If you define `int speed = 10;`, you can easily write `speed = 50;` on the next line."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "However, sometimes you have data that should NEVER change. Think about the mathematical value of Pi. If someone accidentally changes Pi to 4 in the middle of a physics simulation, the entire program will calculate incorrect results."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To prevent a variable from ever being modified, we add the `const` keyword before its data type."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "const double PI = 3.14159;\nconst int LIGHT_SPEED = 299792458;\n\n// PI = 420.69; <-- If you try to type this, the compiler will instantly throw an error!"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Industry Standard: When developers create a `const` variable, they usually type the variable name in ALL CAPS. This immediately visually signals to other programmers reading the code that the value is read-only and cannot be altered."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized the `const` keyword to create read-only variables, locking their values permanently to protect critical data from accidental overwrites."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "Namespaces and the Scope Resolution Operator",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Preventing Name Conflicts"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In large software projects, you might have hundreds of different files. What happens if you create a variable named `int x = 1;` in file A, and another programmer creates `int x = 5;` in file B? When C++ tries to combine them, it will crash because it cannot have two variables with the exact same name."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To solve this, C++ uses Namespaces. A namespace is essentially a distinct region or folder for your code. You can have identically named variables as long as they live in different namespaces."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nnamespace first {\n    int x = 1;\n}\n\nnamespace second {\n    int x = 2;\n}\n\nint main() {\n    // We use the Scope Resolution Operator (::) to specify WHICH 'x' we want\n    std::cout << first::x << '\\n';  // Prints 1\n    std::cout << second::x << '\\n'; // Prints 2\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The 'using namespace std;' Shortcut"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You have been typing `std::cout` and `std::string` a lot. The `std` part simply means those tools live inside the 'Standard' namespace. If you are tired of typing `std::` everywhere, you can tell the compiler to assume you are always using the standard namespace."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nusing namespace std; // Assumes standard namespace by default\n\nint main() {\n    string name = \"Bro\";\n    cout << \"Hello \" << name << '\\n'; // No 'std::' required!\n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "While `using namespace std;` saves typing, many senior developers advise against using it in massive enterprise projects because it increases the chance of accidentally naming one of your own variables the same name as a built-in standard tool, causing a massive conflict."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We explored Namespaces as a tool to prevent naming collisions in large projects, and learned how to use the scope resolution operator `::` to explicitly target data within a specific region."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 6,
+                    "lesson_title": "Type Defs and Type Aliases",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Simplifying Complex Types"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "As you get deeper into C++, data types can become incredibly long and confusing to read. Imagine having to type `std::vector<std::pair<std::string, int>>` every time you want to declare a specific list. It hurts readability."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "C++ allows us to create 'Aliases'—a short, custom nickname for a complex data type. Originally, developers did this using the `typedef` keyword."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\n// We create a nickname 'text_t' to mean 'std::string'\ntypedef std::string text_t;\n\nint main() {\n    text_t firstName = \"Bro\";\n    std::cout << firstName << '\\n';\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Modern Approach: using"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "While `typedef` is still widely seen in older C and C++ codebases, modern C++ has largely replaced it with the `using` keyword. It accomplishes the exact same thing but has a syntax that is much easier to read and works significantly better with advanced features like templates."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "// Modern Type Alias Syntax\nusing text_t = std::string;\nusing number_t = int;\n\nint main() {\n    text_t name = \"Bro\";\n    number_t age = 21;\n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Naming Convention: When developers create custom type aliases, they often add `_t` to the end of the name (like `text_t`). This quickly reminds anyone reading the code that this is a custom Type, not a normal variable."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We cleaned up complex syntax by generating Type Aliases, comparing the legacy `typedef` keyword against the highly readable, modern `using` syntax."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 3,
+            "chapter_title": "Math, Input & Basic Operations",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Arithmetic Operators & Order of Precedence",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Math in C++"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Just like a calculator, C++ can perform basic and advanced mathematical operations. The standard operators are exactly what you would expect: addition (+), subtraction (-), multiplication (*), and division (/). Let's look at how they work."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int students = 20;\n\nstudents = students + 1; // Addition\nstudents = students - 1; // Subtraction\nstudents = students * 2; // Multiplication\nstudents = students / 2; // Division"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Modulus Operator"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "There is a fifth operator that is incredibly useful in programming: the Modulus operator (%). Instead of giving you the result of a division, it gives you the exact remainder of that division."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int remainder = 10 % 3; \nstd::cout << remainder; // This prints 1, because 10 divided by 3 leaves a remainder of 1."
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Why use Modulus? It is the absolute easiest way to check if a number is Even or Odd. If you do `number % 2` and the result is 0, the number is perfectly even."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Order of Precedence"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "C++ strictly follows the mathematical order of operations (PEMDAS). Parentheses always happen first, followed by multiplication/division/modulus, and finally addition/subtraction. If you need addition to happen before multiplication, you must wrap it in parentheses!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to perform basic math, utilized the Modulus operator to find division remainders, and reinforced the strict order of precedence that C++ uses to evaluate complex equations."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Type Conversion",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Mixing Data Types"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Sometimes you need to convert data from one type to another. For example, you might have an `int` variable storing a score, but you need to do decimal math on it and treat it as a `double`. This process is called Type Conversion."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Implicit Conversion"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Implicit conversion happens automatically. The C++ compiler is somewhat smart. If you assign an integer value to a double variable, C++ quietly converts it in the background."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "double price = 5; \n// The compiler implicitly turns the int 5 into a double 5.0"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Explicit Conversion (Casting)"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Explicit conversion is when YOU manually tell the compiler to force a value to change its type. You do this by putting the desired data type in parentheses right before the value. This is highly useful for fixing integer division."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int correct = 8;\nint questions = 10;\n\n// If we do (correct / questions), 8/10 equals 0.8. \n// But because they are integers, C++ drops the decimal and just says '0'!\n\n// To fix this, we cast 'correct' to a double before dividing:\ndouble score = (double)correct / questions * 100;\nstd::cout << score << \"%\"; // Prints 80%"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how C++ automatically handles Implicit Conversions, and how we can forcefully execute Explicit Conversions (casting) to preserve critical data like decimals during division."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Accepting User Input with std::cin",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Making Programs Interactive"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Our programs so far have just printed whatever we typed into the code. To make a program actually useful, we need to let the user type data into it. Just like we used `std::cout` (Character Output) to push text out, we use `std::cin` (Character Input) to pull text in."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Notice that the arrows point in the opposite direction. For output, we use the insertion operator `<<`. For input, we use the extraction operator `>>` to pull data from the console and dump it into a variable."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nint main() {\n    std::string name;\n    int age;\n\n    std::cout << \"What's your name? \";\n    std::cin >> name;\n\n    std::cout << \"How old are you? \";\n    std::cin >> age;\n\n    std::cout << \"Hello \" << name << \", you are \" << age << \" years old.\\n\";\n    \n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "There is a major limitation with `std::cin`. It stops reading the exact moment it hits a space. If a user types 'John Doe' as their name, `std::cin` will only grab 'John'. The 'Doe' gets left behind in the input buffer and ruins the rest of your program!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We made our programs interactive by utilizing `std::cin` and the extraction operator `>>` to accept keyboard inputs and store them securely inside our variables."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Accepting Full Lines of Text (std::getline)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Reading Beyond Spaces"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To solve the massive space-bar limitation of `std::cin`, we must use a completely different function when asking a user for a full sentence or a full name. This function is called `std::getline()`."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "This function takes two arguments: WHERE we are getting the input from (`std::cin`), and WHICH variable we want to store it inside."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nint main() {\n    std::string fullName;\n\n    std::cout << \"What is your full name? \";\n    std::getline(std::cin, fullName);\n\n    std::cout << \"Hello \" << fullName << '\\n';\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Newline Buffer Bug"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You will encounter a very common bug if you mix `std::cin >>` and `std::getline()`. If you ask for a user's age using `std::cin`, the user types their age and hits the Enter key. The Enter key drops an invisible newline character `\\n` into the input buffer."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If the very next line of code is `std::getline()`, it will immediately see that invisible newline character sitting there, assume the user instantly hit Enter without typing anything, and completely skip the question!"
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "std::cout << \"What is your age? \";\nstd::cin >> age;\n\n// We must clear the invisible newline character out of the buffer!\n// We do this by utilizing std::ws (white space)\nstd::cout << \"What is your full name? \";\nstd::getline(std::cin >> std::ws, fullName);"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We bypassed the space-bar limitation using `std::getline()`, and fixed the infamous input buffer skipping bug by utilizing `std::ws` to flush out leftover newline characters."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 4,
+            "chapter_title": "Control Flow & Logic",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Conditional Logic (If/Else Statements)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Making Decisions in Code"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Right now, our programs run every single line of code from top to bottom. But real applications need to make decisions. If a user enters the correct password, log them in. If they enter the wrong password, lock the account. We achieve this branching logic using 'If Statements'."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "An `if` statement evaluates a condition. If the condition is true, it executes the block of code inside its curly braces. If it is false, it skips that block entirely."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int age = 18;\n\n// We check if age is greater than or equal to 18\nif (age >= 18) {\n    std::cout << \"You are an adult!\\n\";\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Else If and Else"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if the first condition is false, but we want to check something else? We use `else if`. And what if ALL conditions are false and we need a default backup plan? We use `else`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int age = 15;\n\nif (age >= 18) {\n    std::cout << \"You are an adult!\\n\";\n} \nelse if (age < 0) {\n    std::cout << \"You haven't been born yet!\\n\";\n} \nelse {\n    std::cout << \"You are a minor.\\n\";\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Comparison Operators: To compare data, C++ uses operators like `==` (is equal to), `!=` (is not equal to), `>` (greater than), `<` (less than), `>=` (greater than or equal to), and `<=` (less than or equal to)."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We broke out of strictly linear programming by utilizing `if`, `else if`, and `else` statements, allowing our code to intelligently evaluate data and make decisions."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "The Switch Statement",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "A Cleaner Way to Choose"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you are checking a single variable against many possible exact values, chaining a dozen `else if` statements gets incredibly ugly and hard to read. In these situations, C++ gives us the `switch` statement."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A switch statement evaluates one value and tries to match it against various 'cases'."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "int month = 4;\n\nswitch (month) {\n    case 1:\n        std::cout << \"It is January\";\n        break;\n    case 2:\n        std::cout << \"It is February\";\n        break;\n    case 3:\n        std::cout << \"It is March\";\n        break;\n    case 4:\n        std::cout << \"It is April\";\n        break;\n    default:\n        std::cout << \"Please enter numbers 1-12\";\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Do not forget the `break;` keyword! If you leave it out, C++ will execute the matching case, but then it will accidentally 'fall through' and execute every single case below it as well!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We cleaned up complex conditional logic by replacing massive `else if` chains with the highly readable `switch` statement, utilizing `case` matching and `break` keywords."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Project: Simple Calculator",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Applying Your Logic"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "It is time to build our first fully interactive application! We are going to build a calculator that asks the user for an operator (+, -, *, /) and two numbers, then calculates and prints the result."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    char op;\n    double num1, num2, result;\n\n    std::cout << \"Enter operator (+, -, *, /): \";\n    std::cin >> op;\n\n    std::cout << \"Enter number 1: \";\n    std::cin >> num1;\n\n    std::cout << \"Enter number 2: \";\n    std::cin >> num2;\n\n    // Using a switch to decide which math to do!\n    switch (op) {\n        case '+':\n            result = num1 + num2;\n            std::cout << \"Result: \" << result << '\\n';\n            break;\n        case '-':\n            result = num1 - num2;\n            std::cout << \"Result: \" << result << '\\n';\n            break;\n        case '*':\n            result = num1 * num2;\n            std::cout << \"Result: \" << result << '\\n';\n            break;\n        case '/':\n            result = num1 / num2;\n            std::cout << \"Result: \" << result << '\\n';\n            break;\n        default:\n            std::cout << \"Error! Invalid operator.\\n\";\n    }\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We successfully combined variables, `std::cin` user input, basic math operators, and the `switch` statement to engineer a functional, interactive terminal calculator."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Useful String Methods",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Manipulating Text"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Earlier, we learned how to store text in a `std::string`. But strings in C++ are actually powerful objects that come packed with built-in tools (called methods) to help you analyze and manipulate them."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Let's say you want to force a user to enter a name, and block them if they hit Enter without typing anything. We can use the `.empty()` and `.length()` methods."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nint main() {\n    std::string name;\n    std::cout << \"Enter your name: \";\n    std::getline(std::cin, name);\n\n    // .empty() returns true if the string has 0 characters\n    if (name.empty()) {\n        std::cout << \"You didn't enter anything!\";\n    } \n    // .length() returns the exact number of characters\n    else if (name.length() > 12) {\n        std::cout << \"Your name is too long!\";\n    } \n    else {\n        std::cout << \"Welcome \" << name;\n    }\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Modifying the String"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You can also directly alter the string's data. For example, `.append()` adds text to the end, and `.insert()` drops text into a specific spot."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "std::string username = \"Bro\";\n\nusername.append(\"Code\"); \nstd::cout << username; // Prints: BroCode\n\n// Insert an '@' symbol at index 0 (the very beginning)\nusername.insert(0, \"@\");\nstd::cout << username; // Prints: @BroCode"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We tapped into the power of the `std::string` object by utilizing built-in methods like `.empty()`, `.length()`, and `.append()` to analyze and manipulate text dynamically."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 5,
+            "chapter_title": "Iteration & Loops",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "The While Loop",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Repeating Actions"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you want to print 'Hello' 100 times, you could copy and paste `std::cout << \"Hello\";` 100 times. That is terrible programming. Instead, we use Loops to tell the computer to repeat a block of code for us."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " The `while` loop is the simplest loop. It repeatedly executes its code block AS LONG AS its condition remains true."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "std::string name;\n\n// The code inside this loop will trap the user until they actually type a name!\nwhile (name.empty()) {\n    std::cout << \"Enter your name: \";\n    std::getline(std::cin, name);\n}\n\nstd::cout << \"Hello \" << name;"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Beware of Infinite Loops! If the condition you set in a `while` loop never becomes false, the loop will run forever, freezing your program and potentially crashing your computer. Always ensure there is a way for the condition to eventually become false."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to automate repetitive tasks using `while` loops, repeating a block of code continuously until a specific condition evaluates to false."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "The For Loop",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Counting Iterations"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "While loops are great when you don't know how many times you need to loop (like waiting for user input). But what if you know exactly how many times you want to loop? Like counting from 1 to 10? For this, we use the `for` loop."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A `for` loop packages three essential components into a single line: the index variable (initialization), the stopping condition, and the step (increment/decrement)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "// 1. Initialize 'i' to 1\n// 2. Keep looping as long as 'i' is <= 5\n// 3. After every loop, do 'i++' (add 1 to i)\n\nfor (int i = 1; i <= 5; i++) {\n    std::cout << \"Iteration: \" << i << '\\n';\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "The `++` operator is shorthand for 'add 1'. `i++` is the exact same as writing `i = i + 1`. You can also use `--` to subtract 1, which is perfect for building countdown timers!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered the `for` loop, utilizing its compact syntax to initialize a counter, set a hard limit, and increment the counter to execute code a highly specific number of times."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Loop Control (Break & Continue)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Bending the Rules of Loops"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Sometimes, you need to abruptly alter how a loop is behaving right in the middle of its execution. C++ provides two powerful keywords for this: `break` and `continue`."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Break Keyword"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We saw `break` inside our switch statements, but it works in loops too. If a loop hits the `break` keyword, it instantly shatters the loop and completely exits it, no matter what the loop's original condition was."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "for (int i = 1; i <= 20; i++) {\n    if (i == 13) {\n        std::cout << \"Unlucky number! Stopping entirely!\\n\";\n        break; // The loop immediately dies here\n    }\n    std::cout << i << \"\\n\";\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Continue Keyword"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if we don't want to kill the entire loop, but we just want to skip the current iteration? We use `continue`. It skips the rest of the code in the current cycle and forces the loop to immediately jump to the next iteration."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "for (int i = 1; i <= 5; i++) {\n    if (i == 3) {\n        continue; // Skips printing '3', jumps straight to '4'\n    }\n    std::cout << i << \"\\n\";\n}\n// Output: 1, 2, 4, 5"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We gained fine-grained control over our iterations by utilizing `break` to prematurely terminate loops, and `continue` to gracefully skip specific iterations."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 6,
+            "chapter_title": "Functions",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Creating & Calling Functions",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Modularizing Your Code"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Up until now, we have been writing all of our code directly inside the `main()` function. As programs grow, keeping thousands of lines of code in one single block becomes a complete nightmare to manage. Functions allow us to chop our program up into smaller, reusable blocks of code."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " To create a function, we must declare it *above* our `main()` function. We specify its return type (use `void` if the function just performs an action and returns nothing), give it a descriptive name, and add parentheses followed by a block of code inside curly braces."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// We declare our custom function above main\nvoid singChorus() {\n    std::cout << \"Happy birthday to you!\\n\";\n    std::cout << \"Happy birthday to you!\\n\";\n}\n\nint main() {\n    // We 'call' or execute our function by typing its name\n    singChorus();\n    singChorus(); // We can reuse it as many times as we want!\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "If you try to write your custom function *below* the `main()` function without a declaration at the top, C++ will look inside `main()`, fail to recognize the function name, and throw a compiler error. C++ reads your code strictly from top to bottom!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to encapsulate and reuse blocks of code by creating custom functions above the `main()` scope and executing them on demand."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Parameters & Arguments",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Passing Data to Functions"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Our previous birthday function was a bit limited because it couldn't customize who it was singing to. To send data from our `main()` function into a custom function, we use Parameters and Arguments."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A 'Parameter' is a variable defined in the function's declaration—it acts as a placeholder. An 'Argument' is the actual data value you pass into the function when you call it."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\n// 'name' and 'age' are the parameters (placeholders)\nvoid birthdaySong(std::string name, int age) {\n    std::cout << \"Happy birthday to \" << name << \"!\\n\";\n    std::cout << \"You are now \" << age << \" years old!\\n\";\n}\n\nint main() {\n    // \"Bro\" and 21 are the arguments (the real data)\n    birthdaySong(\"Bro\", 21);\n    \n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Order matters! When passing arguments into a function call, you must match the exact data type and order defined by the parameters. Sending an `int` where a `std::string` is expected will cause a compile failure."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We dynamicized our functions by establishing parameters to receive data inputs, passing corresponding arguments during invocation."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "The Return Keyword",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Getting Data Back"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Functions shouldn't just print text or run logic; often, they need to perform a calculation and send the final value *back* to wherever the function was originally called. We do this using the `return` keyword."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When a function returns a value, you can no longer use `void` as its type. You must declare the function using the exact data type of the value being returned."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// This function returns a double, so its type is 'double'\ndouble square(double length) {\n    double result = length * length;\n    return result; // Sends the value back\n}\n\nint main() {\n    // We catch the returned value and store it inside a variable\n    double area = square(5.0);\n    \n    std::cout << \"Area of the square: \" << area << \"cm^2\\n\";\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered sending computed data out of functions using the `return` keyword, replacing the `void` modifier with explicit return data types."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Const Parameters",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Making Parameters Read-Only"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you pass variables into a function, it's highly secure practice to ensure that the function treats those variables as read-only. If a function is only supposed to print a user's details, it shouldn't accidentally alter that user's name or balance in memory."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "By applying the `const` keyword directly to function parameters, you protect the arguments from being modified inside the function body."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nvoid printInfo(const std::string name, const int age) {\n    // name = \"Ghost\"; <-- This would throw a compiler error!\n    std::cout << \"Name: \" << name << \", Age: \" << age << '\\n';\n}\n\nint main() {\n    std::string user = \"Bro\";\n    int userAge = 21;\n    \n    printInfo(user, userAge);\n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Using `const` parameters is considered an excellent code design pattern in modern C++. It acts as a safety shield, keeping your data pristine and preventing unintended side-effects across code blocks."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We guarded function logic against structural bugs by implementing `const` parameters, making passing data inputs strictly read-only."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 7,
+            "chapter_title": "Arrays & Data Structures",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Arrays",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Storing Multiple Values"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Up until now, every variable we created could only hold one single value. If you wanted to store 3 car models, you had to make 3 separate variables: `car1`, `car2`, and `car3`. An Array allows us to store multiple values of the exact same data type inside a single variable name."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " To create an array, we define the data type, append square brackets `[]` to the variable name containing the maximum size of the array, and list our elements inside curly braces."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nint main() {\n    // Creating an array of 3 strings\n    std::string cars[3] = {\"Mustang\", \"Camry\", \"Civic\"};\n\n    // Accessing elements using their index position (Starts at 0!)\n    std::cout << cars[0] << '\\n'; // Prints: Mustang\n    std::cout << cars[2] << '\\n'; // Prints: Civic\n\n    // Modifying an element\n    cars[1] = \"Corvette\";\n    std::cout << cars[1] << '\\n'; // Prints: Corvette\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Arrays in C++ have a fixed size! If you declare an array of size 3, you cannot add a 4th element later. If you try to access an index out of bounds (like `cars[5]`), C++ will not stop you, but it will read random unsafe memory addresses and return gibberish data or crash."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We grouped sets of similar data using Arrays, exploring zero-indexed element access and understanding the fixed-allocation memory constraints of arrays."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "The sizeof Operator",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Determining Memory Size"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In C++, the `sizeof()` operator determines the exact size of a data type or variable in bytes. Since different primitive types take up different amounts of physical space on your RAM hardware, this operator is incredibly important."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    double gpa = 3.99;\n    char grade = 'A';\n\n    std::cout << sizeof(gpa) << \" bytes\\n\";   // Prints 8 bytes\n    std::cout << sizeof(grade) << \" bytes\\n\"; // Prints 1 byte\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Calculating Array Length Dynamically"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "C++ arrays do not come with a simple `.length` property like other languages. To find out how many items are in an array, we take the memory size of the *entire* array and divide it by the memory size of just *one* element inside it."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "double prices[] = {5.99, 10.00, 2.50, 15.75};\n\n// Total array size divided by size of the first element\nint totalElements = sizeof(prices) / sizeof(prices[0]);\n\nstd::cout << \"Array contains: \" << totalElements << \" elements.\\n\"; // Prints 4\nreturn 0;"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized the hardware-level `sizeof()` operator to check memory usage and applied math formulas to dynamically deduce the length of fixed arrays."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Iterating Over Arrays",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Traversing Data Structures"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Printing every element in a large array manual line-by-line is counterproductive. To cleanly print out or process an entire array, we use a `for` loop to march through the elements using the index variable."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nint main() {\n    std::string students[] = {\"Spongebob\", \"Patrick\", \"Squidward\", \"Sandy\"};\n    int totalStudents = sizeof(students) / sizeof(students[0]);\n\n    // 'i' acts perfectly as our index tracker from 0 to 3\n    for (int i = 0; i < totalStudents; i++) {\n        std::cout << students[i] << '\\n';\n    }\n\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Range-Based For Loop"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Modern C++ introduced a much cleaner way to loop through collections without dealing with sizes or brackets at all: the range-based `for` loop."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "std::string students[] = {\"Spongebob\", \"Patrick\", \"Squidward\"};\n\n// Reads as: For every 'student' string inside our 'students' array\nfor (std::string student : students) {\n    std::cout << student << '\\n';\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We traversed array data streams efficiently using index trackers within standard loops, and simplified the process with modern range-based `for` loop structures."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "lesson_id": 4,
+            "lesson_title": "Multidimensional Arrays (2D Arrays)",
+            "content": [
+                {
+                    "type": "heading",
+                    "value": "Grid-Based Data Structures"
+                },
+                {
+                    "type": "paragraph",
+                    "value": "Sometimes a linear row of elements isn't enough to represent real-world data structures. What if you are building a chess board, a grid map for a video game, or a mathematical matrix? For this, C++ allows us to build Multidimensional Arrays, most commonly a 2D Array."
+                },
+                {
+                    "type": "analogy",
+                    "value": "Think of a normal array as a single row of houses on a street. A 2D array is like a massive multi-story apartment building, where you need to know both the row (the floor number) and the column (the apartment number) to find exactly who lives there."
+                },
+                {
+                    "type": "paragraph",
+                    "value": "To declare a 2D array, you append two sets of square brackets: the first set specifies the number of rows, and the second set specifies the number of columns."
+                },
+                {
+                    "type": "code",
+                    "language": "cpp",
+                    "value": "#include <iostream>\n\nint main() {\n    // A grid with 2 rows and 3 columns\n    std::string grid[2][3] = {\n        {\"Row0-Col0\", \"Row0-Col1\", \"Row0-Col2\"},\n        {\"Row1-Col0\", \"Row1-Col1\", \"Row1-Col2\"}\n    };\n\n    // Accessing an element: Row 0, Column 1\n    std::cout << grid[0][1] << '\\n'; // Prints: Row0-Col1\n\n    return 0;\n}"
+                },
+                {
+                    "type": "heading",
+                    "value": "Iterating Over a 2D Array"
+                },
+                {
+                    "type": "paragraph",
+                    "value": "To traverse or print an entire 2D grid, a single loop won't cut it. You must use nested loops—an outer loop that steps through the rows, and an inner loop that steps through every column inside that specific row."
+                },
+                {
+                    "type": "code",
+                    "language": "cpp",
+                    "value": "int matrix[3][3] = {\n    {1, 2, 3},\n    {4, 5, 6},\n    {7, 8, 9}\n};\n\nfor (int r = 0; r < 3; r++) {       // Outer loop for rows\n    for (int c = 0; c < 3; c++) {   // Inner loop for columns\n        std::cout << matrix[r][c] << \" \";\n    }\n    std::cout << '\\n'; // Prints a clean newline at the end of every row\n}"
+                },
+                {
+                    "type": "recap",
+                    "value": "We extended our data architecture into grids by implementing 2D arrays, using nested loops to systematically read and write coordinate data across rows and columns."
+                }
+            ]
+        },
+        {
+            "lesson_id": 5,
+            "lesson_title": "Project: Building a Quiz Game",
+            "content": [
+                {
+                    "type": "heading",
+                    "value": "Putting Arrays to the Test"
+                },
+                {
+                    "type": "paragraph",
+                    "value": "It is time to pull together everything you have learned about data structures and control flow. We are going to architect a console-based Quiz Game. This app will store an array of questions, a 2D array containing the multiple-choice options, and a matching key array containing the correct answers."
+                },
+                {
+                    "type": "code",
+                    "language": "cpp",
+                    "value": "#include <iostream>\n\nint main() {\n    std::string questions[] = {\n        \"1. What year did C++ debut?\",\n        \"2. Who invented C++?\",\n        \"3. What is the predecessor of C++?\"\n    };\n\n    std::string options[][4] = {\n        {\"A. 1985\", \"B. 1995\", \"C. 2000\", \"D. 1970\"},\n        {\"A. Steve Jobs\", \"B. Bjarne Stroustrup\", \"C. Bill Gates\", \"D. Linus Torvalds\"},\n        {\"A. Java\", \"B. Python\", \"C. C\", \"D. Basic\"}\n    };\n\n    char answerKey[] = {'A', 'B', 'C'};\n    int size = sizeof(questions) / sizeof(questions[0]);\n    char guess;\n    int score = 0;\n\n    for (int i = 0; i < size; i++) {\n        std::cout << \"*******************************\\n\";\n        std::cout << questions[i] << '\\n';\n        std::cout << \"*******************************\\n\";\n\n        // Print the options for this question\n        for (int j = 0; j < 4; j++) {\n            std::cout << options[i][j] << '\\n';\n        }\n\n        std::cout << \"Your answer (A/B/C/D): \";\n        std::cin >> guess;\n        guess = toupper(guess); // Force conversion to uppercase\n\n        if (guess == answerKey[i]) {\n            std::cout << \"CORRECT!\\n\";\n            score++;\n        } else {\n            std::cout << \"WRONG! The correct answer was \" << answerKey[i] << '\\n';\n        }\n    }\n\n    std::cout << \"\\nFINAL SCORE: \" << score << \"/\" << size << \"\\n\";\n    return 0;\n}"
+                },
+                {
+                    "type": "recap",
+                    "value": "Congratulations on completing your secondary capstone project! You engineered a complete console Quiz Game by integrating standard arrays, 2D matrices, validation logic, and text-case conversion utilities."
+                }
+            ]
+        },
+        {
+            "chapter_id": 8,
+            "chapter_title": "Memory Management & Pointers",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Pointers & Memory Addresses",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Peeking Inside Your RAM"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Every single variable you declare in your program sits inside a physical location on your computer's hardware memory chips (RAM). This location is tracked by a unique numerical code known as a Memory Address, typically displayed in hexadecimal notation (like `0x6dfed4`)."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To see the exact physical coordinates where a variable lives, we use the Address-Of operator `&` directly in front of the variable name."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    std::string name = \"Bro\";\n    int age = 21;\n\n    std::cout << &name << '\\n'; // Prints something like: 0x7ffd53a3b4c0\n    std::cout << &age << '\\n';  // Prints something like: 0x7ffd53a3b4bc\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "What is a Pointer?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " A Pointer is a special type of variable that does not hold regular numbers or text strings. Instead, a pointer exclusively holds a memory address as its value. We declare a pointer by adding an asterisk `*` to the data type definition."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "std::string name = \"Bro\";\n\n// pName is a pointer to a string. It stores the address of 'name'\nstd::string* pName = &name;\n\nstd::cout << pName << '\\n';  // Prints the memory address value (0x7ffd...)\nstd::cout << *pName << '\\n'; // Dereferencing: Prints the actual value stored inside that address (\"Bro\")"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Crucial Terminology: Using the asterisk on an existing pointer variable is called 'Dereferencing'. It tells the computer to travel along the pointer's stored path, look inside the hardware container at the destination, and pull out the raw value."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We exposed the hardware mechanics of C++ by extracting memory addresses with the `&` operator, and using pointers (`*`) to navigate memory references."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Dynamic Memory Allocation",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Stack vs The Heap"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you declare regular variables in C++, they are placed into a region of system memory called the 'Stack'. The stack is automated, extremely fast, but highly limited because its size must be locked down securely before your program even starts up."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if you need to create an array whose size is completely unknown until a user launches the app and types a number into a prompt? For this, we must dynamically request memory from an enormous open reservoir of system RAM called the 'Heap'."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The new and delete Keywords"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We use the `new` operator to dynamically request memory allocation on the heap during runtime. The heap doesn't give us a named variable; it simply returns the raw pointer address of the newly allocated space."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nint main() {\n    // Allocating an integer space dynamically on the Heap\n    int* pNum = new int;\n    \n    *pNum = 42; // Assigning data into that heap space via dereferencing\n    std::cout << *pNum << '\\n';\n\n    // CRITICAL: We must manually return the memory when done!\n    delete pNum;\n    \n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Memory Leak Hazard! Unlike high-level languages like Python or Java, C++ does NOT clean up after you automatically. If you use `new` to grab heap space and forget to run `delete`, that memory remains trapped and unusable even after the function ends. Do this enough times, and your program will consume all system RAM and crash your computer."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to dynamically allocate memory at runtime using the `new` and `delete` operators, mastering the foundational rules of heap memory management to prevent devastating memory leaks."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Recursion",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Functions That Loop Themselves"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Recursion is a programming paradigm where a function calls itself right inside its own code block. It is an alternative to loop structures, and it is exceptionally powerful for breaking down complex mathematical algorithms into beautifully short files."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Every functional recursive architecture requires two parts: a 'Base Case' (the condition that stops the function from repeating infinitely) and a 'Recursive Case' (the step where the function calls itself again with updated parameters)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// A recursive function to calculate factorials (e.g., 5! = 5 * 4 * 3 * 2 * 1)\nint factorial(int n) {\n    if (n <= 1) {\n        return 1; // Base Case: Stops the recursion chain!\n    }\n    // Recursive Case: Calls itself with a smaller number\n    return n * factorial(n - 1);\n}\n\nint main() {\n    std::cout << factorial(5) << '\\n'; // Prints: 120\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We explored recursive problem-solving, learning how to safely structure self-invoking function pathways using reliable base exit rules."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 9,
+            "chapter_title": "Advanced Functions & Structures",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Pass by Value vs. Pass by Reference",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "How Data Travels into Functions"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you pass a variable into a regular function argument, C++ defaults to a behavior called **Pass by Value**. This means the function doesn't actually get your original variable; instead, it creates a brand new clone of that data inside its own temporary memory space."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nvoid swapValues(int x, int y) {\n    int temp = x;\n    x = y;\n    y = temp;\n    // x and y are swapped inside this function, but they are just copies!\n}\n\nint main() {\n    int originalX = 10;\n    int originalY = 20;\n\n    swapValues(originalX, originalY);\n\n    std::cout << \"X: \" << originalX << \"\\n\"; // Still prints 10!\n    std::cout << \"Y: \" << originalY << \"\\n\"; // Still prints 20!\n    return 0;\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Using References (&)"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " If you want a function to directly manipulate your original variable, or if you are passing a massive data structure (like a huge string or array) and want to avoid wasting computer memory on making slow copies, you must use **Pass by Reference**. You do this by appending an ampersand `&` to the variable type in the parameter definition."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// Adding '&' means we are passing the exact memory address reference!\nvoid realSwap(int &x, int &y) {\n    int temp = x;\n    x = y;\n    y = temp;\n}\n\nint main() {\n    int originalX = 10;\n    int originalY = 20;\n\n    realSwap(originalX, originalY); // Modifies the actual variables directly!\n\n    std::cout << \"X: \" << originalX << \"\\n\"; // Now prints 20!\n    std::cout << \"Y: \" << originalY << \"\\n\"; // Now prints 10!\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that pass-by-value copies data safely but isolates modifications, while pass-by-reference uses the ampersand `&` to directly link functions to original memory positions for maximum hardware speed and data mutation."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Function Overloading",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Sharing Function Names Safely"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In many programming languages, you can never have two functions named the exact same thing. If you wanted a function to bake a pizza, and another to bake a cake, you'd have to name them `bakePizza()` and `bakeCake()`."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "C++ supports **Function Overloading**. This means multiple functions can share the exact same name, as long as they have different **signatures** (meaning they accept different counts or different types of parameters)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// Overload 1: Takes no parameters\nvoid bake() {\n    std::cout << \"Baking basic bread!\\n\";\n}\n\n// Overload 2: Takes a string parameter\nvoid bake(std::string topping) {\n    std::cout << \"Baking a \" << topping << \" pizza!\\n\";\n}\n\n// Overload 3: Takes an int parameter\nvoid bake(int itemCount) {\n    std::cout << \"Baking \" << itemCount << \" chocolate chip cookies!\\n\";\n}\n\nint main() {\n    bake();\n    bake(\"Pepperoni\");\n    bake(12);\n    return 0;\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "When you compile your program, C++ automatically analyzes the arguments you pass into the function call and executes the matching version of your overloaded function block seamlessly."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered function overloading, allowing us to write highly intuitive, clean APIs where a single function name safely dynamically handles various input data types."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Structs (Structures)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Grouping Different Data Types"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Arrays are great for grouping matching items together, but they fall short when you need to represent a single real-world entity with varied descriptors. For example, a video game character has a name (`std::string`), health (`int`), and a speed modifier (`double`)."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A **Struct** allows you to combine completely different data types into one single, unified user-defined structural type. Variables inside a struct are called **members**."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\n// Defining the layout of our custom struct type\nstruct Player {\n    std::string name;\n    int health;\n    double score;\n};\n\nint main() {\n    // Creating an instantiation of our Player struct\n    Player player1;\n    player1.name = \"Bro\";\n    player1.health = 100;\n    player1.score = 4.5;\n\n    // Using dot navigation to retrieve data values\n    std::cout << \"Player: \" << player1.name << \" has \" << player1.health << \" HP\\n\";\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We expanded beyond default primitive types by leveraging structs to package distinct data blocks under a custom cohesive object entity definition."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 10,
+            "chapter_title": "Object-Oriented Programming (OOP)",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Classes & Objects",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Moving to True Objects"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "While structs are brilliant for grouping data variables, **Classes** take your design architecture to the absolute pinnacle of performance software engineering. A class is a comprehensive blueprint that holds both data attributes *and* executable actions (called methods) inside it."
+                        },
+                        {
+                            "type": "analogy",
+                            "value": "Think of a class as an architectural blueprint sketch for a sports car. The blueprint itself doesn't have an engine or wheels—it's just a plan. An **Object** is an actual physical car built on the assembly line using that blueprint. You can build 50 completely separate cars (objects) from that one single design plan (class)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nclass Car {\npublic: // Access Specifier: Allows external code to see these fields\n    std::string make;\n    std::string model;\n    int year;\n\n    // This is a Method (a function belonging inside a class)\n    void accelerate() {\n        std::cout << \"The \" << model << \" goes VROOM!\\n\";\n    }\n};\n\nint main() {\n    Car myCar; // Creating our first object instance\n    myCar.make = \"Ford\";\n    myCar.model = \"Mustang\";\n    myCar.year = 2026;\n\n    myCar.accelerate(); // Calling the method\n    return 0;\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Don't forget the access specifier! By default, everything inside a C++ class is completely hidden and invisible (`private`) to the outside program. You must add the `public:` keyword if you want to modify or read properties inside your `main()` scope."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We broke into Object-Oriented Programming by configuring Class blueprints to instantiate individual active Objects complete with properties and internal executable Methods."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Constructors",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Automating Object Setups"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In our previous lesson, initializing an object was tedious. If we had 4 attributes, we had to type out `myCar.property = value;` 4 separate times. This leaves code messy and prone to missing values."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A **Constructor** is a special method that automatically triggers the exact fraction of a microsecond an object is born into your hardware memory. It is used to instantly configure data defaults. A constructor must have the exact same name as the class and has no return data type."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n#include <string>\n\nclass Student {\npublic:\n    std::string name;\n    int age;\n\n    // This is our Constructor declaration!\n    Student(std::string xName, int xAge) {\n        name = xName;\n        age = xAge;\n    }\n};\n\nint main() {\n    // We now construct objects in a single clean execution line!\n    Student student1(\"Spongebob\", 20);\n    Student student2(\"Patrick\", 22);\n\n    std::cout << student1.name << \" is \" << student1.age << \"\\n\";\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We used class constructors to automatically assign operational values to instance attributes right at creation runtime."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Abstraction & Encapsulation (Getters & Setters)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Protecting Object Integrity"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Leaving class variables inside the public space is incredibly dangerous. If you have a `Stove` object with a variable `int temperature;`, any external user could write `myStove.temperature = -50000;`. This breaks real-world physics validation rules entirely."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "**Encapsulation** dictates hiding your raw data variables by making them `private`, and forcing programmers to interact with data safely using public **Getters** (to safely inspect values) and **Setters** (to securely validate and change values)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\nclass Stove {\nprivate: // Data hidden safely from unsafe outside tampering\n    int temperature = 0;\n\npublic:\n    // Getter method\n    int getTemperature() {\n        return temperature;\n    }\n\n    // Setter method containing structural validation safeguards\n    void setTemperature(int newTemp) {\n        if (newTemp < 0 || newTemp > 500) {\n            std::cout << \"Error! Temperature out of safe structural bounds!\\n\";\n        } else {\n            temperature = newTemp; // Valid parameter saved securely\n        }\n    }\n};\n\nint main() {\n    Stove oven;\n    oven.setTemperature(350);\n    std::cout << \"Oven heat is: \" << oven.getTemperature() << \" degrees.\\n\";\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We hardened object interfaces using encapsulation mechanics, rendering operational parameters private and using secure Getter/Setter pathways to guarantee structural data sanity."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Inheritance",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Code Reusability Across Classes"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Imagine you are programming a physics simulator engine. You have a class for a `Cube` and a class for a `Sphere`. Both classes need variables to track basic physical parameters like `area` and `volume`. Writing identical logic definitions in both separate files violates the golden DRY rule (Don't Repeat Yourself)."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " **Inheritance** lets a child class acquire all attributes and methods from a common parent class automatically. This allows you to write central universal logic once, and inherit it effortlessly across dozens of subclasses."
+                        },
+                        {
+                            "type": "code",
+                            "language": "cpp",
+                            "value": "#include <iostream>\n\n// Parent Class\nclass Shape {\npublic:\n    double area;\n    double volume;\n};\n\n// Child Class inherits from Shape using public modifier notation\nclass Cube : public Shape {\npublic:\n    double side;\n    \n    Cube(double s) {\n        side = s;\n        // We can access 'area' and 'volume' because we inherited them!\n        area = 6 * (side * side);\n        volume = side * side * side;\n    }\n};\n\nclass Sphere : public Shape {\npublic:\n    double radius;\n\n    Sphere(double r) {\n        radius = r;\n        area = 4 * 3.14159 * (radius * radius);\n        volume = (4.0 / 3.0) * 3.14159 * (radius * radius * radius);\n    }\n};\n\nint main() {\n    Cube myCube(10);\n    Sphere mySphere(5);\n\n    std::cout << \"Cube Area: \" << myCube.area << \" cm^2\\n\";\n    std::cout << \"Sphere Volume: \" << mySphere.volume << \" cm^3\\n\";\n    return 0;\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered Inheritance in C++, allowing specialized subclasses to inherit standard algorithmic definitions from general parent classes, unlocking clean structural code reusability."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

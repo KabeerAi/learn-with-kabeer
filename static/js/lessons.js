@@ -4,55 +4,6 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    let isSidebarOpen = false;
-
-    // --- Copy to Clipboard Utility ---
-    window.copyToClipboard = function(btn) {
-        const code = btn.getAttribute('data-code');
-        const textSpan = btn.querySelector('.copy-text');
-        const icon = btn.querySelector('i');
-
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(code).then(() => {
-                updateButton();
-            });
-        } else {
-            // Fallback for non-secure contexts
-            const textArea = document.createElement("textarea");
-            textArea.value = code;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                updateButton();
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-            }
-            document.body.removeChild(textArea);
-        }
-
-        function updateButton() {
-            const originalText = textSpan.textContent;
-            textSpan.textContent = 'Copied!';
-            btn.classList.add('text-[#16A34A]');
-            
-            if (window.lucide) {
-                btn.querySelector('i').setAttribute('data-lucide', 'check');
-                lucide.createIcons();
-            }
-
-            setTimeout(() => {
-                textSpan.textContent = originalText;
-                btn.classList.remove('text-[#16A34A]');
-                if (window.lucide) {
-                    btn.querySelector('i').setAttribute('data-lucide', 'copy');
-                    lucide.createIcons();
-                }
-            }, 2000);
-        }
-    };
 
     // --- Quiz Utility ---
     window.checkQuiz = function(btn, index) {

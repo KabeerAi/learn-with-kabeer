@@ -91,6 +91,7 @@ def init_db():
             route_name TEXT,
             content TEXT,
             builder_json TEXT,
+            plan_json TEXT,
             content_type TEXT NOT NULL DEFAULT 'html',
             FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
             FOREIGN KEY (section_id) REFERENCES sections (id) ON DELETE SET NULL,
@@ -165,6 +166,13 @@ def init_db():
     # Migration: add builder_json column if missing
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN builder_json TEXT")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass
+
+    # Migration: add plan_json column if missing
+    try:
+        db.execute("ALTER TABLE lessons ADD COLUMN plan_json TEXT")
         db.commit()
     except sqlite3.OperationalError:
         pass
@@ -953,14 +961,14 @@ def get_lesson_by_course_and_number(course_id, number):
     ).fetchone()
 
 
-def create_lesson(course_id, number, slug, title, summary, content, route_name=None, content_type='html', section_id=None, builder_json=None):
+def create_lesson(course_id, number, slug, title, summary, content, route_name=None, content_type='html', section_id=None, builder_json=None, plan_json=None):
     db = get_db()
     db.execute(
         """
-        INSERT INTO lessons (course_id, number, slug, title, summary, content, route_name, content_type, section_id, builder_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO lessons (course_id, number, slug, title, summary, content, route_name, content_type, section_id, builder_json, plan_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (course_id, number, slug, title, summary, content, route_name, content_type, section_id, builder_json),
+        (course_id, number, slug, title, summary, content, route_name, content_type, section_id, builder_json, plan_json),
     )
     db.commit()
     return db.execute(
@@ -968,15 +976,15 @@ def create_lesson(course_id, number, slug, title, summary, content, route_name=N
     ).fetchone()
 
 
-def update_lesson(lesson_id, number, slug, title, summary, content, route_name=None, content_type='html', section_id=None, builder_json=None):
+def update_lesson(lesson_id, number, slug, title, summary, content, route_name=None, content_type='html', section_id=None, builder_json=None, plan_json=None):
     db = get_db()
     db.execute(
         """
         UPDATE lessons SET number = ?, slug = ?, title = ?, summary = ?, content = ?,
-               route_name = ?, content_type = ?, section_id = ?, builder_json = ?
+               route_name = ?, content_type = ?, section_id = ?, builder_json = ?, plan_json = ?
         WHERE id = ?
         """,
-        (number, slug, title, summary, content, route_name, content_type, section_id, builder_json, lesson_id),
+        (number, slug, title, summary, content, route_name, content_type, section_id, builder_json, plan_json, lesson_id),
     )
     db.commit()
 

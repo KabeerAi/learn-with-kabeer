@@ -1,39 +1,380 @@
 {% extends "lessons/lesson_base.html" %}
 
 {% block lesson_content %}
-    {% if lesson["content"] %}
-        {# 
-           Content is injected directly. 
-           The parent lesson_base.html already wraps this block in a beautifully 
-           styled <article class="prose ..."> tag, so no extra wrappers are needed here. 
-        #}
-        {% if lesson.content_type == 'html' %}
-            {{ lesson["content"] | safe }}
-        {% else %}
-            {{ lesson["content"] | markdown | safe }}
-        {% endif %}
-    {% else %}
-        {# Premium Minimalist Empty State #}
-        <div class="not-prose mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#D4D4D8] bg-[#FAF9F6] py-24 text-center">
-            <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-[#E5E5E5] bg-white text-[#A3A3A3] shadow-sm">
-                <i data-lucide="pen-tool" class="h-6 w-6"></i>
+    {% set blocks = lesson["builder_json"] | fromjson if lesson["builder_json"] else [] %}
+    {% if blocks %}
+        {# Render every block as a flat child with a data-block-type attribute.
+           JavaScript will group these into slides at runtime. #}
+        {% for block in blocks %}
+            <div class="lesson-block w-full" data-block-type="{{ block.type }}">
+                {% if block.type == 'heading' %}
+                    {% include 'components/heading.html' %}
+                {% elif block.type == 'text' %}
+                    {% include 'components/text.html' %}
+                {% elif block.type == 'image' %}
+                    {% include 'components/image.html' %}
+                {% elif block.type == 'code' %}
+                    {% include 'components/code.html' %}
+                {% elif block.type == 'callout' %}
+                    {% include 'components/callout.html' %}
+                {% elif block.type == 'quiz' %}
+                    {% include 'components/quiz.html' %}
+                {% endif %}
             </div>
-            <h3 class="text-lg font-semibold tracking-tight text-[#1C1C1C]">Content in progress</h3>
-            <p class="mt-2 text-sm font-medium text-[#6B6B6B] max-w-sm leading-relaxed">
-                This lesson is currently being crafted by our instructors. Check back soon for the complete guide.
-            </p>
+        {% endfor %}
+    {% elif lesson["content"] %}
+        <div id="legacy-content" class="w-full">
+            {% if lesson.content_type == 'html' %}
+                {{ lesson["content"] | safe }}
+            {% else %}
+                <div class="prose prose-neutral max-w-none w-full">
+                    {{ lesson["content"] | markdown | safe }}
+                </div>
+            {% endif %}
         </div>
+    {% else %}
+    <!-- Premium Full-Screen Loading Plate -->
+    <style>
+        .course-overview-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            overflow: hidden;
+            background-color: #FAF9F6;
+            isolation: isolate;
+            pointer-events: auto;
+            transition: background-color 0.42s ease;
+        }
+
+        .course-overview-loader::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.25) 100%),
+                        radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.35) 120%);
+            opacity: 0;
+            transition: opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .course-overview-loader.is-solid-in::after { opacity: 1; }
+        .course-overview-loader.is-transparent-ending::after { opacity: 0; transition: opacity 1.2s ease-in; }
+
+        .course-loader__plate {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 50% 50%;
+            transform-origin: center center;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: opacity, transform;
+        }
+
+        .course-loader__plate--transparent {
+            z-index: 1;
+            opacity: 0;
+            transform: scale(1) rotate(0deg);
+            transform-origin: 48% 50%;
+            transition: opacity 0.36s ease, transform 1.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .course-loader__plate--solid {
+            z-index: 2;
+            opacity: 0;
+            transform: scale(0.985) rotate(-0.45deg);
+            transition: opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .course-overview-loader.is-solid-in .course-loader__plate--solid { opacity: 1; transform: scale(1) rotate(0deg); }
+        .course-overview-loader.is-transparent-ready .course-loader__plate--transparent { opacity: 1; transform: scale(1) rotate(0deg); }
+        .course-overview-loader.is-transparent-ending .course-loader__plate--transparent { opacity: 0; transform: scale(200) rotate(0.02deg); transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, transform 0.8s cubic-bezier(0.8, 0, 0.9, 1); }
+        .course-overview-loader.is-solid-exiting .course-loader__plate--solid { opacity: 0; transform: scale(1.025) rotate(0.35deg); transition: opacity 0.92s cubic-bezier(0.4, 0, 0.2, 1), transform 0.92s cubic-bezier(0.7, 0, 0.84, 0); }
+
+        .course-loader__loading {
+            position: absolute;
+            left: 50%;
+            bottom: clamp(60px, 10vh, 100px);
+            z-index: 3;
+            width: min(42vw, 260px);
+            height: 12px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: #FFFFFF;
+            border: 1px solid #1C1C1C;
+            box-shadow: 0 6px 0 0 rgba(28, 28, 28, 0.15);
+            opacity: 0;
+            transform: translate(-50%, 15px);
+            transition: opacity 0.46s ease 0.55s, transform 0.46s cubic-bezier(0.16, 1, 0.3, 1) 0.55s;
+        }
+
+        .course-overview-loader.is-solid-in .course-loader__loading { opacity: 1; transform: translate(-50%, 0); }
+
+        .course-loader__loading-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 18%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #FACC15 0%, #EAB308 50%, #FACC15 100%);
+            background-size: 200% 100%;
+            box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4);
+            transition: width 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: courseLoaderFillShimmer 2s linear infinite;
+        }
+
+        .course-loader__loading-fill::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 100%;
+            width: 15px;
+            background: #FFFFFF;
+            filter: blur(8px);
+            opacity: 0.8;
+            animation: courseLoaderTipPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes courseLoaderFillShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes courseLoaderTipPulse {
+            0%, 100% { opacity: 0.4; transform: translateY(-50%) scaleX(1); }
+            50% { opacity: 0.9; transform: translateY(-50%) scaleX(1.8); }
+        }
+
+        .course-overview-loader.is-solid-in .course-loader__loading-fill {
+            animation: courseLoaderLoadingWait 5s cubic-bezier(0.65, 0, 0.35, 1) 0.72s forwards, courseLoaderFillShimmer 2s linear infinite;
+        }
+
+        .course-overview-loader.is-loaded .course-loader__loading-fill { width: 100% !important; animation: none !important; }
+
+        @keyframes courseLoaderLoadingWait {
+            0% { width: 18%; }
+            45% { width: 62%; }
+            100% { width: 86%; }
+        }
+    </style>
+
+    <div id="course-overview-loader" class="course-overview-loader" role="status" aria-label="Loading course overview">
+        <img class="course-loader__plate course-loader__plate--transparent" src="{{ url_for('static', filename='imgs/assets/loading-logo/transparent_logo.png') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img class="course-loader__plate course-loader__plate--solid" src="{{ url_for('static', filename='imgs/assets/loading-logo/solid_logo.png') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
+        <div class="course-loader__loading" aria-hidden="true">
+            <div class="course-loader__loading-fill"></div>
+        </div>
+    </div>
+
+    <div id="generation-error" class="hidden flex flex-col items-center justify-center py-48 text-center w-full">
+        <div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
+            <i data-lucide="alert-circle" class="h-5 w-5"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Something went wrong</h3>
+        <p id="error-message" class="mt-2 text-sm text-gray-400 max-w-xs"></p>
+        <button onclick="window.location.reload()" class="mt-10 text-sm font-bold tracking-tight text-gray-900 hover:text-gray-600 underline underline-offset-8 decoration-1">TRY AGAIN</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loader = document.getElementById('course-overview-loader');
+            const generateUrl = "{{ url_for('generate_single_lesson', course_slug=course.slug, lesson_number=lesson.number) }}";
+            
+            // Start sequence
+            setTimeout(() => loader.classList.add('is-solid-in'), 100);
+            setTimeout(() => loader.classList.add('is-transparent-ready'), 800);
+
+            const generationPromise = fetch(generateUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            }).then(r => r.json());
+
+            // Satisfying min delay
+            const delayPromise = new Promise(resolve => setTimeout(resolve, 3000));
+
+            Promise.all([generationPromise, delayPromise]).then(([data]) => {
+                if (data.status === "success") {
+                    loader.classList.add('is-loaded');
+                    setTimeout(() => {
+                        loader.classList.add('is-solid-exiting');
+                        setTimeout(() => {
+                            loader.classList.add('is-transparent-ending');
+                            setTimeout(() => window.location.reload(), 800);
+                        }, 920);
+                    }, 480);
+                } else {
+                    loader.remove();
+                    document.getElementById('generation-error').classList.remove('hidden');
+                    document.getElementById('error-message').textContent = data.error || 'The system was unable to architect this lesson.';
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            }).catch(err => {
+                loader.remove();
+                document.getElementById('generation-error').classList.remove('hidden');
+                document.getElementById('error-message').textContent = 'A connection error occurred.';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        });
+    </script>
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
-{{ super() }}
 <script>
-    // Re-initialize Lucide icons for dynamically inserted content
-    document.addEventListener("DOMContentLoaded", function() {
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
+document.addEventListener("DOMContentLoaded", function() {
+    const viewport = document.getElementById('slide-viewport');
+    if (!viewport) return;
+
+    // ── Step 1: Collect raw block elements ──
+    let rawBlocks = Array.from(viewport.querySelectorAll('.lesson-block'));
+
+    // If no builder_json blocks, try legacy content (split by headings)
+    if (rawBlocks.length === 0) {
+        const legacy = document.getElementById('legacy-content');
+        if (legacy) {
+            const children = Array.from(legacy.children);
+            // Wrap each child in a .lesson-block wrapper with data-block-type
+            rawBlocks = children.map(child => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'lesson-block w-full';
+                const tag = child.tagName || '';
+                wrapper.dataset.blockType = /^H[1-6]$/.test(tag) ? 'heading' : 'text';
+                wrapper.appendChild(child);
+                return wrapper;
+            });
+            legacy.innerHTML = '';
+            rawBlocks.forEach(b => legacy.appendChild(b));
+        }
+    }
+
+    if (rawBlocks.length === 0) return;
+
+    // ── Step 2: Group blocks into slides ──
+    // Rule: a "heading" starts a new slide, a "quiz" gets its own slide
+    const slideGroups = []; // array of arrays of DOM elements
+    let currentGroup = [];
+
+    rawBlocks.forEach(block => {
+        const type = block.dataset.blockType;
+        if (type === 'quiz') {
+            // flush current group if any
+            if (currentGroup.length > 0) {
+                slideGroups.push(currentGroup);
+                currentGroup = [];
+            }
+            slideGroups.push([block]); // quiz on its own
+        } else if (type === 'heading') {
+            // heading starts a new group
+            if (currentGroup.length > 0) {
+                slideGroups.push(currentGroup);
+            }
+            currentGroup = [block];
+        } else {
+            currentGroup.push(block);
         }
     });
+    if (currentGroup.length > 0) slideGroups.push(currentGroup);
+
+    // If only 1 slide, show everything, no pagination needed
+    if (slideGroups.length <= 1) {
+        rawBlocks.forEach(b => b.style.display = '');
+        document.getElementById('progress-fill').style.width = '100%';
+        // wire continue button to final action directly
+        wireFinalButton();
+        return;
+    }
+
+    // ── Step 3: Wrap each group in a slide container ──
+    viewport.innerHTML = ''; // clear
+    const slides = [];
+
+    slideGroups.forEach((group, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'lesson-slide w-full flex flex-col items-start gap-4';
+        slide.style.display = 'none'; // hidden by default
+        group.forEach(el => slide.appendChild(el));
+        viewport.appendChild(slide);
+        slides.push(slide);
+    });
+
+    // ── Step 4: Pagination logic ──
+    let current = 0;
+    const total = slides.length;
+    const btn = document.getElementById('continue-btn');
+    const progressFill = document.getElementById('progress-fill');
+    const mainEl = document.getElementById('lesson-main');
+
+    function showSlide(idx) {
+        slides.forEach((s, i) => {
+            if (i === idx) {
+                s.style.display = 'flex';
+                s.classList.add('slide-enter');
+            } else {
+                s.style.display = 'none';
+                s.classList.remove('slide-enter');
+            }
+        });
+
+        // scroll main back to top in case slide content was long
+        mainEl.scrollTop = 0;
+
+        // update progress bar
+        progressFill.style.width = (((idx + 1) / total) * 100) + '%';
+
+        // update button text
+        if (idx === total - 1) {
+            if (LESSON_CONFIG.isGuest) {
+                btn.textContent = "Sign in to Finish";
+            } else if (LESSON_CONFIG.isLastLesson) {
+                btn.textContent = "Complete Course";
+                btn.classList.add('bg-[#16A34A]', 'hover:bg-green-700');
+                btn.classList.remove('bg-[#2A2A2A]', 'hover:bg-black');
+            } else {
+                btn.textContent = "Finish";
+            }
+        } else {
+            btn.textContent = 'Continue';
+            btn.classList.add('bg-[#2A2A2A]', 'hover:bg-black');
+            btn.classList.remove('bg-[#16A34A]', 'hover:bg-green-700');
+        }
+
+        // re-render lucide icons for newly visible content
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (typeof Prism !== 'undefined') {
+            Prism.highlightAllUnder(slides[idx]);
+        }
+    }
+
+    btn.addEventListener('click', () => {
+        if (current < total - 1) {
+            current++;
+            showSlide(current);
+        } else {
+            doFinalAction();
+        }
+    });
+
+    // show first slide
+    showSlide(0);
+
+    function doFinalAction() {
+        if (LESSON_CONFIG.isGuest) {
+            window.location.href = LESSON_CONFIG.loginUrl;
+        } else if (LESSON_CONFIG.isCompleted) {
+            window.location.href = LESSON_CONFIG.nextUrl;
+        } else {
+            document.getElementById('complete-form').submit();
+        }
+    }
+
+    function wireFinalButton() {
+        const btn = document.getElementById('continue-btn');
+        btn.addEventListener('click', doFinalAction);
+    }
+});
 </script>
 {% endblock %}

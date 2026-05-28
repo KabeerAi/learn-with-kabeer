@@ -115,6 +115,11 @@ def generate_lesson(
         }
 
     builder_json = lesson_data.get("builder_json", [])
+    
+    # Capture the technical footprint for continuity
+    footprint = lesson_data.get("memory_footprint", "")
+    if footprint:
+        lesson_plan["memory_footprint"] = footprint
 
     # Ensure minimum block count
     if len(builder_json) < MIN_BLOCKS_PER_LESSON:

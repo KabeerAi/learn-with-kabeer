@@ -26,7 +26,9 @@ def chunk_course(course_data: dict, source_file: str = "") -> list[dict]:
     course_info = course_data.get("course", {})
     course_title = course_info.get("title", "Unknown Course")
     difficulty = course_info.get("difficulty_level", "Beginner")
-    chapters = course_info.get("chapters", [])
+    
+    # Support 'chapters' being either inside 'course' or as a sibling to 'course'
+    chapters = course_info.get("chapters") or course_data.get("chapters") or []
 
     all_chunks = []
     global_lesson_order = 0
@@ -38,7 +40,9 @@ def chunk_course(course_data: dict, source_file: str = "") -> list[dict]:
         for lesson in lessons:
             global_lesson_order += 1
             lesson_title = lesson.get("lesson_title", "")
-            components = lesson.get("components", [])
+            
+            # Support both 'components' and 'content' keys for lesson parts
+            components = lesson.get("components") or lesson.get("content") or []
 
             # Chunk the lesson components intelligently
             lesson_chunks = _chunk_lesson_components(
@@ -88,7 +92,7 @@ def _chunk_lesson_components(
 
         for comp in current_group:
             ctype = comp.get("type", "paragraph")
-            ctext = comp.get("content", "")
+            ctext = comp.get("content") or comp.get("value") or ""
             component_types.append(ctype)
 
             if ctype == "heading" and not topic:
@@ -132,7 +136,7 @@ def _chunk_lesson_components(
         if ctype in standalone_types:
             _flush_group()
             # Create standalone chunk
-            ctext = comp.get("content", "")
+            ctext = comp.get("content") or comp.get("value") or ""
             if ctext.strip():
                 chunks.append({
                     "content": ctext,
@@ -181,7 +185,7 @@ def _classify_chunk_type(component_types: list[str]) -> str:
 def _detect_teaching_style(components: list[dict]) -> str:
     """Detect the teaching style used in a group of components."""
     types = [c.get("type", "") for c in components]
-    all_text = " ".join(c.get("content", "") for c in components).lower()
+    all_text = " ".join((c.get("content") or c.get("value") or "") for c in components).lower()
 
     styles = []
 

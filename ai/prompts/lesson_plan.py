@@ -41,7 +41,7 @@ Output valid JSON:
   "lesson_plan": {{
     "title": "{lesson_title}",
     "summary": "One sentence summary of what students will learn",
-    "estimated_blocks": 15,
+    "estimated_blocks": 18,
     "sections": [
       {{
         "heading": "Section heading text",
@@ -58,7 +58,7 @@ Output valid JSON:
 }}
 
 RULES:
-- Plan for 12-20 total blocks (this is a real lesson, not a summary).
+- Plan for 15-25 total blocks (this is a real lesson, not a summary).
 - Follow the pedagogical flow: intuition → explanation → code → deeper → mistakes → practice → recap.
 - Include at least one analogy section and one common-mistake section.
 - The recap section should include a quiz.

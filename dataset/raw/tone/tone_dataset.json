@@ -1,0 +1,319 @@
+[
+  {
+    "topic": "Variables",
+    "lesson_title": "Giving Data a Name",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "Imagine trying to remember 50 different numbers inside your program. That would become chaotic very quickly. Programmers solve this by giving data names.",
+      "concept_intro": "A variable is simply a labeled container for storing information. Instead of remembering the value itself, we remember the label.",
+      "intuition": "Variables work a lot like labeled boxes in real life. You can place something inside the box, replace it later, and use it whenever you need.",
+      "interactive_question": {
+        "question": "If age = 18, what does 'age' represent?",
+        "choices": [
+          "A function",
+          "A variable name",
+          "A loop",
+          "A condition"
+        ],
+        "correct_answer": "A variable name",
+        "explanation": "The variable name is the label that stores the value 18."
+      },
+      "guided_walkthrough": [
+        "Create a variable called score",
+        "Store the value 100 inside it",
+        "Print the variable",
+        "Change the value to 200",
+        "Print it again"
+      ],
+      "micro_challenge": {
+        "question": "Create a variable called city and store your city name inside it.",
+        "answer": "Any valid variable assignment works."
+      },
+      "key_takeaway": "Variables help programs remember and organize information."
+    }
+  },
+  {
+    "topic": "If Statements",
+    "lesson_title": "Teaching Programs to Make Decisions",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "Every day, humans make decisions automatically. If it rains, you take an umbrella. If you are hungry, you eat. Programs can make decisions too.",
+      "concept_intro": "An if statement allows a program to choose what to do based on a condition.",
+      "intuition": "Think of an if statement as a question checker. If the answer is true, the program performs an action.",
+      "interactive_question": {
+        "question": "What happens if the condition inside an if statement is false?",
+        "choices": [
+          "The program crashes",
+          "The code inside the if block is skipped",
+          "The loop repeats",
+          "The variable disappears"
+        ],
+        "correct_answer": "The code inside the if block is skipped",
+        "explanation": "The program only runs the block when the condition is true."
+      },
+      "guided_walkthrough": [
+        "Check if age >= 18",
+        "If true, print 'You can vote'",
+        "Otherwise, skip the message"
+      ],
+      "micro_challenge": {
+        "question": "Write a condition that checks if temperature is greater than 30.",
+        "answer": "temperature > 30"
+      },
+      "key_takeaway": "If statements allow programs to react differently based on situations."
+    }
+  },
+  {
+    "topic": "Loops",
+    "lesson_title": "Making Computers Repeat Work",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "Imagine manually printing the same message 1,000 times. Humans would hate that task. Computers are perfect for repetition.",
+      "concept_intro": "Loops allow programs to repeat instructions automatically.",
+      "intuition": "A loop is like telling the computer: 'Keep doing this until I tell you to stop.'",
+      "interactive_question": {
+        "question": "Which problem are loops best at solving?",
+        "choices": [
+          "Repeating tasks",
+          "Changing monitor brightness",
+          "Installing hardware",
+          "Drawing on paper"
+        ],
+        "correct_answer": "Repeating tasks",
+        "explanation": "Loops are specifically designed for repeated operations."
+      },
+      "guided_walkthrough": [
+        "Start a counter at 1",
+        "Print the number",
+        "Increase the counter",
+        "Repeat until reaching 5"
+      ],
+      "micro_challenge": {
+        "question": "What numbers would this loop print from 1 to 3?",
+        "answer": "1, 2, 3"
+      },
+      "key_takeaway": "Loops save time by automating repetition."
+    }
+  },
+  {
+    "topic": "Functions",
+    "lesson_title": "Creating Reusable Instructions",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "Imagine rewriting the same recipe every single time you cook. That would be wasteful. Functions solve a similar problem in programming.",
+      "concept_intro": "A function groups reusable instructions together under a single name.",
+      "intuition": "Functions are like custom tools. Once created, you can use them again and again.",
+      "interactive_question": {
+        "question": "Why are functions useful?",
+        "choices": [
+          "They reduce repeated code",
+          "They make the monitor larger",
+          "They increase internet speed",
+          "They remove variables"
+        ],
+        "correct_answer": "They reduce repeated code",
+        "explanation": "Functions help organize and reuse logic efficiently."
+      },
+      "guided_walkthrough": [
+        "Create a function called greet",
+        "Print a welcome message inside it",
+        "Call the function multiple times"
+      ],
+      "micro_challenge": {
+        "question": "Create a function named sayHello.",
+        "answer": "Any valid function definition works."
+      },
+      "key_takeaway": "Functions make code reusable and easier to manage."
+    }
+  },
+  {
+    "topic": "Arrays",
+    "lesson_title": "Storing Many Values Together",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "What if you needed to store the scores of 100 students? Creating 100 separate variables would be messy.",
+      "concept_intro": "Arrays store multiple values inside a single structure.",
+      "intuition": "An array is like a row of lockers. Each locker has a position where data can be stored.",
+      "interactive_question": {
+        "question": "Why are arrays useful?",
+        "choices": [
+          "They group related values together",
+          "They turn off the computer",
+          "They create internet connections",
+          "They replace loops"
+        ],
+        "correct_answer": "They group related values together",
+        "explanation": "Arrays organize collections of similar data efficiently."
+      },
+      "guided_walkthrough": [
+        "Create an array of numbers",
+        "Access the first value",
+        "Change one value",
+        "Print the updated array"
+      ],
+      "micro_challenge": {
+        "question": "Create an array containing three fruits.",
+        "answer": "Any valid array works."
+      },
+      "key_takeaway": "Arrays help programs manage collections of data cleanly."
+    }
+  },
+  {
+    "topic": "Objects",
+    "lesson_title": "Modeling Real-World Things",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "A real student has a name, age, and grade. Programs often need to group related information together too.",
+      "concept_intro": "Objects store related properties inside one structure.",
+      "intuition": "Objects are like digital versions of real-world things with characteristics attached to them.",
+      "interactive_question": {
+        "question": "Which data fits best inside an object?",
+        "choices": [
+          "A student's name, age, and marks",
+          "Only one number",
+          "A single character",
+          "Nothing"
+        ],
+        "correct_answer": "A student's name, age, and marks",
+        "explanation": "Objects are perfect for grouping related information."
+      },
+      "guided_walkthrough": [
+        "Create a student object",
+        "Add a name property",
+        "Add an age property",
+        "Print the object"
+      ],
+      "micro_challenge": {
+        "question": "Create an object representing a car.",
+        "answer": "Any valid object structure works."
+      },
+      "key_takeaway": "Objects help programs represent real-world entities."
+    }
+  },
+  {
+    "topic": "Recursion",
+    "lesson_title": "When Functions Call Themselves",
+    "difficulty": "Intermediate",
+    "lesson": {
+      "hook": "Imagine standing between two mirrors and seeing reflections inside reflections forever. Recursion works similarly.",
+      "concept_intro": "Recursion happens when a function calls itself to solve smaller versions of a problem.",
+      "intuition": "Instead of solving the whole problem at once, recursion keeps shrinking the problem until it becomes simple.",
+      "interactive_question": {
+        "question": "Why does recursion need a stopping condition?",
+        "choices": [
+          "To avoid infinite calls",
+          "To increase internet speed",
+          "To create variables",
+          "To install programs"
+        ],
+        "correct_answer": "To avoid infinite calls",
+        "explanation": "Without a base case, recursion would continue forever."
+      },
+      "guided_walkthrough": [
+        "Start with factorial(3)",
+        "Call factorial(2)",
+        "Call factorial(1)",
+        "Return back upward"
+      ],
+      "micro_challenge": {
+        "question": "What is the base case in factorial recursion?",
+        "answer": "When n equals 1 or 0."
+      },
+      "key_takeaway": "Recursion solves big problems by repeatedly solving smaller ones."
+    }
+  },
+  {
+    "topic": "Time Complexity",
+    "lesson_title": "Measuring How Fast Algorithms Scale",
+    "difficulty": "Intermediate",
+    "lesson": {
+      "hook": "Two programs may both work correctly, but one could take 1 second while another takes 10 hours.",
+      "concept_intro": "Time complexity measures how an algorithm grows as input size increases.",
+      "intuition": "It is less about exact speed and more about how performance changes at scale.",
+      "interactive_question": {
+        "question": "Which algorithm scales better for huge datasets?",
+        "choices": [
+          "O(log n)",
+          "O(n^2)",
+          "O(2^n)",
+          "O(n!)"
+        ],
+        "correct_answer": "O(log n)",
+        "explanation": "Logarithmic growth increases very slowly, making it highly efficient."
+      },
+      "guided_walkthrough": [
+        "Compare linear search with binary search",
+        "Observe how operations grow",
+        "See why logarithmic growth is powerful"
+      ],
+      "micro_challenge": {
+        "question": "What is the complexity of checking every pair in a list?",
+        "answer": "O(n^2)"
+      },
+      "key_takeaway": "Efficient algorithms matter most when datasets become large."
+    }
+  },
+  {
+    "topic": "SQL Basics",
+    "lesson_title": "Talking to Databases",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "Apps like Instagram and YouTube constantly store and retrieve massive amounts of data. Databases make that possible.",
+      "concept_intro": "SQL is a language used to communicate with databases.",
+      "intuition": "You can think of SQL as asking questions to a giant organized spreadsheet.",
+      "interactive_question": {
+        "question": "Which SQL command retrieves data?",
+        "choices": [
+          "SELECT",
+          "DELETE",
+          "DROP",
+          "UPDATE"
+        ],
+        "correct_answer": "SELECT",
+        "explanation": "SELECT is used to fetch information from tables."
+      },
+      "guided_walkthrough": [
+        "Connect to a table",
+        "Select all rows",
+        "Filter rows using WHERE"
+      ],
+      "micro_challenge": {
+        "question": "Write a query to select all users.",
+        "answer": "SELECT * FROM users"
+      },
+      "key_takeaway": "SQL helps applications store and retrieve structured data efficiently."
+    }
+  },
+  {
+    "topic": "APIs",
+    "lesson_title": "How Apps Talk to Each Other",
+    "difficulty": "Beginner",
+    "lesson": {
+      "hook": "When a weather app shows today's forecast, it usually gets the data from another service through an API.",
+      "concept_intro": "An API allows different software systems to communicate.",
+      "intuition": "An API works like a waiter in a restaurant. You request something, and the waiter brings back the result.",
+      "interactive_question": {
+        "question": "What is the main purpose of an API?",
+        "choices": [
+          "Communication between systems",
+          "Drawing graphics",
+          "Building hardware",
+          "Formatting keyboards"
+        ],
+        "correct_answer": "Communication between systems",
+        "explanation": "APIs help software exchange information and functionality."
+      },
+      "guided_walkthrough": [
+        "Send a request",
+        "The server processes it",
+        "Receive a response",
+        "Display the data"
+      ],
+      "micro_challenge": {
+        "question": "What usually comes back from an API request?",
+        "answer": "A response containing data."
+      },
+      "key_takeaway": "APIs let applications share data and services with each other."
+    }
+  }
+]

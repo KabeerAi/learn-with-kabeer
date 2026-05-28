@@ -1,0 +1,1559 @@
+{
+    "course": {
+        "title": "Java for Beginners: The Ultimate Masterclass",
+        "description": "Learn Java from scratch and master object-oriented programming. This complete course takes you from the absolute basics of Java syntax and environment setup to writing complex programs, utilizing data structures, and building multi-threaded applications through highly interactive, hands-on projects.",
+        "difficulty_level": "Beginner",
+        "learning_outcomes": [
+            "Set up a complete Java development environment including the JDK and a modern IDE",
+            "Understand core programming concepts like variables, data types, and control flow",
+            "Master Object-Oriented Programming (OOP) principles such as classes, inheritance, and polymorphism",
+            "Utilize powerful Java data structures like Arrays, ArrayLists, and HashMaps",
+            "Build real-world applications including a fully functioning multi-threaded alarm clock"
+        ]
+    },
+    "chapters": [
+        {
+            "chapter_id": 1,
+            "chapter_title": "Getting Started with Java",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction & Environment Setup",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Welcome to Java"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Welcome to the world of Java! In this course, you are going to learn everything you need to know to start coding with one of the most powerful and widely-used programming languages in the world. We will be building numerous hands-on projects together, culminating in a fully functioning alarm clock that plays music of your choice. If you have never coded anything in your life, don't worry—we are going to start from the absolute beginning."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Tools You Need"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To start coding with Java, you will need two primary tools installed on your computer: a JDK and an IDE."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "First, you need a Java Development Kit, commonly known as a JDK.  A JDK contains a crucial tool called a compiler. Computers do not understand human-readable Java code. The compiler translates your written source code into 'bytecode', which the computer machine can actually run and understand."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Second, you will need an Integrated Development Environment (IDE). An IDE is a fancy term for a digital workspace where we write our code. While you technically could write code in a basic text editor like Notepad, an IDE provides auto-completion, error checking, and project management tools that make programming significantly easier."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Downloading the JDK"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We will get started by downloading the JDK. You can easily do a web search for 'JDK download'. We will use the official distribution by Oracle. Download the latest JDK version available for your specific operating system (e.g., the 64-bit installer for Windows). Run the installer and follow the default setup prompts. Once finished, your computer will officially have the ability to compile Java code!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that writing Java requires a JDK to compile human code into machine bytecode, and an IDE to serve as our professional coding workspace."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Your First Java Program",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Main Method"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "With your IDE open and a new Java project created, you will usually be greeted with a file called `Main.java`. Inside this file, you will write your very first lines of code."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Every Java program requires a starting point, essentially a front door where the execution begins. In Java, this front door is called the `main` method."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    public static void main(String[] args) {\n        // Your code goes here\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Don't worry about memorizing what `public`, `static`, `void`, or `String[] args` mean right now. We will cover all of these advanced keywords later in the course. For now, just know that any code you want to run immediately must be placed between the curly braces `{}` of the main method."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Printing to the Console"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Let's make our program actually do something. The most basic action in programming is printing a message to the console window. We do this using the `System.out.println()` command."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\");\n        System.out.println(\"I am learning Java!\");\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Notice that the text we want to print is wrapped inside double quotes `\"\"`. This tells Java that the text is a literal string of characters, not a command. Also, note that every statement in Java MUST end with a semicolon `;`. If you forget the semicolon, your IDE will highlight it as an error and the program will not run."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Hit the 'Run' button in your IDE. In the output console at the bottom of your screen, you should see your two messages printed on separate lines. Congratulations, you are officially a Java programmer!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We wrote our first Java application, utilizing the essential `main` method as our starting point and the `System.out.println()` command to display text output."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Code Comments & Readability",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Leaving Notes in Your Code"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you write software, you aren't just writing instructions for the computer; you are also writing instructions for other humans (or for yourself 6 months in the future) who have to read and maintain the code. To help explain what our code does, we use Comments."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A comment is a line of text in your file that the Java compiler completely ignores. It is for human eyes only."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Single-Line and Multi-Line Comments"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To create a single-line comment, you place two forward slashes `//` at the beginning of the line. Anything written after those slashes on that specific line will be ignored by the computer."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// This is a single-line comment. It explains the code below.\nSystem.out.println(\"Hello World\");"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you need to write a very long explanation that spans multiple paragraphs, using `//` on every single line gets tedious. Instead, you can use a multi-line comment block. You start it with `/*` and end it with `*/`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "/* \nThis is a multi-line comment.\nYou can write as much text as you want here.\nJava will ignore all of it until it sees the closing star-slash.\n*/\nSystem.out.println(\"Java is awesome\");"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Pro Tip: Good developers do not use comments to explain *what* the code is doing (the code itself should be clean enough to show that). Instead, use comments to explain *why* you chose to write the code a certain way."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned to document our software using single-line `//` and multi-line `/* */` comments, ensuring our logic is clear and maintainable for future developers."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 2,
+            "chapter_title": "Variables & Data Types",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Variables & Primitive Data Types",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Storing Data in Memory"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To write a useful program, we need a way to store data temporarily in our computer's memory. We do this using Variables. "
+                        },
+                        {
+                            "type": "analogy",
+                            "value": "Think of a variable as a labeled storage box. You write a label on the outside of the box (the variable name), and you put something inside the box (the value). Whenever you need that value later, you just ask the computer to open the box with that specific label."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "However, Java is a 'statically typed' language. This means you cannot just put anything into any box. You must explicitly declare the *type* of data the box is allowed to hold before you put anything in it."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Core Primitive Types"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Java has 8 primitive data types, but you will spend 90% of your time using these fundamental four:"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int age = 25;          // int stores whole numbers\ndouble price = 19.99;  // double stores decimal numbers\nboolean isOnline = true; // boolean stores true or false\nchar grade = 'A';      // char stores a single character using single quotes"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Notice the syntax: We define the 'type' (int), then the 'name' (age), followed by an equals sign '=' (the assignment operator), and finally the 'value' (25). Always remember to cap off your statement with a semicolon!"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Once you have created and assigned a variable, you can easily print its contents to the console by passing the variable name into your print statement."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "System.out.println(\"My age is: \" + age);"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that variables are strictly-typed storage containers, and we mastered declaring and assigning the four most common primitive data types: int, double, boolean, and char."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Reference Data Types (Strings)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Words and Sentences"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Primitive data types are great for single numbers or single characters, but what if you want to store a person's full name, a password, or a whole sentence? For this, we use the `String` data type."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "String name = \"John Doe\";\nSystem.out.println(name);"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Notice that the 'S' in String is capitalized! In Java, primitive types (like int and double) start with a lowercase letter, while Reference data types (like String) always start with an uppercase letter."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Primitives vs. References"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Why the capitalization difference? Because Strings are not primitive. Primitive types simply store a raw value in memory. Reference types, however, store a memory address pointing to a complex Object."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Because Reference types point to Objects, they come packed with built-in tools called 'methods'. Primitives do not have these tools. Let's look at what we can do with our String."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "String name = \"John Doe\";\n\n// We access String methods by typing the variable name followed by a dot (.)\nSystem.out.println(name.toUpperCase()); // Prints: JOHN DOE\nSystem.out.println(name.length());      // Prints: 8"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We discovered the `String` reference type for storing text enclosed in double quotes, and learned that reference types (capitalized) give us access to powerful built-in methods that manipulate our data."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Variable Scope (Local vs. Class Scope)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Where Does a Variable Live?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you create a variable, it doesn't just exist everywhere in your file. It has a specific lifespan and boundary, officially known as its 'Scope'. If you try to use a variable outside of its scope, Java will throw an error and refuse to compile."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Scope is dictated by curly braces `{}`. Any variable declared inside a set of curly braces is completely trapped inside them."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Local Variables"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A 'Local Variable' is a variable declared directly inside a method (like our `main` method). It can only be seen and used by the code inside that exact method."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    public static void main(String[] args) {\n        // 'age' is a local variable. It is trapped inside the main method.\n        int age = 30; \n        System.out.println(age);\n    }\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Class (Global) Variables"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if you have multiple methods in your file and you want them all to share the exact same variable? You must move the variable outside of the methods, and declare it directly inside the Class itself."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    // This is a Class variable. Everyone inside the class can see it.\n    static int globalScore = 100;\n\n    public static void main(String[] args) {\n        System.out.println(globalScore);\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Why did we add the word `static`? We will dive deep into static variables later when we cover Object-Oriented Programming. For now, just know that if you want to use a class variable inside the `static void main` method, the variable must also be declared as `static`."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that curly braces `{}` define the boundary (scope) of our variables, and explored the difference between confined Local variables and widely accessible Class variables."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 3,
+            "chapter_title": "Input, Math & Basic Operations",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Accepting User Input with the Scanner Class",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Making Programs Interactive"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Our programs so far have been static. They just print out the exact variables we hard-coded into them. To make a program truly useful, we need to allow the user to interact with it by typing in their own data. In Java, we do this using the `Scanner` class."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The `Scanner` is a built-in tool that reads text from the console. However, it does not load automatically. We have to explicitly 'import' it into our file before we can use it."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Create a new Scanner object that listens to the System input\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.println(\"What is your name?\");\n        String name = scanner.nextLine();\n\n        System.out.println(\"Hello, \" + name + \"!\");\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Let's break this down: `import java.util.Scanner;` tells Java to go fetch the Scanner tool from its massive standard library. Inside our method, `new Scanner(System.in)` creates the tool and points it at our keyboard. Finally, `scanner.nextLine()` actually pauses the program and waits for the user to type something and hit Enter."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We imported the `Scanner` class and utilized its `nextLine()` method to capture keyboard input, allowing us to build dynamic, interactive programs."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Clearing the Input Buffer",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Infamous Scanner Bug"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The Scanner class is incredibly powerful, but it has a notorious quirk that trips up almost every single beginner. Let's say we want to ask for a user's age (a number) and then ask for their favorite color (text)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "System.out.println(\"What is your age?\");\nint age = scanner.nextInt();\n\nSystem.out.println(\"What is your favorite color?\");\nString color = scanner.nextLine();\n\nSystem.out.println(\"You are \" + age + \" and you like \" + color);"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you run this code, it will ask for your age, you will type '25' and hit Enter. But then, the program will instantly skip the favorite color question and crash or print a blank space! Why does this happen?"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "When you type '25' and hit Enter, you are actually sending two things to the computer: the number 25, and a hidden 'newline' character (\\n) generated by the Enter key. `nextInt()` grabs the 25 but leaves the newline sitting in the buffer. When `nextLine()` runs immediately after, it sees that leftover newline, thinks you instantly hit Enter again, and moves on."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Solution"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To fix this, we must manually 'clear the buffer' anytime we use `nextLine()` directly after a number input like `nextInt()` or `nextDouble()`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "System.out.println(\"What is your age?\");\nint age = scanner.nextInt();\n\nscanner.nextLine(); // CLEAR THE BUFFER!\n\nSystem.out.println(\"What is your favorite color?\");\nString color = scanner.nextLine();"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We identified a major logical trap when mixing number inputs and text inputs, and resolved it by firing a blank `scanner.nextLine()` to flush out the hidden newline character."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Project: Calculating the Area of a Rectangle",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Building Our First App"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Let's put everything we have learned so far into a practical project. We are going to build a simple calculator that asks a user for the width and height of a rectangle, and dynamically calculates the area."
+                        },
+                        {
+                            "type": "exercise",
+                            "question": "Your Task: Create a Scanner. Prompt the user for a width (double). Prompt the user for a height (double). Multiply them together to find the area, and print the final result beautifully to the console.",
+                            "hint": "Remember that you need to use `scanner.nextDouble()` to capture decimal numbers. You do NOT need to clear the buffer in this project because you are only asking for numbers, not switching back to text!"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Walkthrough Solution"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class AreaCalculator {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.print(\"Enter the width: \");\n        double width = scanner.nextDouble();\n\n        System.out.print(\"Enter the height: \");\n        double height = scanner.nextDouble();\n\n        double area = width * height;\n        System.out.println(\"The total area is: \" + area);\n\n        scanner.close();\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Notice that we added `scanner.close();` at the very end. When you are completely done taking inputs in your program, it is a great practice to close your scanner to free up your computer's memory resources."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We successfully combined variables, primitive data types, mathematical multiplication, and the Scanner class to build a practical geometric calculator."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Project: Mad Libs Game",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "String Concatenation"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Now let's build something fun. We are going to recreate the classic 'Mad Libs' game. The program will ask the user for a series of random words (adjectives, nouns, verbs), and then seamlessly stitch them together to form a hilarious, randomized story."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To do this, we use a process called 'String Concatenation'. This is a fancy term for gluing text together using the plus symbol `+`."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class MadLibs {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.print(\"Enter an adjective: \");\n        String adj1 = scanner.nextLine();\n\n        System.out.print(\"Enter a noun: \");\n        String noun1 = scanner.nextLine();\n\n        System.out.println(\"The \" + adj1 + \" \" + noun1 + \" walked down the street.\");\n        \n        scanner.close();\n    }\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Spacing is critical when concatenating strings. If you type `\"The\" + adj1 + noun1`, and the user types 'blue' and 'dog', Java will print 'Thebluedog'. You must manually add empty spaces wrapped in quotes `\" \"` to ensure the sentence is formatted correctly!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized String concatenation to dynamically inject user-provided text variables into pre-written string templates to construct a dynamic word game."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "Arithmetic Operators & Order of Operations",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Math in Java"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We have already seen multiplication in our Area Calculator project. Java supports all standard arithmetic operators: addition `+`, subtraction `-`, multiplication `*`, and division `/`."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "However, there is a special operator you might not be familiar with: the Modulus operator `%`. The Modulus operator performs division but instead of returning the result, it returns the exact *remainder* of the division."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int result = 10 % 3; \n// 10 divided by 3 is 9, with 1 left over.\nSystem.out.println(result); // This will print 1"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Why is Modulus useful? It is the perfect tool for determining if a number is Even or Odd. If `anyNumber % 2` equals 0, the number is guaranteed to be perfectly even."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Order of Operations"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Just like standard mathematics, Java rigorously follows the order of operations (PEMDAS/BODMAS). Parentheses are calculated first, followed by multiplication/division/modulus, and finally addition/subtraction."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int math1 = 10 + 3 * 2;     // Evaluates to 16 (Multiplication happens first)\nint math2 = (10 + 3) * 2;   // Evaluates to 26 (Parentheses force addition first)"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We explored the core arithmetic operators, learned the powerful Modulus `%` operator for fetching division remainders, and reinforced the mathematical order of operations inside Java."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 4,
+            "chapter_title": "Control Flow & Loops",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Conditional Logic (If/Else Statements)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Making Decisions in Code"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Up until now, our code has executed in a straight, predictable line from top to bottom. But real-world applications need to make decisions. If a user enters the correct password, log them in. If they enter the wrong password, show an error. To build this branching logic, we use 'If statements'."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "An `if` statement checks a specific boolean condition. If that condition evaluates to `true`, Java will execute the block of code inside its curly braces. If it is `false`, Java completely skips that block."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int age = 18;\n\nif (age >= 18) {\n    System.out.println(\"You are an adult!\");\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Handling the False Case (Else)"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if the condition is false and we want to do something else instead of just skipping? We attach an `else` block directly to the end of the `if` block."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int age = 15;\n\nif (age >= 18) {\n    System.out.println(\"You are an adult!\");\n} else {\n    System.out.println(\"You are not old enough.\");\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Chaining Conditions (Else If)"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Sometimes you have more than two possible outcomes. You can chain as many conditions as you want using `else if`. Java will evaluate them from top to bottom and stop at the very first one that is true."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int testScore = 85;\n\nif (testScore >= 90) {\n    System.out.println(\"You got an A!\");\n} else if (testScore >= 80) {\n    System.out.println(\"You got a B!\");\n} else {\n    System.out.println(\"You need to study more.\");\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to break out of straight-line execution by using conditional logic (`if`, `else if`, and `else`) to build dynamic, branching decision paths in our code."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Project: Weight Conversion Program",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Building a Conditional App"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Let's put our new conditional logic skills to the test. We are going to build a Weight Conversion program. The program will ask the user for their weight, and then ask if that weight is in Pounds (lbs) or Kilograms (kg). Based on their text response, our program will use an `if/else` statement to mathematically convert their weight into the opposite metric."
+                        },
+                        {
+                            "type": "exercise",
+                            "question": "Your Task: Create a Scanner. Prompt for a weight (double) and a unit choice (String). If the choice is \"lbs\", multiply the weight by 0.453592 to get kg. If the choice is \"kg\", multiply by 2.20462 to get lbs. Print the final converted weight.",
+                            "hint": "Remember to clear the Scanner buffer after reading the `double` weight before asking for the `String` choice! Also, to check if a String is equal to another String in Java, you DO NOT use `==`. You must use the `.equals()` method (e.g., `choice.equals(\"lbs\")`)."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Walkthrough Solution"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class WeightConverter {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.print(\"Enter your weight: \");\n        double weight = scanner.nextDouble();\n        scanner.nextLine(); // Clear the buffer!\n\n        System.out.print(\"Is this in (lbs) or (kg)? \");\n        String unit = scanner.nextLine();\n\n        if (unit.equals(\"lbs\")) {\n            double newWeight = weight * 0.453592;\n            System.out.println(\"Your weight in kg is: \" + newWeight);\n        } else if (unit.equals(\"kg\")) {\n            double newWeight = weight * 2.20462;\n            System.out.println(\"Your weight in lbs is: \" + newWeight);\n        } else {\n            System.out.println(\"Invalid unit entered.\");\n        }\n\n        scanner.close();\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We successfully combined our knowledge of user input, arithmetic operations, and conditional branching to build a robust, error-handling utility application."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Iteration with For Loops & While Loops",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Doing Things Repeatedly"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if you need to print \"Hello\" 100 times? You definitely shouldn't copy and paste `System.out.println()` 100 times. That violates the DRY (Don't Repeat Yourself) principle. Instead, we use Loops. A loop executes a block of code continuously until a specific condition tells it to stop."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The While Loop"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A `while` loop is basically an `if` statement that repeats itself. As long as the condition inside the parentheses remains `true`, the loop will run again and again."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "int count = 1;\n\nwhile (count <= 5) {\n    System.out.println(\"Count is: \" + count);\n    count++; // The ++ operator adds 1 to the variable\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "Infinite Loops: Notice that we put `count++` at the bottom of our loop. If you forget to increment the counter, `count` will always be 1. The condition `count <= 5` will forever be true, and your program will loop infinitely until your computer runs out of memory and crashes."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The For Loop"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Because forgetting to increment your counter is such a common bug, developers created the `for` loop. A `for` loop packs the counter variable, the condition, and the incrementer all into one single, safe line of code."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// for (initialization; condition; update) \nfor (int i = 1; i <= 5; i++) {\n    System.out.println(\"Count is: \" + i);\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "When should you use which? If you know exactly how many times you want to loop (like looping exactly 10 times), use a `for` loop. If you don't know how many times it will run (like waiting for a user to finally type 'quit'), use a `while` loop."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered iteration by using `while` loops for continuous conditional looping and `for` loops for precisely structured, counted repetitions."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Loop Control (Break and Continue)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Taking Control of Iterations"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Sometimes you need to suddenly stop a loop before its condition becomes false, or you want to skip a specific cycle of the loop based on a trigger. We can manipulate active loops using the `break` and `continue` keywords."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Break Statement"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The `break` keyword instantly shatters the loop. The moment Java reads `break;`, it aborts the entire loop entirely and moves on to the rest of your program."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "for (int i = 1; i <= 10; i++) {\n    if (i == 4) {\n        break; // If i is 4, completely stop the loop forever\n    }\n    System.out.println(i);\n}\n// Output will only be 1, 2, 3."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Continue Statement"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The `continue` keyword is a bit gentler. It doesn't destroy the loop; it simply aborts the *current* iteration. When Java reads `continue;`, it skips any code below it and immediately jumps back up to the top to start the next cycle."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "for (int i = 1; i <= 5; i++) {\n    if (i == 3) {\n        continue; // Skip the rest of the code for this specific cycle\n    }\n    System.out.println(i);\n}\n// Output will be 1, 2, 4, 5. Notice 3 is skipped!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized `break` to forcefully terminate active loops entirely, and `continue` to gracefully skip specific iterations without disrupting the entire looping process."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "Nested Loops",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Loops Inside of Loops"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A loop is just a block of code, which means you can easily place another loop directly inside of it. This is called a Nested Loop. Nested loops are incredibly useful when you need to process two-dimensional data, like generating a grid of coordinates or building a spreadsheet."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Let's build a program that prints out a digital clock showing hours and minutes."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "for (int hour = 1; hour <= 3; hour++) {          // The Outer Loop\n    for (int min = 0; min < 60; min += 15) {     // The Inner Loop\n        System.out.println(hour + \":\" + min);\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "How does this execute? The outer loop starts at hour 1. It dives inside and hits the inner loop. The inner loop must completely finish all of its cycles (0, 15, 30, 45) before the outer loop is allowed to move on to hour 2. Therefore, an outer loop running 3 times with an inner loop running 4 times will result in exactly 12 total print statements."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We implemented Nested Loops to handle multi-dimensional iteration, understanding that inner loops must complete their entire lifecycle for every single tick of the outer loop."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 6,
+                    "lesson_title": "Project: Countdown Timer",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Building a Digital Timer"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "It is time to combine iteration with real-world timing. We are going to build a countdown timer that asks the user for a number of seconds, and then counts down to zero, printing each second to the screen. To make it behave like a real clock, we will use a special command to pause Java for 1 second between each loop."
+                        },
+                        {
+                            "type": "exercise",
+                            "question": "Your Task: Prompt the user for a starting number. Write a `for` loop that counts backward from that number down to 1. Inside the loop, print the number, and then use `Thread.sleep(1000);` to pause the program for 1000 milliseconds (1 second). When the loop finishes, print \"Happy New Year!\".",
+                            "hint": "In a backward `for` loop, your update statement should use subtraction (`i--`) instead of addition (`i++`). Note: When using `Thread.sleep()`, Java requires you to handle potential interruption errors. You must wrap your sleep command inside a try-catch block like this: \n`try { Thread.sleep(1000); } catch (InterruptedException e) { }`"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Walkthrough Solution"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class CountdownTimer {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.print(\"Enter starting seconds: \");\n        int start = scanner.nextInt();\n\n        for (int i = start; i > 0; i--) {\n            System.out.println(i);\n            try {\n                Thread.sleep(1000); // Pause for 1 second\n            } catch (InterruptedException e) {\n                System.out.println(\"Timer was interrupted!\");\n            }\n        }\n\n        System.out.println(\"Happy New Year!\");\n        scanner.close();\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We effectively manipulated a `for` loop to iterate backward, and integrated system thread pausing to successfully simulate a real-world countdown timer application."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 5,
+            "chapter_title": "Methods & Modularity",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Creating and Calling Methods",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Breaking Code into Reusable Blocks"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "As your programs grow larger, placing all your code inside the `main` method becomes unmanageable. You will end up with thousands of lines of code, making it impossible to read or debug. To solve this, we use Methods."
+                        },
+                        {
+                            "type": "analogy",
+                            "value": "Think of a method like a recipe in a cookbook. You write down the steps to bake a cake once. Whenever you need a cake, you don't rewrite the instructions; you just call the recipe by its name: 'Bake Cake'. A method allows you to group a block of code, name it, and execute it as many times as you want."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Let's create our own method outside of the `main` method. We will create a simple method that prints a greeting."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    public static void main(String[] args) {\n        // To execute the method, we 'call' it by its name\n        greetUser(); \n    }\n\n    // This is our custom method\n    static void greetUser() {\n        System.out.println(\"Hello there!\");\n        System.out.println(\"Welcome to the program.\");\n    }\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Passing Parameters and Returning Values"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Methods become truly powerful when you pass data into them. We do this by defining 'Parameters' inside the parentheses."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "static void greetUser(String name) {\n    System.out.println(\"Hello, \" + name + \"!\");\n}\n\n// We call it like this: greetUser(\"Alice\");"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "What does the word `void` mean? It means the method performs an action but does NOT send any data back to you. If you want a method to calculate something and hand the result back, you must replace `void` with a data type (like `int` or `double`) and use the `return` keyword."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to encapsulate logic into named methods to keep our code modular, and explored how to pass specific variables into those methods using parameters."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Overloaded Methods & Signatures",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Sharing the Same Name"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In Java, you cannot have two identical methods in the same class. However, you CAN have multiple methods with the exact same name, as long as their parameters are different. This feature is called 'Method Overloading'."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Imagine we are building a pizza ordering system. Sometimes a user orders a default pizza, and sometimes they order a pizza with a specific topping."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "static void orderPizza() {\n    System.out.println(\"Ordering a plain cheese pizza.\");\n}\n\nstatic void orderPizza(String topping) {\n    System.out.println(\"Ordering a \" + topping + \" pizza.\");\n}\n\nstatic void orderPizza(String topping, int quantity) {\n    System.out.println(\"Ordering \" + quantity + \" \" + topping + \" pizzas.\");\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you call `orderPizza(\"Pepperoni\")`, Java is smart enough to look at the 'Method Signature'. The signature consists of the method's name and the exact types of parameters you passed in. Java automatically routes your request to the second method."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized Method Overloading to create flexible, highly readable code by allowing multiple methods to share a name while accepting different sets of parameters."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Flexible Parameters with Variable Arguments (Varargs)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Handling an Unknown Number of Inputs"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if you want to write an `add` method that can add two numbers together, but also three numbers, or four numbers, or a hundred numbers? Writing 100 overloaded methods would be a nightmare."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Java gives us a special syntax called Variable Arguments, or 'Varargs'. By placing three dots `...` after the data type, you tell Java that this method can accept any number of arguments."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "static int add(int... numbers) {\n    int sum = 0;\n    for (int num : numbers) {\n        sum += num;\n    }\n    return sum;\n}\n\npublic static void main(String[] args) {\n    System.out.println(add(5, 10));          // Returns 15\n    System.out.println(add(1, 2, 3, 4, 5));  // Returns 15\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "The Varargs Rule: You can only have ONE varargs parameter per method, and it MUST be the absolute last parameter in the list. For example, `static void printDetails(String name, int... scores)` is legal, but `static void printDetails(int... scores, String name)` will crash."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned how to handle flexible data inputs elegantly by utilizing the Varargs `...` syntax, allowing a single method to accept a dynamic amount of arguments."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 6,
+            "chapter_title": "Data Structures Deep Dive",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Arrays & Enhanced For Loops",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Storing Multiple Values"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " So far, our variables can only hold one value at a time. If we have 5 test scores, we would have to create `score1`, `score2`, `score3`, etc. This is incredibly inefficient. To store a list of related items under a single variable name, we use an Array."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "An array is a strict, fixed-size sequence of elements. You must tell Java exactly what data type the array holds, and exactly how many slots it has."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// Creating an array that can hold exactly 5 integers\nint[] scores = new int[5];\n\n// We access slots using an 'Index', which ALWAYS starts at 0\nscores[0] = 95;\nscores[1] = 88;\nscores[2] = 100;"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "The Enhanced For Loop"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you already know the values you want to put in the array right from the start, you can use a shortcut syntax with curly braces. Furthermore, to read the entire array quickly, Java provides the 'Enhanced For Loop' (also called a for-each loop)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "String[] cars = {\"Mustang\", \"Corvette\", \"Camaro\"};\n\n// \"For every String 'car' inside the 'cars' array, do this:\"\nfor (String car : cars) {\n    System.out.println(car);\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We mastered Arrays, the fundamental structure for storing fixed-size lists of data, and optimized our iteration process using the clean Enhanced For Loop syntax."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Searching Through Arrays",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Finding Data"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Once you have data in an array, you frequently need to search through it to find a specific item. The simplest way to do this is a Linear Search: we start at index 0 and check every single item one by one until we find a match."
+                        },
+                        {
+                            "type": "exercise",
+                            "question": "Your Task: Create an array of integers containing the numbers 10, 20, 30, 40, and 50. Ask the user via Scanner to enter a number to search for. Loop through the array. If the number is found, print 'Target found!'. If the loop finishes and the number was never found, print 'Target not found'.",
+                            "hint": "You will need to use a `boolean` variable (e.g., `boolean found = false;`) before your loop. If you find the target inside your `if` statement, set `found = true` and use the `break` keyword to stop the loop efficiently!"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Walkthrough Solution"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class ArraySearch {\n    public static void main(String[] args) {\n        int[] numbers = {10, 20, 30, 40, 50};\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.print(\"Enter a number to search for: \");\n        int target = scanner.nextInt();\n        boolean found = false;\n\n        for (int num : numbers) {\n            if (num == target) {\n                found = true;\n                break;\n            }\n        }\n\n        if (found) {\n            System.out.println(\"Target found!\");\n        } else {\n            System.out.println(\"Target not found.\");\n        }\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We successfully implemented a Linear Search algorithm, utilizing boolean flags and break statements to efficiently query data inside a fixed array."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Wrapper Classes (Autoboxing)",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Primitives vs. Objects"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We know that primitive data types (like `int`, `double`, `boolean`) are fast and lightweight. But sometimes, Java specifically requires an Object. Advanced data structures (which we will learn next) absolutely refuse to hold primitive data types."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To solve this, Java created 'Wrapper Classes'. A wrapper class takes a primitive value and wraps it inside a full-blown Object. Every primitive has a corresponding Wrapper class (always capitalized)."
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Primitive -> Wrapper Class\nint -> Integer\ndouble -> Double\nchar -> Character\nboolean -> Boolean"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Autoboxing and Unboxing"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Java is smart enough to convert between these automatically. When you assign an `int` to an `Integer`, it is called 'Autoboxing'. When you pull the `int` back out, it is called 'Unboxing'."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// Autoboxing: Java automatically wraps the primitive 5 into an Integer Object\nInteger myNum = 5; \n\n// Because it is now an Object, we get access to useful built-in methods!\nString numAsString = myNum.toString();"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We discovered Wrapper classes, the vital mechanism Java uses to convert lightweight primitives into feature-rich Reference Objects through autoboxing."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Dynamic Sizing with ArrayLists",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Breaking Free from Fixed Sizes"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Standard arrays have a fatal flaw: their size is permanently fixed. If you create an array of 5 slots, you can NEVER add a 6th item. The program will crash. In the real world, you rarely know exactly how much data you will have (like users adding items to a shopping cart)."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To solve this, we use the `ArrayList`. An ArrayList is a dynamic data structure. It automatically shrinks and expands as you add or remove items from it."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.ArrayList;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Notice we use the Wrapper class 'String' inside the angle brackets <>\n        ArrayList<String> food = new ArrayList<String>();\n\n        food.add(\"Pizza\");\n        food.add(\"Hamburger\");\n        food.add(\"Hotdog\");\n\n        food.set(0, \"Sushi\"); // Replaces 'Pizza' with 'Sushi'\n        food.remove(2);       // Removes the Hotdog entirely\n\n        for (String item : food) {\n            System.out.println(item);\n        }\n    }\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "The Golden Rule of Collections: Advanced data structures like ArrayLists CANNOT hold primitives. If you want a dynamic list of numbers, you cannot type `ArrayList<int>`. You MUST use the Wrapper class: `ArrayList<Integer>`."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We unlocked dynamic memory management by migrating from fixed arrays to flexible `ArrayList` objects, utilizing built-in methods to add, set, and remove data on the fly."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "Key-Value Pairs with HashMaps",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Dictionary Data"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Sometimes, a simple list of items isn't enough. What if you want to store a list of countries, and the capital city for each country? You want to be able to type 'Japan' and instantly retrieve 'Tokyo'. For data that exists in 'Key-Value pairs', we use a `HashMap`."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "A HashMap stores two objects per entry: the Key (the lookup word) and the Value (the actual data). Keys must be completely unique."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.HashMap;\n\npublic class Main {\n    public static void main(String[] args) {\n        // HashMap<KeyType, ValueType>\n        HashMap<String, String> countries = new HashMap<String, String>();\n\n        // We add data using the .put() method\n        countries.put(\"USA\", \"Washington DC\");\n        countries.put(\"Japan\", \"Tokyo\");\n        countries.put(\"Russia\", \"Moscow\");\n\n        // We retrieve data using the .get() method and providing the Key\n        System.out.println(countries.get(\"Japan\")); // Prints: Tokyo\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "HashMaps are incredibly fast. If you have an array of 1,000,000 items and you search for an item, Java might have to check all 1,000,000 slots. If you put them in a HashMap, Java can instantly jump straight to the exact location of your Key in memory without looping!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We implemented `HashMap` data structures to map unique Key objects to Value objects, enabling lightning-fast, dictionary-style data retrieval."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 7,
+            "chapter_title": "Object-Oriented Programming (OOP) Basics",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Classes & Objects",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Moving Beyond Primitives"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Up until now, we have built programs using basic primitive types and arrays. But in the real world, software models complex real-world things. If you are building a dealership application, you don't just have random `String` names and `int` speeds floating around; you have 'Cars'. Object-Oriented Programming (OOP) allows us to create our own custom, complex data types."
+                        },
+                        {
+                            "type": "analogy",
+                            "value": "Think of a 'Class' as an architectural blueprint for a house. The blueprint itself is not a physical house; you cannot live in it. It merely defines how the house should be built. An 'Object' is the actual physical house built from that blueprint. You can use one single blueprint (Class) to build an entire neighborhood of 50 physical houses (Objects)."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " Let's create our first class. In a new file, we define the blueprint for a `Car`. It will have 'Attributes' (variables representing its state) and 'Methods' (functions representing its behavior)."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Car {\n    // Attributes\n    String make = \"Ford\";\n    String model = \"Mustang\";\n    int year = 2024;\n\n    // Methods\n    void drive() {\n        System.out.println(\"You drive the car.\");\n    }\n\n    void brake() {\n        System.out.println(\"You step on the brakes.\");\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Now, back in our `Main` method, we can actually build an Object from this blueprint using the `new` keyword."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Main {\n    public static void main(String[] args) {\n        Car myCar = new Car();\n        \n        System.out.println(myCar.make); // Prints: Ford\n        myCar.drive();                  // Prints: You drive the car.\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned the foundational principle of Object-Oriented Programming: a Class is a blueprint that defines attributes and methods, while an Object is a physical instance built from that blueprint."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Initializing Objects with Constructors",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Customizing Your Objects"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In our previous lesson, every single `Car` we created from our blueprint was a 2024 Ford Mustang. That is terrible for a real application. We want to be able to create a Ford Mustang, a Toyota Camry, and a Honda Civic all from the exact same blueprint."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To do this, we use a 'Constructor'. A constructor is a special, hidden method that is called exactly once when an object is first created (instantiated). Its entire job is to set up the object's initial state."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Car {\n    String make;\n    String model;\n\n    // This is the Constructor. It MUST match the exact name of the Class.\n    public Car(String make, String model) {\n        this.make = make;\n        this.model = model;\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "Notice that the constructor does NOT have a return type like `void` or `int`. It simply has the access modifier (`public`) and the exact name of the class."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Now, when we build our objects in the `main` method, we are forced to pass data into the constructor to set them up properly."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "Car car1 = new Car(\"Ford\", \"Mustang\");\nCar car2 = new Car(\"Toyota\", \"Camry\");\n\nSystem.out.println(car2.make); // Safely prints: Toyota"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We utilized Constructors to dynamically inject initial data into our objects the exact moment they are created, allowing us to generate highly customizable instances from a single blueprint."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "The 'this' Keyword",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Resolving the Naming Conflict"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If you looked closely at the constructor in the previous lesson, you saw a very strange line of code: `this.make = make;`. What exactly does this mean?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you have a parameter variable named `make`, and a class attribute also named `make`, Java gets confused. If you just type `make = make;`, Java thinks you are talking to the local parameter variable both times. It never assigns the data to the actual object!"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Pointing to the Object"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "The `this` keyword is a special reference that essentially means 'this specific active object'. By typing `this.make`, you are explicitly telling Java: 'Go to the class attribute belonging to this exact object, and assign it the value from the local parameter'."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class User {\n    String username; // The Object's attribute\n\n    public User(String username) { // The local parameter\n        this.username = username;  // Safe assignment!\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We resolved variable scope shadowing by using the `this` keyword, ensuring that data passed through constructors is permanently anchored to the instance's attributes."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "The 'static' Keyword",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Class Ownership vs. Object Ownership"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Usually, when we create an attribute, every single object gets its own unique copy. If you have 3 `Car` objects, you have 3 completely separate `make` variables in your computer's memory. But what if we want all the cars to share a single variable? What if we want to keep track of the total number of cars we have built?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We do this by using the `static` keyword. When you make a variable `static`, it no longer belongs to the individual objects. It belongs to the Class itself."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Friend {\n    String name;\n    // A single, shared variable for the entire Friend class\n    static int totalFriends = 0;\n\n    public Friend(String name) {\n        this.name = name;\n        totalFriends++; // Every time a new friend is made, increase the master counter\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Because `totalFriends` is static, you do not access it through the object. You access it directly through the Class name."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "Friend friend1 = new Friend(\"Spongebob\");\nFriend friend2 = new Friend(\"Patrick\");\n\nSystem.out.println(Friend.totalFriends); // Prints 2"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "This is exactly why the `main` method is always static! Java needs to be able to run your `main` method to start the program without having to actually create an Object of your Main class first."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that the `static` keyword strips ownership away from individual objects and gives it to the overarching Class, creating globally shared data points."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "The toString() Method",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Printing Objects Cleanly"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What happens if you try to print an entire Object directly to the console? Let's try to print our `Car` object."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "Car myCar = new Car(\"Ford\", \"Mustang\");\nSystem.out.println(myCar);"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "If you run this, you won't see 'Ford Mustang'. Instead, you will see a bizarre string of gibberish, something like `Car@5a07e868`. Why? Because by default, Java prints the physical memory address of where the object lives on your RAM chip!"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Overriding the Default Behavior"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To fix this, we must create a special method inside our `Car` class called `toString()`. When Java tries to print an object, it secretly looks for this exact method. If we define it ourselves, we can tell Java exactly what text we want to output instead of the memory address."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Car {\n    String make;\n    String model;\n\n    public Car(String make, String model) {\n        this.make = make;\n        this.model = model;\n    }\n\n    // We override the default print behavior\n    public String toString() {\n        return this.make + \" \" + this.model;\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Now, running `System.out.println(myCar);` will perfectly print 'Ford Mustang'. This is an incredibly common practice for debugging and logging your software."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We conquered the memory address print issue by implementing a custom `toString()` method, intercepting Java's default behavior to render human-readable object descriptions."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 8,
+            "chapter_title": "Advanced OOP Concepts",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Inheritance & Code Reusability",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The DRY Principle in OOP"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "In software, writing the exact same code twice is a bad practice. Imagine we are building a game with a `Hero` class and an `Enemy` class. Both of these entities have a `health` variable, a `speed` variable, and a `move()` method. Copy-pasting this logic into both classes creates bloat and makes bugs harder to fix."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " To fix this, we use 'Inheritance'. We can create a master parent class called `Entity`, put the shared code in there, and then tell `Hero` and `Enemy` to inherit all that logic for free using the `extends` keyword."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// The Parent Class\npublic class Entity {\n    int health = 100;\n    void move() {\n        System.out.println(\"This entity moves.\");\n    }\n}\n\n// The Child Class\npublic class Hero extends Entity {\n    int level = 1; // Unique to the Hero\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Now, in our main program, a `Hero` object can call `move()` and access `health`, even though we never actually wrote that code inside the `Hero` class file! It magically absorbed it from the parent."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We eliminated code duplication by utilizing Inheritance with the `extends` keyword, allowing Child classes to automatically inherit attributes and methods from a master Parent class."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "The 'super' Keyword",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Constructing Inherited Classes"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Inheritance introduces a new complexity: Constructors. When a Child class has a constructor, it MUST also trigger the Parent class's constructor so the inherited data gets set up properly."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To talk directly to the Parent class from within the Child class, we use the `super` keyword."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Person {\n    String name;\n    public Person(String name) {\n        this.name = name;\n    }\n}\n\npublic class Employee extends Person {\n    double salary;\n\n    public Employee(String name, double salary) {\n        // We send the 'name' variable up to the Parent constructor!\n        super(name);\n        this.salary = salary;\n    }\n}"
+                        },
+                        {
+                            "type": "warning_box",
+                            "value": "The `super()` call must ALWAYS be the absolute first line inside your child constructor. If you try to assign `this.salary` before calling `super()`, Java will throw a compiler error."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We managed the setup of hierarchical classes by utilizing the `super` keyword to pass vital initialization data upwards from a Child constructor to its Parent constructor."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Method Overriding",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Changing the Inherited Behavior"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "What if your Parent class has a method, but the Child class needs to do that exact action slightly differently? For instance, our `Entity` class has a `move()` method, but maybe our `Bird` child class needs to fly instead of walk."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We can 'Override' the method by literally rewriting the method inside the Child class with the exact same name and signature."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class Entity {\n    void move() {\n        System.out.println(\"The entity walks on the ground.\");\n    }\n}\n\npublic class Bird extends Entity {\n    @Override\n    void move() {\n        System.out.println(\"The bird flies through the sky.\");\n    }\n}"
+                        },
+                        {
+                            "type": "info_box",
+                            "value": "What is `@Override`? It is an annotation. It is not strictly required for the code to run, but it is highly recommended. It tells Java (and other developers) that you are intentionally altering a parent method. If you misspell the method name, the `@Override` annotation will trigger an error, saving you from a silent bug!"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We successfully adapted parent behaviors by Method Overriding, completely replacing generalized inherited logic with highly specific child logic."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 4,
+                    "lesson_title": "Abstraction & Hiding Details",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Preventing Direct Instantiation"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Sometimes a parent class is so general that it shouldn't actually exist as a physical object. You might have an `Animal` parent class, and `Dog` and `Cat` child classes. It makes sense to create a `new Dog()`, but it doesn't make sense to create a `new Animal()`. What does a generic animal even look like?"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To prevent other developers from directly building generic parent objects, we use the `abstract` keyword on the Class."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public abstract class Animal {\n    // You can also have abstract methods!\n    // These force all children to create their own version of the method.\n    public abstract void speak();\n}\n\npublic class Dog extends Animal {\n    @Override\n    public void speak() {\n        System.out.println(\"Bark!\");\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "If someone types `Animal myAnimal = new Animal();`, Java will instantly block it and throw an error because the class is abstract. They are forced to instantiate a concrete child class like `Dog`."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We enforced strict architectural design by declaring base classes and methods as `abstract`, locking down generic blueprints and forcing concrete implementations in child classes."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 5,
+                    "lesson_title": "Generics & Type Parameters",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Writing Universal Classes"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We have seen angle brackets `< >` when creating `ArrayList<String>`. Have you ever wondered how the Java developers built the `ArrayList` class so it could handle Strings, Integers, and custom Objects without having to write 100 different versions of the code? They used 'Generics'."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Generics allow you to write a single class or method that can operate on any data type. We do this by placing a placeholder letter (usually `T` for Type) in angle brackets when defining the class."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "// We define a universal box that can hold ANY type of object 'T'\npublic class Box<T> {\n    T contents;\n\n    public void putInBox(T item) {\n        this.contents = item;\n    }\n\n    public T takeOut() {\n        return contents;\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When you actually create the `Box` in your `main` method, you replace `T` with the concrete type you want to use."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "Box<String> stringBox = new Box<String>();\nstringBox.putInBox(\"Hello\");\n\nBox<Integer> intBox = new Box<Integer>();\nintBox.putInBox(100);"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We unlocked the ultimate level of code reusability by implementing Generics, allowing us to build universal classes and methods that dynamically adapt to any data type passed into them."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "chapter_id": 9,
+            "chapter_title": "Advanced Features & Final Project",
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "lesson_title": "Introduction to Threads",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "The Flow of Execution"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Every Java program we have written so far runs on a single 'Thread' of execution. A thread is essentially a single sequential path of code execution. Imagine a worker reading your code line by line from top to bottom. If that worker gets stuck on a line (like waiting for a Scanner input or pausing with `Thread.sleep()`), the entire program completely freezes until that worker can move forward."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You've actually been using the 'main thread' this entire time without even realizing it. When you run your `main` method, Java spins up this primary thread to do the work."
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Pausing the Thread"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "We saw this briefly in our Countdown Timer project. We can explicitly tell the current executing worker to stop what they are doing and go to sleep for a specified number of milliseconds."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "try {\n    // Pauses the main thread for 3000 milliseconds (3 seconds)\n    Thread.sleep(3000);\n} catch (InterruptedException e) {\n    System.out.println(\"The thread was rudely awakened!\");\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We learned that default Java programs execute synchronously on a single 'main' thread, meaning operations block each other, and we revisited how to deliberately pause this thread using `Thread.sleep()`."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 2,
+                    "lesson_title": "Multi-threading & the Runnable Interface",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Doing Two Things at Once"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": " What if you are building a video game? You need one piece of code to constantly draw graphics on the screen, and another piece of code to constantly listen to the player's keyboard. If you do this on one thread, the game will freeze every time it waits for a key press. We need to hire more workers! This is called 'Multi-threading'."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To create a brand new thread in Java, we typically create a class that implements the `Runnable` interface."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public class MyTask implements Runnable {\n    @Override\n    public void run() {\n        for (int i = 1; i <= 5; i++) {\n            System.out.println(\"Worker Thread: \" + i);\n            try { Thread.sleep(500); } catch (Exception e) {}\n        }\n    }\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Starting the New Thread"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Back in our `main` method, we create our task, hand it to a brand new `Thread` object, and tell it to `.start()`. Java will instantly spawn a second worker to execute the task while the main thread continues moving forward!"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "public static void main(String[] args) {\n    MyTask task = new MyTask();\n    Thread secondWorker = new Thread(task);\n    \n    secondWorker.start(); // This runs simultaneously!\n\n    for (int i = 1; i <= 5; i++) {\n        System.out.println(\"Main Thread: \" + i);\n        try { Thread.sleep(500); } catch (Exception e) {}\n    }\n}"
+                        },
+                        {
+                            "type": "recap",
+                            "value": "We broke the limits of synchronous execution by implementing the `Runnable` interface and spawning simultaneous, independent worker threads to handle background tasks."
+                        }
+                    ]
+                },
+                {
+                    "lesson_id": 3,
+                    "lesson_title": "Final Project: Functioning Alarm Clock",
+                    "content": [
+                        {
+                            "type": "heading",
+                            "value": "Putting It All Together"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "It is time for the ultimate test. We are going to build a fully functioning Alarm Clock application. It will take a time input from the user, run a background loop checking the computer's current clock, and when the times match, it will play an audio clip."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "To make this elegant, we will utilize OOP principles. We will create a dedicated `AlarmClock` class. We will pass our `Scanner` object directly into its constructor so the class can handle user input itself!"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Structuring the Alarm Clock Class"
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class AlarmClock {\n    private final Scanner scanner;\n\n    // Constructor: We receive the scanner from the Main method\n    public AlarmClock(Scanner scanner) {\n        this.scanner = scanner;\n    }\n\n    public void startAlarm() {\n        // Imagine code here that loops and checks the time...\n        System.out.println(\"[Music Playing!]\");\n        \n        // The alarm is ringing! Wait for the user to turn it off.\n        System.out.println(\"Press Enter to stop the alarm.\");\n        scanner.nextLine();\n        \n        System.out.println(\"Alarm stopped.\");\n    }\n}"
+                        },
+                        {
+                            "type": "heading",
+                            "value": "Executing in the Main Method"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "Back in our `Main` file, we simply instantiate our Scanner, pass it into our brand new `AlarmClock` object, and start the system."
+                        },
+                        {
+                            "type": "code",
+                            "language": "java",
+                            "value": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner mainScanner = new Scanner(System.in);\n        \n        // Instantiate our custom Object\n        AlarmClock myClock = new AlarmClock(mainScanner);\n        \n        System.out.println(\"Alarm set for 8:07 AM\");\n        myClock.startAlarm();\n        \n        // We close the scanner at the very end of the program\n        mainScanner.close();\n    }\n}"
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "When the alarm hits and the music plays, the program calls `scanner.nextLine()`. This pauses execution, letting the music play until the user physically hits the Enter key to break the block and stop the audio clip."
+                        },
+                        {
+                            "type": "recap",
+                            "value": "Congratulations! You have officially built a real-world, object-oriented application. You successfully passed reference objects (Scanners) between classes, managed execution flow, and built a practical alarm clock."
+                        },
+                        {
+                            "type": "paragraph",
+                            "value": "You have completed the Ultimate Java Masterclass! You have journeyed from printing 'Hello World' to architecting multi-threaded, object-oriented applications. The world of Java is vast, but you now have the rock-solid foundation needed to build desktop apps, Android applications, and enterprise web servers. Keep coding, keep building, and good luck!"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

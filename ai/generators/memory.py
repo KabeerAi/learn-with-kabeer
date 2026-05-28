@@ -24,6 +24,52 @@ class CourseMemory:
     def set_total_lessons(self, total: int) -> None:
         self.total_lessons = total
 
+    @classmethod
+    def build_from_db(cls, course_id: int, current_lesson_number: int) -> "CourseMemory":
+        import database
+        course = database.get_course_by_id(course_id)
+        if not course:
+            return cls("Unknown Course", "Beginner")
+        
+        memory = cls(course["title"], course["level"])
+        
+        lessons = database.get_lessons_by_course(course_id)
+        memory.set_total_lessons(len(lessons))
+        
+        for lesson in lessons:
+            if lesson["number"] < current_lesson_number:
+                if lesson["builder_json"] and lesson["builder_json"] != "[]":
+                    import json
+                    plan = {}
+                    if lesson["plan_json"]:
+                        try:
+                            plan = json.loads(lesson["plan_json"])
+                        except json.JSONDecodeError:
+                            plan = {}
+                    
+                    key_concepts = plan.get("key_concepts", [])
+                    terminology = plan.get("terminology", [])
+                    footprint = plan.get("memory_footprint", "")
+                    
+                    memory.lessons_generated.append({
+                        "number": lesson["number"],
+                        "title": lesson["title"],
+                        "summary": lesson["summary"],
+                        "key_concepts": key_concepts,
+                        "terminology": terminology,
+                        "footprint": footprint
+                    })
+                    
+                    for concept in key_concepts:
+                        if concept not in memory.concepts_taught:
+                            memory.concepts_taught.append(concept)
+                            
+                    for term in terminology:
+                        memory.terminology.add(term)
+        
+        memory.current_lesson_number = current_lesson_number - 1
+        return memory
+
     def record_lesson(self, lesson_plan: dict, lesson_content: dict) -> None:
         """Record a generated lesson's key info for future context."""
         self.current_lesson_number += 1
@@ -88,7 +134,9 @@ class CourseMemory:
             lines.append(f"  Lesson {lesson['number']}: {lesson['title']}")
             lines.append(f"    Summary: {lesson['summary']}")
             if lesson.get("key_concepts"):
-                lines.append(f"    Taught: {', '.join(lesson['key_concepts'])}")
+                lines.append(f"    Key Concepts: {', '.join(lesson['key_concepts'])}")
+            if lesson.get("footprint"):
+                lines.append(f"    Technical Footprint: {lesson['footprint']}")
         lines.append("")
 
         # Cumulative concepts

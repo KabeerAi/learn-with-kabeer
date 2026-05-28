@@ -536,6 +536,7 @@
         }
 
         if (window.lucide) lucide.createIcons();
+        if (typeof Prism !== 'undefined') Prism.highlightAllUnder(canvas);
     }
 
     function renderBlock(block) {
@@ -838,7 +839,7 @@
                     break;
                 case 'code':
                     html += `
-<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl my-10 not-prose group">
+<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group">
     <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
         <div class="flex items-center gap-4">
             <div class="flex gap-1.5">
@@ -851,10 +852,12 @@
         </div>
         <button onclick="copyToClipboard(this)" data-code="${escapeHtml(blk.data.code)}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copy</span>
+            <span class="copy-text">Copy</span>
         </button>
     </div>
-    <div class="p-8 font-mono text-[14px] leading-relaxed text-gray-300 overflow-x-auto whitespace-pre">${escapeHtml(blk.data.code)}</div>
+    <div class="overflow-x-auto">
+        <pre class="language-${blk.data.lang}"><code class="language-${blk.data.lang}">${escapeHtml(blk.data.code)}</code></pre>
+    </div>
 </div>\n`;
                     break;
                 case 'callout':

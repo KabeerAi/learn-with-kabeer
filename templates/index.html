@@ -24,14 +24,20 @@
             {'bg': 'bg-[#FDF2F8]', 'text': 'text-[#831843]'},
             {'bg': 'bg-[#FFF7ED]', 'text': 'text-[#7C2D12]'},
             {'bg': 'bg-[#F0FDF4]', 'text': 'text-[#14532D]'},
-            {'bg': 'bg-[#F5F3FF]', 'text': 'text-[#4C1D95]'}
+            {'bg': 'bg-[#F5F3FF]', 'text': 'text-[#4C1D95]'},
+            {'bg': 'bg-[#ECFEFF]', 'text': 'text-[#083344]'},
+            {'bg': 'bg-[#FEF2F2]', 'text': 'text-[#7F1D1D]'}
         ] %}
 
         {# Define high-quality gradients for AI courses #}
         {% set ai_gradients = [
             'bg-gradient-to-r from-[#FF9800] via-[#FF5252] to-[#D500F9]',
             'bg-gradient-to-r from-[#00C6FF] via-[#0072FF] to-[#D500F9]',
-            'bg-gradient-to-r from-[#F093FB] via-[#F5576C] to-[#FF9800]'
+            'bg-gradient-to-r from-[#F093FB] via-[#F5576C] to-[#FF9800]',
+            'bg-gradient-to-r from-[#10B981] via-[#3B82F6] to-[#6366F1]',
+            'bg-gradient-to-r from-[#F472B6] via-[#FB923C] to-[#FACC15]',
+            'bg-gradient-to-r from-[#818CF8] via-[#C084FC] to-[#E879F9]',
+            'bg-gradient-to-r from-[#2DD4BF] via-[#0EA5E9] to-[#2563EB]'
         ] %}
 
         <div class="mx-auto max-w-6xl px-6 py-12 md:py-20">
@@ -68,13 +74,15 @@
                 
                 <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {% for enrolled_course in enrolled_courses %}
-                        {% set theme = themes[loop.index0 % themes|length] %}
+                        {# Use course ID as a seed for pseudo-random visual selection #}
+                        {% set seed = enrolled_course['id'] %}
+                        {% set theme = themes[(seed * 3 + 7) % themes|length] %}
                         <div class="group relative flex h-full flex-col rounded-xl border border-[#1C1C1C] bg-white transition-all duration-200 ease-out hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-6px_6px_0_0_#1C1C1C]">
                             
                             {# Card Header #}
                             <div class="p-[3px] pb-0">
                                 {% if enrolled_course['user_id'] %}
-                                    {% set ai_grad = ai_gradients[loop.index0 % 3] %}
+                                    {% set ai_grad = ai_gradients[(seed * 5 + 11) % ai_gradients|length] %}
                                     <div class="flex items-center justify-between rounded-t-md {{ ai_grad }} border-b border-[#1C1C1C] px-4 py-2.5">
                                         <span class="font-mono text-[13px] font-semibold text-white tracking-wide uppercase">
                                             Course on Demand

@@ -28,7 +28,55 @@
         }
     </script>
 
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     <style>
+        /* Prism overrides for premium minimal look */
+        pre[class*="language-"] {
+            margin: 0 !important;
+            padding: 1.25rem !important;
+            background: transparent !important;
+            font-size: 0.85rem !important;
+            border: none !important;
+            white-space: pre !important;
+            word-break: normal !important;
+            overflow: auto !important;
+            line-height: 1.6 !important;
+        }
+        
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', monospace !important;
+            text-shadow: none !important;
+            white-space: pre !important;
+            word-break: normal !important;
+            line-height: 1.6 !important;
+        }
+
+        /* --- UNIFIED KEYWORD STYLING (Inline Code) --- */
+        /* This creates the w3schools style "block word" look for technical terms */
+        :not(pre) > code {
+            background-color: #F1F1F1 !important;
+            color: #111827 !important;
+            padding: 2px 8px !important;
+            font-size: 0.85em !important;
+            border-radius: 6px !important;
+            border: 1px solid #E1E1E1 !important;
+            font-weight: 700 !important;
+            display: inline-block !important;
+            line-height: 1.4 !important;
+            vertical-align: middle !important;
+            margin: 0 2px !important;
+            box-shadow: 0 1px 0 0 rgba(0,0,0,0.05) !important;
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* Standard Bold Styling */
+        .prose strong,
+        .lesson-block strong {
+            font-weight: 700 !important;
+            color: inherit !important;
+        }
+
         html { 
             scroll-behavior: smooth; 
             font-feature-settings: "ss03", "cv11"; /* Clean alternates for Inter */
@@ -228,7 +276,62 @@
     </script>
 
     <script src="{{ url_for('static', filename='js/xp_animation.js') }}"></script>
+    
+    <!-- Prism.js and Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
     <script>
+        window.copyToClipboard = function(btn) {
+            const code = btn.getAttribute('data-code');
+            const textSpan = btn.querySelector('.copy-text');
+            const icon = btn.querySelector('i');
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    updateButton();
+                });
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    updateButton();
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            }
+
+            function updateButton() {
+                const originalText = textSpan ? textSpan.textContent : 'Copy';
+                if (textSpan) textSpan.textContent = 'Copied!';
+                btn.classList.add('text-green-500');
+                
+                if (window.lucide) {
+                    const iconEl = btn.querySelector('[data-lucide]');
+                    if (iconEl) {
+                        iconEl.setAttribute('data-lucide', 'check');
+                        lucide.createIcons();
+                    }
+                }
+
+                setTimeout(() => {
+                    if (textSpan) textSpan.textContent = originalText;
+                    btn.classList.remove('text-green-500');
+                    if (window.lucide) {
+                        const iconEl = btn.querySelector('[data-lucide]');
+                        if (iconEl) {
+                            iconEl.setAttribute('data-lucide', 'copy');
+                            lucide.createIcons();
+                        }
+                    }
+                }, 2000);
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             {% with messages = get_flashed_messages(category_filter=['xp_award']) %}
                 const allAwards = [];

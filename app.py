@@ -31,6 +31,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+app.jinja_env.filters['fromjson'] = json.loads
 app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqlite3")
 
 
@@ -76,17 +77,7 @@ def admin_required(view):
 def render_markdown(text):
     if text is None:
         return ""
-    html = markdown.markdown(text, extensions=['fenced_code', 'tables'])
-    # ... (rest of the markdown logic)
-    return html
-
-@app.template_filter('comma')
-def comma_filter(value):
-    try:
-        return "{:,}".format(int(value))
-    except (ValueError, TypeError):
-        return value
-
+    html = markdown.markdown(text, extensions=['fenced_code', 'tables', 'nl2br'])
 
     def replace_code_block(match):
         lang_class = match.group(1) or ""
@@ -119,41 +110,29 @@ def comma_filter(value):
             if lang != "Terminal":
                 lang = lang.capitalize()
 
-        # Split lines to add line numbers
-        lines = code_content.strip().split('\n')
-        line_numbers_html = "".join([f'<span class="opacity-30">{i+1}</span>' for i in range(len(lines))])
-        
         import html as html_lib
         safe_code = html_lib.escape(code_content.strip())
-        code_lines_html = "".join([f'<div class="px-4 hover:bg-white/5 transition-colors">{html_lib.escape(line) if line else "&nbsp;"}</div>' for line in lines])
+        
+        prism_lang = lang.lower()
+        if prism_lang in ["py", "python"]: prism_lang = "python"
+        elif prism_lang in ["js", "javascript"]: prism_lang = "javascript"
+        elif prism_lang in ["sh", "bash", "terminal"]: prism_lang = "bash"
 
-        return f'''<div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl my-10 not-prose group">
-    <div class="flex items-center justify-between border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
+        return f'''<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group">
+    <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
         <div class="flex items-center gap-4">
-            <div class="flex gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-            </div>
-            <div class="h-4 w-[1px] bg-[#2A2A2A]"></div>
-            <span class="text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B] font-mono">{lang.lower()}</span>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">{lang.lower()}</span>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="copyToClipboard(this)" data-code="{safe_code}" class="flex items-center gap-2 rounded-md bg-[#2A2A2A] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A3A3A3] transition-all hover:bg-[#333333] hover:text-white focus:outline-none active:scale-95">
+            <button onclick="copyToClipboard(this)" data-code="{safe_code}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 <span class="copy-text">Copy</span>
             </button>
-            <i data-lucide="{icon}" class="w-4 h-4 text-[#404040]"></i>
+            <i data-lucide="{icon}" class="w-4 h-4 text-gray-600"></i>
         </div>
     </div>
-    
-    <div class="flex font-mono text-[13px] leading-[1.8] overflow-x-auto py-5">
-        <div class="flex flex-col text-right text-[#6B6B6B] select-none pr-4 border-r border-[#2A2A2A] ml-5 min-w-[2.5rem]">
-            {line_numbers_html}
-        </div>
-        <div class="flex-1 text-[#E5E5E5]">
-            {code_lines_html}
-        </div>
+    <div class="overflow-x-auto">
+        <pre class="language-{prism_lang}"><code class="language-{prism_lang}">{safe_code}</code></pre>
     </div>
 </div>'''
 
@@ -185,6 +164,14 @@ def comma_filter(value):
     html = re.sub(r'<blockquote>(.*?)</blockquote>', replace_blockquote, html, flags=re.DOTALL)
 
     return html
+
+
+@app.template_filter('comma')
+def comma_filter(value):
+    try:
+        return "{:,}".format(int(value))
+    except (ValueError, TypeError):
+        return value
 
 
 
@@ -997,67 +984,74 @@ def cod_confirm():
     user_id = g.user["id"]
     pending = state['pending_course']
 
-    def _generate_in_background():
-        """Run course generation in a background thread."""
-        try:
-            backgrounds = get_available_backgrounds()
-            full_course = ai_generate_course(
-                syllabus=pending,
-                backgrounds=backgrounds,
-                session_id=session_id,
+    try:
+        backgrounds = get_available_backgrounds()
+        course_slug = session_id
+        
+        # Save to database
+        db_course = database.create_course(
+            slug=course_slug,
+            title=pending.get('title', 'Untitled Course'),
+            subtitle=pending.get('subtitle', ''),
+            level=pending.get('level', 'Beginner'),
+            status='active',
+            user_id=user_id,
+        )
+
+        sections = {}
+        # Support both new (sections->lessons) and old (lessons) format
+        all_lessons = []
+        if pending.get("sections"):
+            lesson_num = 0
+            for sec in pending["sections"]:
+                sec_title = sec.get("title", "Core Curriculum")
+                for lesson in sec.get("lessons", []):
+                    lesson_num += 1
+                    all_lessons.append({
+                        "number": lesson.get("number", lesson_num),
+                        "title": lesson.get("title", f"Lesson {lesson_num}"),
+                        "summary": lesson.get("objective", lesson.get("title", "")),
+                        "section": sec_title,
+                    })
+        else:
+            for lesson in pending.get("lessons", []):
+                all_lessons.append({
+                    "number": lesson.get("number", 0),
+                    "title": lesson.get("title", ""),
+                    "summary": lesson.get("objective", lesson.get("title", "")),
+                    "section": lesson.get("section", "Core Curriculum"),
+                })
+
+        for lesson_data in all_lessons:
+            section_name = lesson_data.get('section', 'Core Curriculum')
+            if section_name not in sections:
+                import hashlib
+                hash_val = int(hashlib.md5(section_name.encode()).hexdigest(), 16)
+                bg = backgrounds[hash_val % len(backgrounds)] if backgrounds else ""
+                sec = database.create_section(db_course['id'], len(sections)+1, section_name, "", background=bg)
+                sections[section_name] = sec['id']
+
+            database.create_lesson(
+                course_id=db_course['id'],
+                number=lesson_data['number'],
+                slug=f"lesson-{lesson_data['number']}-{int(time.time())}",
+                title=lesson_data['title'],
+                summary=lesson_data.get('summary', ""),
+                content="",
+                content_type='html',
+                section_id=sections[section_name],
+                builder_json="[]",
             )
 
-            # Save to database inside app context
-            with app.app_context():
-                course_slug = session_id
-                db_course = database.create_course(
-                    slug=course_slug,
-                    title=full_course['title'],
-                    subtitle=full_course['subtitle'],
-                    level=pending.get('level', 'Beginner'),
-                    status='active',
-                    user_id=user_id,
-                )
+        database.enroll_user_in_course(user_id, course_slug)
+        session.pop('cod_state', None)
+        session.pop('cod_session_id', None)
 
-                sections = {}
-                for lesson_data in full_course['lessons']:
-                    section_name = lesson_data.get('section', 'Core Curriculum')
-                    if section_name not in sections:
-                        bg = lesson_data.get('section_background', '')
-                        sec = database.create_section(db_course['id'], len(sections)+1, section_name, "", background=bg)
-                        sections[section_name] = sec['id']
+        return {"status": "success", "url": url_for("course_overview", course_slug=course_slug)}
 
-                    raw_blocks = lesson_data.get('builder_json', [])
-                    normalized_blocks = normalize_builder_json(raw_blocks)
-                    html_content = builder_json_to_html(normalized_blocks)
-
-                    database.create_lesson(
-                        course_id=db_course['id'],
-                        number=lesson_data['number'],
-                        slug=f"lesson-{lesson_data['number']}-{int(time.time())}",
-                        title=lesson_data['title'],
-                        summary=lesson_data.get('summary', ""),
-                        content=html_content,
-                        content_type='html',
-                        section_id=sections[section_name],
-                        builder_json=json.dumps(normalized_blocks),
-                    )
-
-                database.enroll_user_in_course(user_id, course_slug)
-
-                from ai.pipelines.course_pipeline import _update_progress
-                _update_progress(session_id, status="complete", url=f"/course/{course_slug}")
-
-        except Exception as e:
-            print(f"COD Background Error: {e}")
-            from ai.pipelines.course_pipeline import _update_progress
-            _update_progress(session_id, status="error", error=str(e))
-
-    # Launch generation in background thread
-    thread = threading.Thread(target=_generate_in_background, daemon=True)
-    thread.start()
-
-    return {"status": "generating", "session_id": session_id}
+    except Exception as e:
+        print(f"COD Generation Error: {e}")
+        return {"error": str(e)}, 500
 
 
 @app.route("/cod/status", methods=("GET",))
@@ -1083,6 +1077,69 @@ def cod_status():
         return {"status": "error", "error": progress.get("error", "Unknown error")}
 
     return progress
+
+@app.route("/course/<course_slug>/lesson/<int:lesson_number>/generate", methods=("POST",))
+@login_required
+def generate_single_lesson(course_slug, lesson_number):
+    overview = database.get_course_overview(g.user, course_slug)
+    if not overview["course"] or not overview["enrolled"]:
+        return {"error": "Not enrolled"}, 403
+
+    lesson = database.get_lesson_by_course_and_number(overview["course"]["id"], lesson_number)
+    if not lesson:
+        return {"error": "Lesson not found"}, 404
+
+    # If already generated
+    if lesson["builder_json"] and lesson["builder_json"] != "[]":
+        return {"status": "success"}
+
+    from ai.generators.memory import CourseMemory
+    from ai.generators.lesson import generate_lesson
+    
+    # Reconstruct memory
+    memory = CourseMemory.build_from_db(overview["course"]["id"], lesson_number)
+    
+    # We need the section name
+    section_name = "Core Curriculum"
+    if lesson["section_id"]:
+        sec = database.get_section_by_id(lesson["section_id"])
+        if sec:
+            section_name = sec["title"]
+
+    try:
+        backgrounds = get_available_backgrounds()
+        lesson_data = generate_lesson(
+            lesson_title=lesson["title"],
+            lesson_objective=lesson["summary"],
+            lesson_number=lesson_number,
+            section_name=section_name,
+            course_title=overview["course"]["title"],
+            difficulty=overview["course"]["level"],
+            memory_context=memory.build_context(),
+            backgrounds=backgrounds,
+        )
+
+        raw_blocks = lesson_data.get('builder_json', [])
+        normalized_blocks = normalize_builder_json(raw_blocks)
+        html_content = builder_json_to_html(normalized_blocks)
+
+        database.update_lesson(
+            lesson_id=lesson["id"],
+            number=lesson["number"],
+            slug=lesson["slug"],
+            title=lesson_data.get("title", lesson["title"]),
+            summary=lesson_data.get("summary", lesson["summary"]),
+            content=html_content,
+            content_type="html",
+            section_id=lesson["section_id"],
+            builder_json=json.dumps(normalized_blocks),
+            plan_json=json.dumps(lesson_data.get("plan", {}))
+        )
+
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Lesson generation error: {e}")
+        return {"error": str(e)}, 500
 
 # Legacy generate_cod_full_content has been replaced by
 # ai.pipelines.course_pipeline.generate_course()
@@ -1167,7 +1224,7 @@ def builder_json_to_html(blocks):
             lang = data.get('lang', 'python')
             code = html_module.escape(data.get('code', ''))
             parts.append(f"""
-<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl my-10 not-prose group">
+<div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group">
     <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
         <div class="flex items-center gap-4">
             <div class="flex gap-1.5">
@@ -1180,10 +1237,12 @@ def builder_json_to_html(blocks):
         </div>
         <button onclick="copyToClipboard(this)" data-code="{code}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copy</span>
+            <span class="copy-text">Copy</span>
         </button>
     </div>
-    <div class="p-8 font-mono text-[14px] leading-relaxed text-gray-300 overflow-x-auto whitespace-pre">{code}</div>
+    <div class="overflow-x-auto">
+        <pre class="language-{lang}"><code class="language-{lang}">{code}</code></pre>
+    </div>
 </div>""")
         
         elif btype == 'callout':

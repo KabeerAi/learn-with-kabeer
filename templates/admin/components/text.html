@@ -1,7 +1,7 @@
 <div class="canvas-item group/blk" id="${block.id}" data-type="text">
     <p contenteditable="true" 
        onblur="updateBlockData('${block.id}', {text: this.innerText})" 
-       class="m-0 cursor-text text-gray-600 leading-relaxed font-medium focus:outline-none">
+       class="m-0 cursor-text text-base leading-7 text-gray-700 focus:outline-none whitespace-pre-wrap w-full text-left">
         ${block.data.text}
     </p>
     <div class="item-controls">

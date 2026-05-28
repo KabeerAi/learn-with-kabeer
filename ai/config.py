@@ -35,14 +35,14 @@ COLLECTION_NAME = "educational_chunks"
 # ─── Generation ─────────────────────────────────────────────────────────────
 
 # Minimum builder blocks per generated lesson
-MIN_BLOCKS_PER_LESSON = 12
+MIN_BLOCKS_PER_LESSON = 15
 # Maximum builder blocks per generated lesson
 MAX_BLOCKS_PER_LESSON = 25
 
 # ─── Quality ────────────────────────────────────────────────────────────────
 
 # Minimum overall quality score (0-10) to pass validation
-QUALITY_THRESHOLD = 6.5
+QUALITY_THRESHOLD = 7.0
 # Maximum regeneration attempts for weak sections
 MAX_REGEN_ATTEMPTS = 1
 
