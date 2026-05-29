@@ -30,7 +30,8 @@ from ai.pipelines.course_pipeline import generate_course as ai_generate_course, 
 load_dotenv()
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+import secrets
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", secrets.token_urlsafe(32))
 app.jinja_env.filters['fromjson'] = json.loads
 app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqlite3")
 
@@ -369,7 +370,11 @@ def logout():
 @login_required
 def lesson_view(course_slug, lesson_number):
     overview = database.get_course_overview(g.user, course_slug)
-    if not overview["course"] or not overview["enrolled"]:
+    if not overview["course"]:
+        flash("Course not found.", "error")
+        return redirect(url_for("courses"))
+    # Allow admins to bypass enrollment check
+    if not g.user["is_admin"] and not overview["enrolled"]:
         flash("Enroll in the course before starting lessons.", "info")
         return redirect(url_for("course_overview", course_slug=course_slug))
 

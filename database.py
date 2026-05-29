@@ -205,7 +205,7 @@ def init_db():
         admin_pass = generate_password_hash("admin123")
         db.execute(
             "INSERT INTO users (name, email, password_hash, is_admin, total_xp) VALUES (?, ?, ?, ?, ?)",
-            ("Administrator", "admin@example.com", admin_pass, 1, 100000)
+            ("Administrator", "admin@learnwithkabeer.com", admin_pass, 1, 100000)
         )
         db.commit()
 
