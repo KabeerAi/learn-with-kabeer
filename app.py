@@ -557,8 +557,8 @@ def admin_career_path_manage(path_id):
 
     # Get courses in this path
     path_details = database.get_career_path_by_slug(path["slug"])
-    # Get all courses to allow adding existing
-    all_courses = database.get_course_library(g.user)
+    # Get all courses to allow adding existing (only public non-COD courses)
+    all_courses = database.get_course_library(g.user, include_private=False)
 
     return render_template("admin/career_path_manage.html", path=path_details, all_courses=all_courses)
 
@@ -569,8 +569,12 @@ def admin_career_path_manage(path_id):
 def admin_career_path_add_course(path_id):
     course_id = request.form.get("course_id")
     if course_id:
-        database.add_course_to_career_path(path_id, int(course_id))
-        flash("Course added to career path.", "success")
+        course = database.get_course_by_id(int(course_id))
+        if course and course["user_id"] is None:
+            database.add_course_to_career_path(path_id, int(course_id))
+            flash("Course added to career path.", "success")
+        else:
+            flash("Only public (non-COD) courses can be added to career paths.", "error")
     return redirect(url_for("admin_career_path_manage", path_id=path_id))
 
 

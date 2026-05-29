@@ -68,13 +68,17 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button type="submit" class="inline-flex h-12 items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 text-sm font-bold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
+            {# --- Form Actions --- #}
+            <div class="-mx-8 -mb-8 mt-12 flex flex-col-reverse items-center justify-end gap-4 border-t border-[#E5E5E5] bg-[#FAF9F6]/50 px-6 py-8 sm:flex-row sm:px-10">
+                <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="flex w-full items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_2px_0_0_#E5E5E5] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#E5E5E5] active:translate-y-[2px] active:shadow-none focus:outline-none sm:w-auto">
+                    Cancel
+                </a>
+                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_2px_0_0_#A3A3A3] transition-all hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#A3A3A3] active:translate-y-[2px] active:shadow-none focus:outline-none sm:w-auto">
+                    <i data-lucide="save" class="h-4 w-4"></i>
                     {{ 'Save Changes' if section else 'Create Section' }}
                 </button>
-                <a href="{{ url_for('admin_course_manage', course_id=course.id) }}" class="text-sm font-bold text-[#6B6B6B] hover:text-[#1C1C1C]">Cancel</a>
             </div>
-        </form>
-    </div>
-</main>
-{% endblock %}
+            </form>
+            </div>
+            </main>
+            {% endblock %}

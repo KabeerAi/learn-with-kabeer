@@ -46,7 +46,7 @@
                     <div class="flex items-center gap-3">
                         <form action="{{ url_for('admin_career_path_add_course', path_id=path.id) }}" method="post" class="flex items-center gap-2">
                             <select name="course_id" required class="rounded-xl border border-[#D4D4D8] bg-[#F5F5F5] px-4 py-2 text-xs font-semibold text-[#1C1C1C] focus:outline-none focus:ring-1 focus:ring-[#1C1C1C]">
-                                <option value="" disabled selected>Add existing course...</option>
+                                <option value="" disabled selected>Add public course...</option>
                                 {% for course in all_courses %}
                                     <option value="{{ course.id }}">{{ course.title }}</option>
                                 {% endfor %}
