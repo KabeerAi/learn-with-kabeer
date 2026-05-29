@@ -1,14 +1,13 @@
-<div class="w-full rounded-xl border border-gray-200 bg-white p-6 text-left mb-6 quiz-container">
-    <h3 class="text-base font-semibold text-gray-900 mb-4">{{ block.data.question | markdown | safe }}</h3>
-    <div class="flex flex-col gap-2.5">
+<div class="w-full text-left mb-8">
+    <div class="text-base text-gray-900 mb-6 max-w-[500px] mx-auto">{{ block.data.question | markdown | safe }}</div>
+    <div class="flex flex-col gap-4 max-w-[500px] mx-auto" id="quiz-options-{{ block.id if block.id else 'default' }}">
         {% for opt in block.data.options %}
-        <button type="button" onclick="checkLessonQuiz(this, {{ loop.index0 }}, {{ block.data.correct }})" class="quiz-btn group flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:border-gray-300 focus:outline-none">
-            <div class="quiz-circle flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-300 transition-colors group-hover:border-gray-400">
-                <i data-lucide="check" class="quiz-icon hidden h-2.5 w-2.5 text-white"></i>
-                <i data-lucide="x" class="quiz-icon-error hidden h-2.5 w-2.5 text-white"></i>
-            </div>
-            <span class="flex-1 text-sm text-gray-700 group-hover:text-gray-900">{{ opt | markdown | safe }}</span>
+        <button type="button" class="quiz-option w-full text-left px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-lg text-gray-900 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 hover:translate-x-1 focus:outline-none focus:ring-2 focus:ring-gray-200" data-index="{{ loop.index0 }}" data-correct="{{ 'true' if loop.index0 == block.data.correct else 'false' }}">
+            {{ opt | markdown | safe }}
         </button>
         {% endfor %}
+    </div>
+    <div class="text-center mt-6 hidden" id="quiz-feedback-{{ block.id if block.id else 'default' }}">
+        <p class="text-lg font-semibold" id="quiz-feedback-text-{{ block.id if block.id else 'default' }}"></p>
     </div>
 </div>

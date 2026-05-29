@@ -1,0 +1,11 @@
+<div class="canvas-item group/blk" id="${block.id}" data-type="separator">
+    <div class="w-full py-4 flex items-center gap-4">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">CONTINUE</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>

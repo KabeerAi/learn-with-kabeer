@@ -35,13 +35,27 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
 
-        /* Slide animation */
+        /* Slide animations */
         .slide-enter {
-            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: slideLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .slide-exit-left {
+            animation: slideOutLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        .slide-enter-right {
+            animation: slideRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(80px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOutLeft {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(-80px); }
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-80px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
         /* --- FORCED PRISM & CODE STYLES --- */
@@ -97,45 +111,166 @@
             padding: 0 !important; /* Inner pre handles padding */
         }
         /* Removed .prose code override to allow universal keyword styling */
+
+        /* Custom header nav button */
+        .nav-btn {
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background-color: #f3f4f6;
+        }
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        #continue-btn {
+            position: relative;
+            background-color: #2A2A2A;
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 48px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            cursor: pointer;
+            box-shadow: 0 6px 0 0 #0f0f0f;
+            transition: all 0.1s ease;
+            width: min(42vw, 320px);
+        }
+        #continue-btn:hover {
+            background-color: #3a3a3a;
+        }
+        #continue-btn:active {
+            box-shadow: 0 2px 0 0 #0f0f0f;
+            transform: translateY(4px);
+        }
+        #continue-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: 0 4px 0 0 #0f0f0f;
+        }
+        #continue-btn.bg-16A34A {
+            background-color: #16A34A;
+            box-shadow: 0 6px 0 0 #064e3b;
+        }
+        #continue-btn.bg-16A34A:hover {
+            background-color: #10b981;
+        }
+        #continue-btn.bg-16A34A:active {
+            box-shadow: 0 2px 0 0 #064e3b;
+        }
+
+        /* Quiz success/error states for body */
+        .lesson-body-success {
+            background-color: #f0fdf4 !important;
+        }
+        .lesson-body-error {
+            background-color: #fefce8 !important;
+        }
+        
+        /* Quiz option corner icon styling */
+        .quiz-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .quiz-option-corner-icon {
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 12px 0 12px;
+        }
+        .quiz-btn.selected-wrong {
+            border-color: #9ca3af !important;
+            background-color: #f3f4f6 !important;
+            color: #9ca3af !important;
+        }
+        .quiz-btn.selected-correct {
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        /* XP boost animation */
+        .xp-boost-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1f2937;
+            opacity: 0;
+            transform: translateY(0) scale(0.5);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .xp-boost-number.show {
+            opacity: 1;
+            transform: translateY(-60px) scale(1.2);
+        }
     </style>
 </head>
-<body class="h-screen overflow-hidden bg-white text-gray-900 font-sans antialiased flex flex-col">
+<body id="lesson-body" class="h-screen overflow-hidden bg-white text-gray-900 font-sans antialiased flex flex-col transition-all duration-500">
     
-    <!-- ─── Header ─── -->
-    <header class="flex-none bg-white px-6 py-4 flex items-center justify-between z-50 w-full">
-        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-            <i data-lucide="x" class="h-5 w-5 stroke-[2.5]"></i>
+    <!-- ─── Header (Outside Canvas) ─── -->
+    <header class="flex-none bg-white px-8 py-3 flex items-center justify-between z-50 w-full">
+        <a href="{{ url_for('course_overview', course_slug=course['slug']) }}" class="nav-btn text-gray-400 hover:text-gray-900">
+            <i data-lucide="x" class="h-5 w-5"></i>
         </a>
-        <div class="flex-1 mx-6 lg:mx-16 max-w-xl">
-            <div class="h-3 w-full overflow-hidden rounded-full bg-gray-100">
-                <div id="progress-fill" class="h-full rounded-full bg-[#58CC02] transition-all duration-500 ease-out" style="width: 0%;"></div>
+        
+        <div class="flex items-center gap-3 flex-1 justify-center max-w-3xl">
+            <button id="back-btn" class="nav-btn text-gray-900">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </button>
+            
+            <div class="flex-1 max-w-[400px]">
+                <div class="h-3 w-full overflow-hidden rounded-full bg-gray-100">
+                    <div id="progress-fill" class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-300 transition-all duration-500 ease-out" style="width: 0%;"></div>
+                </div>
             </div>
+
+            <button id="next-btn" class="nav-btn text-gray-900" disabled>
+                <i data-lucide="arrow-right" class="h-6 w-6"></i>
+            </button>
         </div>
-        <div class="flex shrink-0 items-center gap-1.5 font-extrabold text-gray-300">
-            <span class="text-lg tracking-tight text-gray-800">{{ current_user['total_xp'] if current_user else 0 }}</span>
+
+        <div class="flex shrink-0 items-center gap-1.5 font-extrabold text-gray-300 relative">
+            <span class="text-lg tracking-tight text-gray-800" id="current-xp">{{ current_user['total_xp'] if current_user else 0 }}</span>
+            <span id="xp-boost" class="xp-boost-number absolute right-full mr-4 whitespace-nowrap">+5</span>
             <i data-lucide="zap" class="h-5 w-5 text-yellow-400 fill-yellow-400"></i>
         </div>
     </header>
 
-    <!-- ─── Main: full height, centers content vertically ─── -->
-    <main id="lesson-main" class="flex-1 overflow-y-auto px-6 py-12 flex flex-col items-center">
-        <!-- Vertical Centering Wrapper: Centers content if short, starts at top if long -->
-        <div class="my-auto w-full max-w-[640px]">
-            <div id="slide-viewport" class="w-full">
-                {% block lesson_content %}{% endblock %}
+    <!-- The Whole Lesson Canvas -->
+    <div id="lesson-canvas" class="flex-1 mx-8 mb-8 bg-white rounded-3xl border-2 border-gray-200 flex flex-col overflow-hidden transition-all duration-500">
+
+        <!-- ─── Main Content Area ─── -->
+        <main id="lesson-main" class="flex-1 overflow-y-auto px-12 py-8 flex flex-col items-center">
+            <!-- Vertical Centering Wrapper: Centers content if short, starts at top if long -->
+            <div class="my-auto w-full max-w-[640px]">
+                <div id="slide-viewport" class="w-full">
+                    {% block lesson_content %}{% endblock %}
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
 
-    {% set next_lesson = (lessons | selectattr("number", "equalto", lesson.number + 1) | first) %}
+        {% set next_lesson = (lessons | selectattr("number", "equalto", lesson.number + 1) | first) %}
 
-    <!-- ─── Footer ─── -->
-    <footer class="flex-none border-t border-gray-100 bg-white py-5 px-6 flex justify-center z-50">
-        <button id="continue-btn" class="w-full max-w-[320px] rounded-full bg-[#2A2A2A] py-3.5 text-center text-[16px] font-bold tracking-wide text-white shadow-sm hover:bg-black active:translate-y-[2px] transition-all">
+        <!-- ─── Footer ─── -->
+        <footer class="flex-none bg-white py-5 px-6 flex justify-center z-50">
+            <button id="continue-btn" data-state="continue">
             Continue
         </button>
-        <form id="complete-form" action="{{ url_for('complete_lesson', course_slug=course['slug'], lesson_number=lesson['number']) }}" method="post" class="hidden"></form>
-    </footer>
+            <form id="complete-form" action="{{ url_for('complete_lesson', course_slug=course.slug, lesson_number=lesson.number) }}" method="post" class="hidden"></form>
+        </footer>
+
+    </div> <!-- End Canvas Wrapper -->
 
     <script>
         const LESSON_CONFIG = {
@@ -149,30 +284,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
-
-        function checkLessonQuiz(btn, index, correctIndex) {
-            const container = btn.closest('.quiz-container');
-            const allBtns = container.querySelectorAll('.quiz-btn');
-            allBtns.forEach(b => {
-                b.classList.remove('border-gray-900', 'bg-gray-50', 'border-red-400', 'bg-red-50');
-                b.classList.add('border-gray-200', 'bg-white');
-                b.querySelector('.quiz-icon')?.classList.add('hidden');
-                b.querySelector('.quiz-icon-error')?.classList.add('hidden');
-                const c = b.querySelector('.quiz-circle');
-                if (c) { c.classList.remove('border-gray-900', 'bg-gray-900', 'border-red-400', 'bg-red-400'); c.classList.add('border-gray-300'); }
-            });
-            const circle = btn.querySelector('.quiz-circle');
-            btn.classList.remove('border-gray-200', 'bg-white');
-            if (index === correctIndex) {
-                btn.classList.add('border-gray-900', 'bg-gray-50');
-                if (circle) { circle.classList.remove('border-gray-300'); circle.classList.add('border-gray-900', 'bg-gray-900'); }
-                btn.querySelector('.quiz-icon')?.classList.remove('hidden');
-            } else {
-                btn.classList.add('border-red-400', 'bg-red-50');
-                if (circle) { circle.classList.remove('border-gray-300'); circle.classList.add('border-red-400', 'bg-red-400'); }
-                btn.querySelector('.quiz-icon-error')?.classList.remove('hidden');
-            }
-        }
     </script>
     <script src="{{ url_for('static', filename='js/xp_animation.js') }}"></script>
     
@@ -231,6 +342,7 @@
             }
         };
     </script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

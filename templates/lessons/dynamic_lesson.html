@@ -19,6 +19,8 @@
                     {% include 'components/callout.html' %}
                 {% elif block.type == 'quiz' %}
                     {% include 'components/quiz.html' %}
+                {% elif block.type == 'separator' %}
+                    <!-- Separator -->
                 {% endif %}
             </div>
         {% endfor %}
@@ -52,10 +54,10 @@
             inset: 0;
             z-index: 10;
             pointer-events: none;
-            background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.25) 100%),
-                        radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.35) 120%);
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.25) 100%),
+                        radial-gradient(circle, transparent 60%, rgba(0,0,0,0.35) 120%);
             opacity: 0;
-            transition: opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.82s cubic-bezier(0.4,0,0.2,1);
         }
 
         .course-overview-loader.is-solid-in::after { opacity: 1; }
@@ -79,63 +81,63 @@
             opacity: 0;
             transform: scale(1) rotate(0deg);
             transform-origin: 48% 50%;
-            transition: opacity 0.36s ease, transform 1.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.36s ease, transform 1.7s cubic-bezier(0.16,1,0.3,1);
         }
 
         .course-loader__plate--solid {
             z-index: 2;
             opacity: 0;
             transform: scale(0.985) rotate(-0.45deg);
-            transition: opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.82s cubic-bezier(0.4,0,0.2,1), transform 1s cubic-bezier(0.16,1,0.3,1);
         }
 
         .course-overview-loader.is-solid-in .course-loader__plate--solid { opacity: 1; transform: scale(1) rotate(0deg); }
         .course-overview-loader.is-transparent-ready .course-loader__plate--transparent { opacity: 1; transform: scale(1) rotate(0deg); }
-        .course-overview-loader.is-transparent-ending .course-loader__plate--transparent { opacity: 0; transform: scale(200) rotate(0.02deg); transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, transform 0.8s cubic-bezier(0.8, 0, 0.9, 1); }
-        .course-overview-loader.is-solid-exiting .course-loader__plate--solid { opacity: 0; transform: scale(1.025) rotate(0.35deg); transition: opacity 0.92s cubic-bezier(0.4, 0, 0.2, 1), transform 0.92s cubic-bezier(0.7, 0, 0.84, 0); }
+        .course-overview-loader.is-transparent-ending .course-loader__plate--transparent { opacity: 0; transform: scale(200) rotate(0.02deg); transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1) 0.3s, transform 0.8s cubic-bezier(0.8,0,0.9,1); }
+        .course-overview-loader.is-solid-exiting .course-loader__plate--solid { opacity: 0; transform: scale(1.025) rotate(0.35deg); transition: opacity 0.92s cubic-bezier(0.4,0,0.2,1), transform 0.92s cubic-bezier(0.7,0,0.84,0); }
 
         .course-loader__loading {
             position: absolute;
             left: 50%;
-            bottom: clamp(60px, 10vh, 100px);
+            bottom: clamp(60px,10vh,100px);
             z-index: 3;
-            width: min(42vw, 260px);
+            width: min(42vw,260px);
             height: 12px;
             overflow: hidden;
-            border-radius: 99px;
+            border-radius: 999px;
             background: #FFFFFF;
-            border: 1px solid #1C1C1C;
-            box-shadow: 0 6px 0 0 rgba(28, 28, 28, 0.15);
-            opacity: 0;
-            transform: translate(-50%, 15px);
-            transition: opacity 0.46s ease 0.55s, transform 0.46s cubic-bezier(0.16, 1, 0.3, 1) 0.55s;
+            border:1px solid #1C1C1C;
+            box-shadow:0 6px 0 0 rgba(28,28,28,0.15);
+            opacity:0;
+            transform: translate(-50%,15px);
+            transition: opacity 0.46s ease 0.55s, transform 0.46s cubic-bezier(0.16,1,0.3,1) 0.55s;
         }
 
-        .course-overview-loader.is-solid-in .course-loader__loading { opacity: 1; transform: translate(-50%, 0); }
+        .course-overview-loader.is-solid-in .course-loader__loading { opacity:1; transform: translate(-50%,0); }
 
         .course-loader__loading-fill {
             position: absolute;
-            inset: 0 auto 0 0;
-            width: 18%;
+            inset:0 auto 0 0;
+            width:18%;
             border-radius: inherit;
             background: linear-gradient(90deg, #FACC15 0%, #EAB308 50%, #FACC15 100%);
             background-size: 200% 100%;
-            box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4);
-            transition: width 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.4);
+            transition: width 0.48s cubic-bezier(0.16,1,0.3,1);
             animation: courseLoaderFillShimmer 2s linear infinite;
         }
 
         .course-loader__loading-fill::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 50%;
+            content:"";
+            position:absolute;
+            right:0;
+            top:50%;
             transform: translateY(-50%);
-            height: 100%;
-            width: 15px;
-            background: #FFFFFF;
+            height:100%;
+            width:15px;
+            background:#FFFFFF;
             filter: blur(8px);
-            opacity: 0.8;
+            opacity:0.8;
             animation: courseLoaderTipPulse 1.5s ease-in-out infinite;
         }
 
@@ -145,20 +147,20 @@
         }
 
         @keyframes courseLoaderTipPulse {
-            0%, 100% { opacity: 0.4; transform: translateY(-50%) scaleX(1); }
-            50% { opacity: 0.9; transform: translateY(-50%) scaleX(1.8); }
+            0%,100% { opacity:0.4; transform: translateY(-50%) scaleX(1); }
+            50% { opacity:0.9; transform: translateY(-50%) scaleX(1.8); }
         }
 
         .course-overview-loader.is-solid-in .course-loader__loading-fill {
-            animation: courseLoaderLoadingWait 5s cubic-bezier(0.65, 0, 0.35, 1) 0.72s forwards, courseLoaderFillShimmer 2s linear infinite;
+            animation: courseLoaderLoadingWait 5s cubic-bezier(0.65,0,0.35,1) 0.72s forwards, courseLoaderFillShimmer 2s linear infinite;
         }
 
-        .course-overview-loader.is-loaded .course-loader__loading-fill { width: 100% !important; animation: none !important; }
+        .course-overview-loader.is-loaded .course-loader__loading-fill { width:100% !important; animation:none !important; }
 
         @keyframes courseLoaderLoadingWait {
-            0% { width: 18%; }
-            45% { width: 62%; }
-            100% { width: 86%; }
+            0% { width:18%; }
+            45% { width:62%; }
+            100% { width:86%; }
         }
     </style>
 
@@ -227,9 +229,10 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const viewport = document.getElementById('slide-viewport');
+    const continueBtn = document.getElementById('continue-btn');
     if (!viewport) return;
 
-    // ── Step 1: Collect raw block elements ──
+    // ─── Step 1: Collect raw block elements ───
     let rawBlocks = Array.from(viewport.querySelectorAll('.lesson-block'));
 
     // If no builder_json blocks, try legacy content (split by headings)
@@ -237,7 +240,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const legacy = document.getElementById('legacy-content');
         if (legacy) {
             const children = Array.from(legacy.children);
-            // Wrap each child in a .lesson-block wrapper with data-block-type
             rawBlocks = children.map(child => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'lesson-block w-full';
@@ -253,22 +255,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (rawBlocks.length === 0) return;
 
-    // ── Step 2: Group blocks into slides ──
-    // Rule: a "heading" starts a new slide, a "quiz" gets its own slide
-    const slideGroups = []; // array of arrays of DOM elements
+    // ─── Step 2: Group blocks into slides ───
+    const slideGroups = [];
     let currentGroup = [];
 
     rawBlocks.forEach(block => {
         const type = block.dataset.blockType;
-        if (type === 'quiz') {
-            // flush current group if any
+        
+        if (type === 'separator') {
             if (currentGroup.length > 0) {
                 slideGroups.push(currentGroup);
                 currentGroup = [];
             }
-            slideGroups.push([block]); // quiz on its own
+        } else if (type === 'quiz') {
+            if (currentGroup.length > 0) {
+                slideGroups.push(currentGroup);
+                currentGroup = [];
+            }
+            slideGroups.push([block]);
         } else if (type === 'heading') {
-            // heading starts a new group
             if (currentGroup.length > 0) {
                 slideGroups.push(currentGroup);
             }
@@ -283,82 +288,156 @@ document.addEventListener("DOMContentLoaded", function() {
     if (slideGroups.length <= 1) {
         rawBlocks.forEach(b => b.style.display = '');
         document.getElementById('progress-fill').style.width = '100%';
-        // wire continue button to final action directly
+        setupSimpleQuizHandlers();
         wireFinalButton();
         return;
     }
 
-    // ── Step 3: Wrap each group in a slide container ──
-    viewport.innerHTML = ''; // clear
+    // ─── Step 3: Wrap each group in a slide container ───
+    viewport.innerHTML = '';
     const slides = [];
 
     slideGroups.forEach((group, i) => {
         const slide = document.createElement('div');
         slide.className = 'lesson-slide w-full flex flex-col items-start gap-4';
-        slide.style.display = 'none'; // hidden by default
+        slide.style.display = 'none';
         group.forEach(el => slide.appendChild(el));
         viewport.appendChild(slide);
         slides.push(slide);
     });
 
-    // ── Step 4: Pagination logic ──
+    // ─── Step 4: Pagination logic ───
     let current = 0;
+    let maxReached = 0;
+    let prevIndex = 0;
+    let quizAnswered = {}; // Track which slides have answered quizzes
     const total = slides.length;
-    const btn = document.getElementById('continue-btn');
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
     const progressFill = document.getElementById('progress-fill');
     const mainEl = document.getElementById('lesson-main');
 
     function showSlide(idx) {
+        const isGoingForward = idx > prevIndex;
         slides.forEach((s, i) => {
             if (i === idx) {
                 s.style.display = 'flex';
-                s.classList.add('slide-enter');
+                s.classList.remove('slide-enter', 'slide-enter-right', 'slide-exit-left');
+                if (isGoingForward) {
+                    s.classList.add('slide-enter');
+                } else {
+                    s.classList.add('slide-enter-right');
+                }
+                void s.offsetWidth;
             } else {
                 s.style.display = 'none';
-                s.classList.remove('slide-enter');
+                s.classList.remove('slide-enter', 'slide-enter-right', 'slide-exit-left');
             }
         });
+        prevIndex = idx;
 
-        // scroll main back to top in case slide content was long
         mainEl.scrollTop = 0;
+        const progressPercent = ((Math.min(maxReached, total - 1) + 1) / total) * 100;
+        progressFill.style.width = progressPercent + '%';
+        backBtn.disabled = idx === 0;
+        nextBtn.disabled = idx >= maxReached;
 
-        // update progress bar
-        progressFill.style.width = (((idx + 1) / total) * 100) + '%';
-
-        // update button text
-        if (idx === total - 1) {
-            if (LESSON_CONFIG.isGuest) {
-                btn.textContent = "Sign in to Finish";
-            } else if (LESSON_CONFIG.isLastLesson) {
-                btn.textContent = "Complete Course";
-                btn.classList.add('bg-[#16A34A]', 'hover:bg-green-700');
-                btn.classList.remove('bg-[#2A2A2A]', 'hover:bg-black');
-            } else {
-                btn.textContent = "Finish";
-            }
-        } else {
-            btn.textContent = 'Continue';
-            btn.classList.add('bg-[#2A2A2A]', 'hover:bg-black');
-            btn.classList.remove('bg-[#16A34A]', 'hover:bg-green-700');
-        }
-
-        // re-render lucide icons for newly visible content
         if (typeof lucide !== 'undefined') lucide.createIcons();
-        if (typeof Prism !== 'undefined') {
-            Prism.highlightAllUnder(slides[idx]);
+        if (typeof Prism !== 'undefined') Prism.highlightAllUnder(slides[idx]);
+        
+        setupSimpleQuizHandlers();
+        updateContinueButtonState(idx);
+    }
+
+    function updateContinueButtonState(idx) {
+        const hasQuiz = slides[idx].querySelector('.quiz-option');
+        const isAnswered = quizAnswered[idx];
+        
+        if (hasQuiz && !isAnswered) {
+            continueBtn.textContent = 'Select an answer';
+            continueBtn.disabled = true;
+        } else if (idx === total - 1) {
+            if (LESSON_CONFIG.isGuest) {
+                continueBtn.textContent = "Sign in to Finish";
+            } else if (LESSON_CONFIG.isLastLesson) {
+                continueBtn.textContent = "Complete Course";
+                continueBtn.classList.add('bg-16A34A');
+            } else {
+                continueBtn.textContent = "Finish";
+            }
+            continueBtn.disabled = false;
+        } else {
+            continueBtn.textContent = "Continue";
+            continueBtn.classList.remove('bg-16A34A');
+            continueBtn.disabled = false;
         }
     }
 
-    btn.addEventListener('click', () => {
+    function setupSimpleQuizHandlers() {
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const slide = this.closest('.lesson-slide');
+                const slideIndex = slides.indexOf(slide);
+                
+                // Reset all options in this quiz
+                const allOptions = slide.querySelectorAll('.quiz-option');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+                    opt.classList.add('border-gray-200', 'bg-white');
+                });
+
+                // Check if this is correct
+                const isCorrect = this.dataset.correct === 'true';
+                if (isCorrect) {
+                    this.classList.remove('border-gray-200', 'bg-white');
+                    this.classList.add('border-green-500', 'bg-green-50');
+                } else {
+                    this.classList.remove('border-gray-200', 'bg-white');
+                    this.classList.add('border-red-500', 'bg-red-50');
+                    // Show correct answer
+                    allOptions.forEach(opt => {
+                        if (opt.dataset.correct === 'true') {
+                            opt.classList.remove('border-gray-200', 'bg-white');
+                            opt.classList.add('border-green-500', 'bg-green-50');
+                        }
+                    });
+                }
+
+                // Mark quiz as answered
+                quizAnswered[slideIndex] = true;
+                updateContinueButtonState(slideIndex);
+            });
+        });
+    }
+
+    continueBtn.addEventListener('click', function() {
+        if (continueBtn.disabled) return;
+        
         if (current < total - 1) {
             current++;
+            if (current > maxReached) {
+                maxReached = current;
+            }
             showSlide(current);
         } else {
             doFinalAction();
         }
     });
 
-    // show first slide
+    backBtn.addEventListener('click', () => {
+        if (current > 0) {
+            current--;
+            showSlide(current);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (current < maxReached) {
+            current++;
+            showSlide(current);
+        }
+    });
+
     showSlide(0);
 
     function doFinalAction() {
@@ -372,8 +451,10 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function wireFinalButton() {
-        const btn = document.getElementById('continue-btn');
-        btn.addEventListener('click', doFinalAction);
+        continueBtn.addEventListener('click', () => {
+            if (continueBtn.disabled) return;
+            doFinalAction();
+        });
     }
 });
 </script>

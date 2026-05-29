@@ -260,6 +260,12 @@
     /* Typography Overrides for Builder */
     .builder-canvas h2 { font-weight: 800; font-size: 1.875rem; letter-spacing: -0.025em; }
     .builder-canvas p { font-size: 1.05rem; line-height: 1.7; color: #4B5563; }
+    /* Fix paragraph starting position */
+    .canvas-item[data-type="text"] p {
+        margin: 0 !important;
+        padding: 0 !important;
+        text-indent: 0 !important;
+    }
 
 </style>
 
@@ -283,6 +289,10 @@
                 <div class="palette-item" data-type="text">
                     <div class="icon-box"><i data-lucide="type"></i></div>
                     <span class="text-xs font-bold uppercase tracking-widest">Paragraph</span>
+                </div>
+                <div class="palette-item" data-type="separator">
+                    <div class="icon-box"><i data-lucide="minus"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Separator</span>
                 </div>
                 <div class="palette-item" data-type="image">
                     <div class="icon-box"><i data-lucide="image"></i></div>
@@ -508,12 +518,19 @@
         switch(type) {
             case 'heading': return { text: 'New Heading' };
             case 'text': return { text: 'Type your story here...' };
+            case 'separator': return {};
             case 'image': return { url: '' };
             case 'code': return { lang: 'python', code: '# Add your code\nprint("Hello World")' };
             case 'callout': return { type: 'info', title: 'Did you know?', body: 'Interesting fact goes here.' };
             case 'quiz': return { question: 'What is the correct answer?', options: ['Option A', 'Option B'], correct: 0 };
             default: return {};
         }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
     }
 
     // --- Rendering ---
@@ -540,18 +557,131 @@
     }
 
     function renderBlock(block) {
-        const template = document.getElementById(`tpl-${block.type}`);
-        if (!template) return document.createElement('div');
-
-        let html = template.innerHTML;
-        
         try {
-            // Safer way to render the component template
-            const renderFunc = new Function('block', 'escapeHtml', 'return `' + html + '`;');
-            const renderedHtml = renderFunc(block, escapeHtml);
+            let html = '';
             
+            if (block.type === 'heading') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="heading">
+    <h2 contenteditable="true" onblur="updateBlockData('${block.id}', {text: this.innerText})" class="m-0 cursor-text text-2xl font-bold text-gray-900 focus:outline-none w-full text-left">${block.data.text}</h2>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'text') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="text">
+    <p contenteditable="true" onblur="updateBlockData('${block.id}', {text: this.innerText})" class="m-0 p-0 cursor-text text-base leading-7 text-gray-700 focus:outline-none whitespace-pre-wrap w-full text-left" style="margin: 0; padding: 0;">${block.data.text}</p>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'separator') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="separator">
+    <div class="w-full py-4 flex items-center gap-4">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">CONTINUE</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'quiz') {
+                let optionsHtml = '';
+                for (let i = 0; i < block.data.options.length; i++) {
+                    const opt = block.data.options[i];
+                    const isCorrect = i === block.data.correct;
+                    optionsHtml += `<div class="group/opt flex w-full items-center gap-3 rounded-lg border ${isCorrect ? 'border-gray-900 bg-gray-50' : 'border-gray-200'} px-4 py-3 text-left transition-colors">
+                        <div class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border ${isCorrect ? 'border-gray-900 bg-gray-900' : 'border-gray-300'} transition-colors shrink-0" onclick="setQuizCorrect('${block.id}', ${i})">
+                            ${isCorrect ? '<div class="h-1.5 w-1.5 rounded-full bg-white"></div>' : ''}
+                        </div>
+                        <div contenteditable="true" onblur="updateQuizOption('${block.id}', ${i}, this.innerText)" class="flex-1 text-sm text-gray-700 focus:outline-none">${opt}</div>
+                        <button onclick="removeQuizOption('${block.id}', ${i})" class="opacity-0 group-hover/opt:opacity-100 text-gray-400 hover:text-red-500 transition-all shrink-0"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    </div>`;
+                }
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="quiz">
+    <div class="not-prose w-full rounded-xl border border-gray-200 bg-white p-6 text-left">
+        <h3 contenteditable="true" onblur="updateBlockData('${block.id}', {question: this.innerText})" class="text-base font-semibold text-gray-900 mb-4 focus:outline-none">${block.data.question}</h3>
+        <div class="flex flex-col gap-2.5 mb-4">
+            ${optionsHtml}
+        </div>
+        <button onclick="addQuizOption('${block.id}')" class="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add option
+        </button>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'code') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="code">
+    <div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] w-full shadow-xl">
+        <div class="flex items-center justify-between border-b border-[#2A2A2A] bg-black/20 px-5 py-3.5">
+            <div class="flex items-center gap-4">
+                <div class="flex gap-1.5">
+                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
+                </div>
+                <div class="h-4 w-[1px] bg-[#2A2A2A]"></div>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">${block.data.lang}</span>
+            </div>
+            <button onclick="openCodeModal('${block.id}')" class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit
+            </button>
+        </div>
+        <pre class="language-${block.data.lang}"><code class="language-${block.data.lang}">${escapeHtml(block.data.code)}</code></pre>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'callout') {
+                const isWarning = block.data.type === 'warning';
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="callout">
+    <div class="my-10 rounded-2xl border ${isWarning ? 'border-amber-200 bg-amber-50' : 'border-sky-200 bg-sky-50'} p-6 flex gap-4 w-full">
+        <div class="w-12 h-12 shrink-0 rounded-2xl bg-white border border-inherit flex items-center justify-center cursor-pointer" onclick="toggleCalloutType('${block.id}')">
+            <i data-lucide="${isWarning ? 'alert-triangle' : 'info'}" class="w-6 h-6 ${isWarning ? 'text-amber-600' : 'text-sky-600'}"></i>
+        </div>
+        <div class="flex-1">
+            <h4 contenteditable="true" onblur="updateBlockData('${block.id}', {title: this.innerText})" class="text-xs font-bold uppercase tracking-widest text-gray-900 mb-2 focus:outline-none">${block.data.title}</h4>
+            <div contenteditable="true" onblur="updateBlockData('${block.id}', {body: this.innerText})" class="text-base font-medium leading-relaxed text-gray-700 focus:outline-none">${block.data.body}</div>
+        </div>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'image') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="image">
+    <div class="w-full rounded-xl overflow-hidden border border-gray-200 ${block.data.url ? 'shadow-sm' : 'bg-gray-50'}">
+        ${block.data.url ? `<img src="${block.data.url}" class="w-full h-auto block" alt="">` : `<div class="p-8 text-center"><i data-lucide="image" class="w-12 h-12 mx-auto text-gray-400 mb-2"></i><p class="text-sm text-gray-500">No image yet</p></div>`}
+        <div class="px-4 py-3 border-t border-gray-200 bg-white">
+            <button onclick="openImageModal('${block.id}')" class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-gray-900 transition-colors">
+                <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> ${block.data.url ? 'Change Image' : 'Add Image'}
+            </button>
+        </div>
+    </div>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            }
+
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = renderedHtml;
+            tempDiv.innerHTML = html;
             const wrapper = tempDiv.firstElementChild;
 
             if (!wrapper) return document.createElement('div');
@@ -831,6 +961,9 @@
                     break;
                 case 'text':
                     html += `<p class="text-lg leading-relaxed text-gray-600 mb-6 font-medium">${blk.data.text}</p>\n`;
+                    break;
+                case 'separator':
+                    // Separator doesn't render anything in final HTML, used for slide splitting
                     break;
                 case 'image':
                     if (blk.data.url) {
