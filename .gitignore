@@ -18,3 +18,6 @@ __pycache__/
 venv/
 env/
 .venv/
+
+# ignore pycache and other temporary files
+__pycache__/   

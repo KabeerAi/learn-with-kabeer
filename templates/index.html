@@ -10,8 +10,19 @@
         background-size: 200% auto;
         animation: welcome-gradient 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+    .premium-highlight {
+        display: inline-block;
+        background: #FAF9F6;
+        color: #1C1C1C;
+        padding: 0.02em 0.15em;
+        border-radius: 0;
+        font-style: normal;
+        text-shadow: none;
+        vertical-align: middle;
+        line-height: 1;
+    }
 </style>
-<main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
+<main class="flex-1 overflow-y-auto font-sans {% if current_user %}bg-[#FAF9F6] pb-20 selection:bg-[#1C1C1C] selection:text-white{% else %}bg-[#FAF9F6] selection:bg-[#1C1C1C] selection:text-white{% endif %}">
     {% if current_user %}
         {# --- AUTHENTICATED: LEARNER DASHBOARD --- #}
         
@@ -228,72 +239,49 @@
         {# --- UNAUTHENTICATED: PUBLIC LANDING PAGE --- #}
         
         {# Hero Section #}
-        <section class="relative overflow-hidden bg-[#FAF9F6] px-6 pt-24 pb-20 lg:pt-32 lg:pb-32 border-b border-[#E5E5E5]">
-            <div class="mx-auto max-w-6xl">
-                <div class="grid items-center gap-16 lg:grid-cols-2 lg:gap-12">
-                    <div class="max-w-2xl flex w-fit flex-col items-center">
-                        <h1 class="text-center text-4xl font-semibold tracking-tight text-[#1C1C1C] sm:text-5xl lg:text-[64px] lg:leading-[1.1]">
-                            Learn to code. <br /> Build your future.
-                        </h1>
-                        <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-center">
-                            <a href="{{ url_for('signup') }}" class="inline-flex items-center justify-center rounded-xl border border-[#1C1C1C] bg-[#1C1C1C] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_4px_0_0_#A3A3A3] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#A3A3A3] active:translate-y-[4px] active:shadow-none focus:outline-none">
-                                Start Learning
-                            </a>
-                            <a href="{{ url_for('courses') }}" class="inline-flex items-center justify-center rounded-xl border border-[#D4D4D8] bg-white px-8 py-3.5 text-sm font-semibold text-[#1C1C1C] shadow-[0_4px_0_0_#E5E5E5] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#E5E5E5] active:translate-y-[4px] active:shadow-none focus:outline-none">
-                                Explore Courses
-                            </a>
-                        </div>
-                    </div>
+        <section id="home-hero" class="relative bg-[#FAF9F6] p-6 pt-12 sm:p-10 sm:pt-12">
+            <div class="relative isolate min-h-[88vh] overflow-hidden rounded-[48px] bg-[#1C1C1C]">
+                <video
+                    id="home-hero-video"
+                    class="absolute -inset-x-0 -top-[15%] z-0 h-[130%] w-full object-cover will-change-transform"
+                    style="transform: translate3d(0, 0, 0);"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    aria-hidden="true"
+                >
+                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4">
+                </video>
 
-                    {# Premium Minimalist Code Editor Mockup #}
-                    <div class="relative hidden lg:block">
-                        <div class="relative overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#1C1C1C] shadow-2xl">
-                            {# Editor Header #}
-                            <div class="flex items-center border-b border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3.5">
-                                <div class="flex gap-2">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-                                    <div class="h-2.5 w-2.5 rounded-full bg-[#333333]"></div>
-                                </div>
-                                <div class="ml-4 flex-1 text-xs font-medium text-[#A3A3A3] font-mono tracking-wide">mastery.py</div>
-                            </div>
-                            
-                            {# Editor Content #}
-                            <div class="flex p-6 font-mono text-[13px] leading-[1.8]">
-                                {# Line Numbers #}
-                                <div class="flex flex-col text-right text-[#404040] select-none pr-6 border-r border-[#2A2A2A] mr-6">
-                                    <span>1</span>
-                                    <span>2</span>
-                                    <span>3</span>
-                                    <span>4</span>
-                                    <span>5</span>
-                                    <span>6</span>
-                                    <span>7</span>
-                                    <span>8</span>
-                                    <span>9</span>
-                                    <span>10</span>
-                                    <span>11</span>
-                                    <span>12</span>
-                                    <span>13</span>
-                                </div>
-                                {# Code #}
-                                <div class="text-[#E5E5E5]">
-                                    <p><span class="text-[#F97316]">def</span> <span class="text-[#FDBA74] font-medium">achieve_mastery</span>(developer):</p>
-                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;"""</p>
-                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;Mastery is not the absence of failure.</p>
-                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;It is the absolute refusal to quit.</p>
-                                    <p class="text-[#71717A] italic">&nbsp;&nbsp;&nbsp;&nbsp;"""</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">while</span> <span class="text-[#FBBF24]">True</span>:</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">try</span>:</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;developer.<span class="text-[#FDBA74]">build_system</span>()</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">except</span> <span class="text-[#FBBF24]">Failure</span> <span class="text-[#F97316]">as</span> e:</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;developer.<span class="text-[#FDBA74]">analyze_and_adapt</span>(e)</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">else</span>:</p>
-                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">break</span></p>
-                                    <p class="mt-2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#F97316]">return</span> developer.potential</p>
-                                </div>
-                            </div>
-                        </div>
+                {# Cinematic Window Effects #}
+                <!-- Deep Inset Shadow for Depth -->
+                <div class="pointer-events-none absolute inset-0 z-10 shadow-[inset_0_0_100px_rgba(0,0,0,0.8),inset_0_0_250px_rgba(0,0,0,0.4)]"></div>
+                
+                <!-- Subtle Inner Glass Edge -->
+                <div class="pointer-events-none absolute inset-0 z-10 rounded-[48px] border border-white/10"></div>
+
+                <!-- Radial Edge Blur -->
+                <div class="pointer-events-none absolute inset-0 z-10 backdrop-blur-[2px] [mask-image:radial-gradient(circle_at_center,transparent_45%,black_100%)]"></div>
+                
+                <!-- Vignette Overlay -->
+                <div class="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.3)_100%)]"></div>
+
+                <div id="hero-content" class="relative z-20 mx-auto flex min-h-[88vh] max-w-7xl flex-col items-center justify-center px-6 pb-24 pt-36 text-center sm:pb-32 sm:pt-40">
+                    <h1 class="cinematic-text-shadow animate-fade-rise max-w-6xl text-5xl font-normal leading-[1.25] tracking-[-2.46px] text-white sm:text-7xl md:text-8xl" style="font-family: var(--font-display);">
+                        Learn to <span class="premium-highlight">code.</span><br>
+                        <span class="premium-highlight">Build</span> your future.
+                    </h1>
+                    <p class="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
+                        Master the languages that power the modern web and software industry.
+                    </p>
+                    <div class="animate-fade-rise-delay-2 mt-12 flex flex-col items-center gap-4 sm:flex-row">
+                        <a href="{{ url_for('signup') }}" class="liquid-glass inline-flex cursor-pointer items-center justify-center rounded-full px-14 py-5 text-base font-medium text-white transition-transform hover:scale-[1.03] focus:outline-none">
+                            Start Learning
+                        </a>
+                        <a href="{{ url_for('courses') }}" class="liquid-glass inline-flex cursor-pointer items-center justify-center rounded-full px-10 py-5 text-base font-medium text-white/80 transition-transform hover:scale-[1.03] hover:text-white focus:outline-none">
+                            Explore Courses
+                        </a>
                     </div>
                 </div>
             </div>
@@ -450,10 +438,56 @@
                         <a href="#" class="hover:text-[#1C1C1C] transition-colors">Terms</a>
                         <a href="#" class="hover:text-[#1C1C1C] transition-colors">Privacy</a>
                     </div>
-                    <p class="text-sm text-[#A3A3A3]">© 2026. All rights reserved.</p>
+                    <p class="text-sm text-[#A3A3A3]">&copy; 2026. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     {% endif %}
 </main>
+{% endblock %}
+
+{% block scripts %}
+    {% if request.endpoint == 'home' and not current_user %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const hero = document.getElementById('home-hero');
+                const video = document.getElementById('home-hero-video');
+                const content = document.getElementById('hero-content');
+                const scroller = document.querySelector('main');
+                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                if (!hero || !video || !scroller || reduceMotion) return;
+
+                let frame = null;
+
+                const updateParallax = () => {
+                    const scrollTop = scroller.scrollTop;
+                    const heroHeight = hero.offsetHeight || 1;
+                    const progress = Math.min(Math.max(scrollTop / heroHeight, 0), 1);
+                    
+                    // Background video moves downward (parallax depth)
+                    const videoTranslate = progress * 120;
+                    video.style.transform = `translate3d(0, ${videoTranslate}px, 0)`;
+
+                    // Content moves upward (cinematic float)
+                    if (content) {
+                        const contentTranslate = progress * -120;
+                        content.style.transform = `translate3d(0, ${contentTranslate}px, 0)`;
+                        content.style.opacity = 1 - (progress * 1.4);
+                    }
+
+                    frame = null;
+                };
+
+                const requestTick = () => {
+                    if (frame) return;
+                    frame = window.requestAnimationFrame(updateParallax);
+                };
+
+                updateParallax();
+                scroller.addEventListener('scroll', requestTick, { passive: true });
+                window.addEventListener('resize', requestTick);
+            });
+        </script>
+    {% endif %}
 {% endblock %}
