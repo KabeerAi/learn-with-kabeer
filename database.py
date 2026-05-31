@@ -318,12 +318,8 @@ def init_db():
 
     # SAFE EXECUTION TRICK FOR BOTH DRIVERS:
     if is_postgres:
-        # SQLite uses AUTOINCREMENT, Postgres uses SERIAL (handled above)
-        # Split statements by semicolon and run them one by one
-        for statement in schema_sql.split(";"):
-            clean_statement = statement.strip()
-            if clean_statement:
-                db.execute(clean_statement)
+        # Use executescript to run the whole block at once (handles semicolons in DO blocks)
+        db.executescript(schema_sql)
         db.commit()
     else:
         # Fallback for local SQLite machine
