@@ -255,20 +255,29 @@ def generate_single_lesson_task(
     """
     Background task to generate a single lesson lazily.
     """
-    # Initialize job in DB
-    with app.app_context():
-        database_module.create_system_job(session_id, status='generating', title=lesson_title)
-
-    _update_progress(session_id, status="generating", percent=10, current_title=lesson_title, db_module=database_module)
+    if not app:
+        print(f"[ASYNC ERROR] No app object provided for session {session_id}")
+        return
 
     try:
-        # Use app context for database operations
         with app.app_context():
-            # Reconstruct memory for this lesson
+            # 1. Initialize job in DB
+            print(f"    [ASYNC] Starting job {session_id} for lesson: {lesson_title}")
+            database_module.create_system_job(session_id, status='generating', title=lesson_title)
+            
+            # Use local update helper that is context-aware
+            def update(percent, status='generating', error=None):
+                _update_progress(session_id, percent=percent, status=status, current_title=lesson_title, error=error, db_module=database_module)
+
+            update(10)
+
+            # 2. Reconstruct memory
             from ai.generators.memory import CourseMemory
             memory = CourseMemory.build_from_db(course_id, lesson_number)
+            update(20)
 
-            # Generate content
+            # 3. Generate content (multi-stage)
+            from ai.generators.lesson import generate_lesson
             lesson_data = generate_lesson(
                 lesson_title=lesson_title,
                 lesson_objective=lesson_objective,
@@ -280,13 +289,14 @@ def generate_single_lesson_task(
                 backgrounds=backgrounds,
             )
 
-            _update_progress(session_id, percent=80, db_module=database_module)
+            update(80)
 
+            # 4. Process results
             raw_blocks = lesson_data.get('builder_json', [])
             normalized_blocks = normalize_builder_json_func(raw_blocks)
             html_content = builder_json_to_html_func(normalized_blocks)
 
-            # Update database
+            # 5. Save to database
             database_module.update_lesson(
                 lesson_id=lesson_id,
                 number=lesson_number,
@@ -300,9 +310,16 @@ def generate_single_lesson_task(
                 plan_json=json.dumps(lesson_data.get("plan", {}))
             )
 
-        _update_progress(session_id, status="complete", percent=100, db_module=database_module)
+            update(100, status="complete")
+            print(f"    [ASYNC] Job {session_id} finished successfully")
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"[ASYNC LESSON GEN ERROR] {e}")
-        _update_progress(session_id, status="error", error=str(e), db_module=database_module)
+        try:
+            with app.app_context():
+                _update_progress(session_id, status="error", error=str(e), db_module=database_module)
+        except:
+            pass
 
