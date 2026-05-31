@@ -67,15 +67,19 @@ class PostgresCursorWrapper:
         elif "INSERT OR IGNORE INTO career_path_courses" in query:
             query = "INSERT INTO career_path_courses (career_path_id, course_id, number) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
 
-        # 4. Handle auto-incrementing ID tracking via RETURNING clause
+        # 4. Handle auto-incrementing ID tracking safely
         is_insert = query.strip().upper().startswith("INSERT")
         if is_insert and "RETURNING" not in query.upper() and "ON CONFLICT DO NOTHING" not in query.upper():
-            query += " RETURNING id"
+            # Use RETURNING * and extract 'id' if it exists to avoid UndefinedColumn errors
+            # on tables like system_jobs which use a custom primary key
+            query += " RETURNING *"
             self.cursor.execute(query, params or ())
             try:
                 row = self.cursor.fetchone()
-                if row:
-                    self._lastrowid = row[0]
+                if row and self.cursor.description:
+                    colnames = [d[0].lower() for d in self.cursor.description]
+                    if 'id' in colnames:
+                        self._lastrowid = row[colnames.index('id')]
             except Exception:
                 pass
         else:
