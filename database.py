@@ -344,19 +344,50 @@ def init_db():
     except (sqlite3.OperationalError, psycopg2.Error):
         if is_pg: conn.rollback()
 
-    user_count = db.execute("SELECT COUNT(*) AS cnt FROM users").fetchone()["cnt"]
-    if user_count == 0:
-        from werkzeug.security import generate_password_hash
-        admin_pass = generate_password_hash("admin123")
-        db.execute(
-            "INSERT INTO users (name, email, password_hash, is_admin, total_xp) VALUES (?, ?, ?, ?, ?)",
-            ("Administrator", "admin@learnwithkabeer.com", admin_pass, 1, 100000)
-        )
+        # 1. Safely check if the 'users' table exists before trying to query it
+    is_postgres = current_app.config["DATABASE"].startswith("postgresql://")
+    
+    if is_postgres:
+        table_check = db.execute(
+            "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')"
+        ).fetchone()
+        # Handle dict or tuple format safely
+        table_exists = table_check["exists"] if isinstance(table_check, dict) or hasattr(table_check, 'keys') else table_check[0]
+    else:
+        # For local SQLite setup
+        table_check = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+        ).fetchone()
+        table_exists = table_check is not None
+
+    # 2. Only run seeding if the table exists
+    if table_exists:
+        user_count_row = db.execute("SELECT COUNT(*) AS cnt FROM users").fetchone()
+        # Extract the count based on row structure
+        if isinstance(user_count_row, dict) or hasattr(user_count_row, 'keys'):
+            user_count = user_count_row["cnt"]
+        else:
+            user_count = user_count_row[0]
+
+        if user_count == 0:
+            from werkzeug.security import generate_password_hash
+            admin_pass = generate_password_hash("admin123")
+            
+            # Use %s placeholder for Postgres, and ? for SQLite
+            placeholder = "%s" if is_postgres else "?"
+            
+            db.execute(
+                f"INSERT INTO users (name, email, password_hash, is_admin, total_xp) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})",
+                ("Administrator", "admin@learnwithkabeer.com", admin_pass, 1, 100000)
+            )
+            db.commit()
+
+        # Safely enforce the admin XP minimum
+        db.execute("UPDATE users SET total_xp = 100000 WHERE is_admin = 1 AND total_xp < 100000")
         db.commit()
 
-    db.execute("UPDATE users SET total_xp = 100000 WHERE is_admin = 1 AND total_xp < 100000")
-    db.commit()
     db.close()
+
 
 
 # ─── User Queries ───────────────────────────────────────────────────────────
