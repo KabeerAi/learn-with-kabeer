@@ -3,151 +3,10 @@ import sqlite3
 from datetime import datetime, timedelta
 
 from flask import current_app, g
-import psycopg2
-import psycopg2.extras
 
 class DuplicateEmailError(Exception):
     pass
 
-
-# ─── Cross-Database Compatibility Wrappers ────────────────────────────────────
-
-class PostgresRow:
-    """Mimics sqlite3.Row behavior for seamless dictionary conversion and indexing."""
-    def __init__(self, keys, values):
-        self._keys = keys
-        self._values = values
-        self._mapping = dict(zip(keys, values))
-
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            return self._values[key]
-        return self._mapping[key]
-
-    def keys(self):
-        return self._keys
-
-    def items(self):
-        return self._mapping.items()
-
-    def __len__(self):
-        return len(self._values)
-
-    def __iter__(self):
-        return iter(self._values)
-
-    def __repr__(self):
-        return repr(self._mapping)
-
-
-class PostgresCursorWrapper:
-    """Adapts Postgres cursor execution behaviors to match SQLite patterns."""
-    def __init__(self, cursor):
-        self.cursor = cursor
-        self._lastrowid = None
-
-    @property
-    def lastrowid(self):
-        """Exposes lastrowid to match SQLite's connection property."""
-        return self._lastrowid
-
-    def execute(self, query, params=None):
-        # 1. Handle placeholder swap (? to %s)
-        query = query.replace('?', '%s')
-        
-        # 2. Transpile SQLite scalar min/max to Postgres least/greatest
-        if "MAX(completed_lessons," in query:
-            query = query.replace("MAX(completed_lessons,", "GREATEST(completed_lessons,")
-        if "MIN(completed_lessons," in query:
-            query = query.replace("MIN(completed_lessons,", "LEAST(completed_lessons,")
-            
-        # 3. Transpile SQLite INSERT OR IGNORE patterns
-        if "INSERT OR IGNORE INTO career_path_enrollments" in query:
-            query = "INSERT INTO career_path_enrollments (user_id, career_path_id) VALUES (%s, %s) ON CONFLICT DO NOTHING"
-        elif "INSERT OR IGNORE INTO career_path_courses" in query:
-            query = "INSERT INTO career_path_courses (career_path_id, course_id, number) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
-
-        # 4. Transpile CURRENT_TIMESTAMP to text string format to match SQLite storage
-        query = query.replace('CURRENT_TIMESTAMP', 'CURRENT_TIMESTAMP::text')
-
-        # 5. Handle auto-incrementing ID tracking via RETURNING clause
-        is_insert = query.strip().upper().startswith("INSERT")
-        if is_insert and "RETURNING" not in query.upper() and "ON CONFLICT DO NOTHING" not in query.upper():
-            query += " RETURNING id"
-            self.cursor.execute(query, params or ())
-            try:
-                row = self.cursor.fetchone()
-                if row:
-                    self._lastrowid = row[0]
-            except Exception:
-                pass
-        else:
-            self.cursor.execute(query, params or ())
-        return self
-
-    def _wrap_row(self, row):
-        if row is None:
-            return None
-        if self.cursor.description:
-            keys = [desc[0] for desc in self.cursor.description]
-            return PostgresRow(keys, row)
-        return row
-
-    def fetchone(self):
-        try:
-            row = self.cursor.fetchone()
-            return self._wrap_row(row)
-        except (psycopg2.ProgrammingError, psycopg2.OperationalError):
-            return None
-
-    def fetchall(self):
-        try:
-            rows = self.cursor.fetchall()
-            return [self._wrap_row(r) for r in rows]
-        except (psycopg2.ProgrammingError, psycopg2.OperationalError):
-            return []
-
-    def __iter__(self):
-        try:
-            for row in self.cursor:
-                yield self._wrap_row(row)
-        except (psycopg2.ProgrammingError, psycopg2.OperationalError):
-            return
-
-    def __getattr__(self, name):
-        return getattr(self.cursor, name)
-
-
-class PostgresConnWrapper:
-    """Adapts Postgres connection execution shortcuts to match SQLite behavior."""
-    def __init__(self, conn):
-        self.conn = conn
-
-    def execute(self, query, params=None):
-        cursor = self.conn.cursor()
-        wrapper = PostgresCursorWrapper(cursor)
-        wrapper.execute(query, params)
-        return wrapper
-
-    def executescript(self, script):
-        # Convert table creation syntax to Postgres standards
-        script = script.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-        script = script.replace("DEFAULT CURRENT_TIMESTAMP", "DEFAULT CURRENT_TIMESTAMP::text")
-        cursor = self.conn.cursor()
-        cursor.execute(script)
-        return cursor
-
-    def commit(self):
-        self.conn.commit()
-
-    def close(self):
-        self.conn.close()
-
-    def __getattr__(self, name):
-        return getattr(self.conn, name)
-
-
-# ─── App Setup and Lifetime Hooks ───────────────────────────────────────────
 
 def init_app(app):
     app.teardown_appcontext(close_db)
@@ -157,14 +16,9 @@ def init_app(app):
 
 def get_db():
     if "db" not in g:
-        db_uri = current_app.config["DATABASE"]
-        if db_uri.startswith(("postgresql://", "postgres://")):
-            conn = psycopg2.connect(db_uri)
-            g.db = PostgresConnWrapper(conn)
-        else:
-            g.db = sqlite3.connect(db_uri)
-            g.db.row_factory = sqlite3.Row
-            g.db.execute("PRAGMA foreign_keys = ON")
+        g.db = sqlite3.connect(current_app.config["DATABASE"])
+        g.db.row_factory = sqlite3.Row
+        g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
 
 
@@ -175,18 +29,10 @@ def close_db(error=None):
 
 
 def init_db():
-    db_uri = current_app.config["DATABASE"]
-    is_pg = db_uri.startswith(("postgresql://", "postgres://"))
-
-    if is_pg:
-        conn = psycopg2.connect(db_uri)
-        db = PostgresConnWrapper(conn)
-    else:
-        os.makedirs(current_app.instance_path, exist_ok=True)
-        conn = sqlite3.connect(db_uri)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON")
-        db = conn
+    os.makedirs(current_app.instance_path, exist_ok=True)
+    db = sqlite3.connect(current_app.config["DATABASE"])
+    db.row_factory = sqlite3.Row
+    db.execute("PRAGMA foreign_keys = ON")
 
     db.executescript(
         """
@@ -205,15 +51,16 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             course_id INTEGER,
-            activity_type TEXT NOT NULL,
+            activity_type TEXT NOT NULL, -- 'lesson_complete', 'quiz_complete', etc.
             xp_amount INTEGER NOT NULL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE SET NULL
         );
 
         CREATE TABLE IF NOT EXISTS courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER, -- NULL for public courses, non-NULL for private COD courses
             slug TEXT NOT NULL UNIQUE,
             title TEXT NOT NULL,
             subtitle TEXT NOT NULL,
@@ -295,55 +142,63 @@ def init_db():
         """
     )
 
-    # Migration tracking context catches errors gracefully and handles aborted transactions for Postgres
+    # Migration: add content_type column if missing (for older databases)
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN content_type TEXT NOT NULL DEFAULT 'html'")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add section_id column if missing
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add background column if missing
     try:
         db.execute("ALTER TABLE sections ADD COLUMN background TEXT")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add builder_json column if missing
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN builder_json TEXT")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add plan_json column if missing
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN plan_json TEXT")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: ensure users table has total_xp
     try:
         db.execute("ALTER TABLE users ADD COLUMN total_xp INTEGER NOT NULL DEFAULT 0")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add is_pro to users
     try:
         db.execute("ALTER TABLE users ADD COLUMN is_pro INTEGER NOT NULL DEFAULT 0")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Migration: add user_id to courses
     try:
         db.execute("ALTER TABLE courses ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE")
         db.commit()
-    except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+    except sqlite3.OperationalError:
+        pass
 
+    # Seed default admin if no users exist
     user_count = db.execute("SELECT COUNT(*) AS cnt FROM users").fetchone()["cnt"]
     if user_count == 0:
         from werkzeug.security import generate_password_hash
@@ -354,12 +209,17 @@ def init_db():
         )
         db.commit()
 
+    # Ensure all admins have 100,000 XP
     db.execute("UPDATE users SET total_xp = 100000 WHERE is_admin = 1 AND total_xp < 100000")
+    db.commit()
+
+
     db.commit()
     db.close()
 
 
 # ─── User Queries ───────────────────────────────────────────────────────────
+
 
 def get_user_by_id(user_id):
     return get_db().execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
@@ -377,12 +237,13 @@ def create_user(name, email, password_hash):
             (name, email, password_hash),
         )
         db.commit()
-    except (sqlite3.IntegrityError, psycopg2.IntegrityError) as exc:
+    except sqlite3.IntegrityError as exc:
         raise DuplicateEmailError from exc
     return get_user_by_email(email)
 
 
 # ─── Progress Queries ───────────────────────────────────────────────────────
+
 
 def get_progress(user_id, course_id):
     return get_db().execute(
@@ -437,6 +298,7 @@ def enroll_user_in_career_path(user_id, path_slug):
 
 # ─── Course Queries ─────────────────────────────────────────────────────────
 
+
 def get_course_by_id(course_id):
     return get_db().execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
 
@@ -454,15 +316,19 @@ def get_course_library(user=None, include_private=True):
     
     if user:
         if user["is_admin"]:
+            # Admins see everything
             if not include_private:
                 query += " WHERE c.user_id IS NULL"
         else:
             if include_private:
+                # Users see public courses OR their own private courses
                 query += " WHERE c.user_id IS NULL OR c.user_id = ?"
                 params.append(user["id"])
             else:
+                # Users only see public courses
                 query += " WHERE c.user_id IS NULL"
     else:
+        # Guests only see public courses
         query += " WHERE c.user_id IS NULL"
         
     query += """
@@ -484,6 +350,7 @@ def get_course_library(user=None, include_private=True):
             (course["id"],),
         ).fetchall()
 
+        # Organize lessons into sections for the admin view
         grouped_sections = []
         for s in sections_raw:
             sec_lessons = [dict(l) for l in lessons if l["section_id"] == s["id"]]
@@ -496,6 +363,7 @@ def get_course_library(user=None, include_private=True):
                 "lessons": sec_lessons
             })
 
+        # Add unassigned lessons to a virtual section if any exist
         misc_lessons = [dict(l) for l in lessons if l["section_id"] is None]
         if misc_lessons:
             grouped_sections.append({
@@ -506,6 +374,7 @@ def get_course_library(user=None, include_private=True):
                 "lessons": misc_lessons
             })
 
+        # If absolutely no sections (e.g. legacy data), ensure at least one entry for UI
         if not grouped_sections:
             grouped_sections.append({
                 "id": None,
@@ -556,7 +425,7 @@ def get_admin_stats():
         SELECT c.title, COUNT(p.id) as enrollments
         FROM courses c
         LEFT JOIN progress p ON c.id = p.course_id
-        GROUP BY c.id, c.title
+        GROUP BY c.id
         ORDER BY enrollments DESC
         LIMIT 3
     """).fetchall()
@@ -573,6 +442,7 @@ def get_admin_stats():
 def get_course_overview(user=None, course_slug=None):
     db = get_db()
     
+    # If no slug is provided, and we have a user, try to find their most recently updated course
     if not course_slug and user:
         latest = db.execute("""
             SELECT c.slug 
@@ -585,6 +455,7 @@ def get_course_overview(user=None, course_slug=None):
         if latest:
             course_slug = latest["slug"]
 
+    # Fallback to 'python' or first active course if still no slug
     if not course_slug:
         first = db.execute("SELECT slug FROM courses WHERE status = 'active' ORDER BY id LIMIT 1").fetchone()
         course_slug = first["slug"] if first else "python"
@@ -597,6 +468,7 @@ def get_course_overview(user=None, course_slug=None):
             "completed_lessons": 0, "progress_percent": 0, "total_lessons": 0,
         }
 
+    # Access Control for Private Courses
     if course["user_id"] is not None:
         if not user or (not user["is_admin"] and user["id"] != course["user_id"]):
             return {
@@ -634,8 +506,10 @@ def get_course_overview(user=None, course_slug=None):
     courses = get_course_library(user)
     enrolled_courses = [c for c in courses if c["enrolled"]]
 
+    # Organize lessons into sections
     sections = []
     
+    # 1. Handle unassigned lessons FIRST (at the start of the course)
     misc_lessons = [dict(l) for l in lessons if l["section_id"] is None]
     if misc_lessons:
         sections.append({
@@ -646,6 +520,7 @@ def get_course_overview(user=None, course_slug=None):
             "lessons": misc_lessons
         })
 
+    # 2. Add defined sections
     for s in sections_raw:
         sec_lessons = [dict(l) for l in lessons if l["section_id"] == s["id"]]
         sections.append({
@@ -657,9 +532,11 @@ def get_course_overview(user=None, course_slug=None):
             "lessons": sec_lessons
         })
 
+    # If no lessons at all, ensures sections is empty
     if not lessons and not sections_raw:
         sections = []
 
+    # Enrich course object with dynamic stats
     course_dict = dict(course)
     course_dict.update({
         "total_lessons": total,
@@ -689,6 +566,7 @@ def create_course(slug, title, subtitle, level, status, user_id=None):
         (slug, title, subtitle, level, status, user_id),
     )
     course_id = cursor.lastrowid
+    
     db.commit()
     return db.execute("SELECT * FROM courses WHERE id = ?", (course_id,)).fetchone()
 
@@ -703,18 +581,24 @@ def update_course(course_id, slug, title, subtitle, level, status):
 
 
 def delete_course(course_id):
+    """Delete a course and cascade-clean all related data, including career path associations."""
     db = get_db()
+
+    # 1. Identify affected career paths before deletion
     affected_paths = db.execute(
         "SELECT DISTINCT career_path_id FROM career_path_courses WHERE course_id = ?",
         (course_id,)
     ).fetchall()
 
+    # 2. Count affected users for feedback
     affected_users = db.execute(
         "SELECT COUNT(*) AS cnt FROM progress WHERE course_id = ?", (course_id,)
     ).fetchone()["cnt"]
 
+    # 3. Delete the course (CASCADE handles progress, lessons, and career_path_courses rows)
     db.execute("DELETE FROM courses WHERE id = ?", (course_id,))
 
+    # 4. Re-sort remaining courses in affected career paths to maintain sequence (1, 2, 3...)
     for row in affected_paths:
         _reorder_all_courses_in_career_path(row["career_path_id"])
 
@@ -723,18 +607,21 @@ def delete_course(course_id):
 
 
 def _reorder_all_courses_in_career_path(path_id):
+    """Renumber all courses in a career path sequentially to fix gaps."""
     db = get_db()
     courses = db.execute(
         "SELECT course_id FROM career_path_courses WHERE career_path_id = ? ORDER BY number",
         (path_id,)
     ).fetchall()
     
+    # Use temporary offset to avoid unique constraint violations
     for cid in courses:
         db.execute(
             "UPDATE career_path_courses SET number = number + 1000 WHERE career_path_id = ? AND course_id = ?",
             (path_id, cid["course_id"])
         )
         
+    # Final sequential numbering
     for idx, cid in enumerate(courses, start=1):
         db.execute(
             "UPDATE career_path_courses SET number = ? WHERE career_path_id = ? AND course_id = ?",
@@ -745,18 +632,21 @@ def _reorder_all_courses_in_career_path(path_id):
 
 # ─── Career Path Queries ────────────────────────────────────────────────────
 
+
 def get_career_paths(user_id=None):
     db = get_db()
     paths = db.execute("SELECT * FROM career_paths ORDER BY id DESC").fetchall()
     result = []
     for p in paths:
         path_dict = dict(p)
+        # Count courses
         count = db.execute(
             "SELECT COUNT(*) AS cnt FROM career_path_courses WHERE career_path_id = ?",
             (p["id"],)
         ).fetchone()["cnt"]
         path_dict["course_count"] = count
 
+        # Check enrollment if user_id provided
         if user_id:
             enrolled = db.execute("""
                 SELECT 1 FROM career_path_enrollments 
@@ -778,6 +668,8 @@ def get_career_path_by_slug(slug, user=None):
         return None
 
     path_dict = dict(path)
+    
+    # Path enrollment status
     path_dict["enrolled"] = False
     if user:
         enrolled = db.execute(
@@ -786,6 +678,7 @@ def get_career_path_by_slug(slug, user=None):
         ).fetchone()
         path_dict["enrolled"] = enrolled is not None
 
+    # Get courses in this path
     courses = db.execute("""
         SELECT c.*, cpc.number 
         FROM courses c
@@ -797,6 +690,7 @@ def get_career_path_by_slug(slug, user=None):
     path_dict["courses"] = []
     for c in courses:
         c_dict = dict(c)
+        # Check course-level enrollment
         if user:
             prog = db.execute(
                 "SELECT 1 FROM progress WHERE course_id = ? AND user_id = ?",
@@ -842,6 +736,7 @@ def delete_career_path(path_id):
 def add_course_to_career_path(path_id, course_id, number=None):
     db = get_db()
     if number is None:
+        # Get max number
         res = db.execute(
             "SELECT MAX(number) AS max_n FROM career_path_courses WHERE career_path_id = ?",
             (path_id,)
@@ -865,12 +760,15 @@ def remove_course_from_career_path(path_id, course_id):
 
 
 def reorder_career_path_courses(path_id, course_ids):
+    """Reorder courses in a career path safely."""
     db = get_db()
+    # 1. Temporary high offset
     for cid in course_ids:
         db.execute(
             "UPDATE career_path_courses SET number = number + 1000 WHERE career_path_id = ? AND course_id = ?",
             (path_id, cid)
         )
+    # 2. Set final positions
     for idx, cid in enumerate(course_ids, start=1):
         db.execute(
             "UPDATE career_path_courses SET number = ? WHERE career_path_id = ? AND course_id = ?",
@@ -880,6 +778,7 @@ def reorder_career_path_courses(path_id, course_ids):
 
 
 # ─── Section Queries ────────────────────────────────────────────────────────
+
 
 def get_sections_by_course(course_id):
     return get_db().execute(
@@ -913,30 +812,43 @@ def update_section(section_id, number, title, description, background=None):
 
 
 def delete_section(section_id):
+    """
+    Safely delete a section. 
+    If it has lessons, move them to the previous section.
+    If no previous section exists, returns False.
+    """
     db = get_db()
     section = db.execute("SELECT * FROM sections WHERE id = ?", (section_id,)).fetchone()
     if not section:
         return False
 
     course_id = section["course_id"]
+    
+    # Check for lessons
     lessons = db.execute("SELECT id FROM lessons WHERE section_id = ?", (section_id,)).fetchall()
     if lessons:
+        # Find previous section
         prev = db.execute(
             "SELECT id FROM sections WHERE course_id = ? AND number < ? ORDER BY number DESC LIMIT 1",
             (course_id, section["number"])
         ).fetchone()
         
         if not prev:
-            return False
+            return False # Signal that we can't move them
             
+        # Move lessons to previous section
         db.execute(
             "UPDATE lessons SET section_id = ? WHERE section_id = ?",
             (prev["id"], section_id)
         )
+        
+        # Re-sort all lessons in course to maintain correct global sequence
         _reorder_all_lessons_in_course(course_id)
     
+    # Delete the section
     db.execute("DELETE FROM sections WHERE id = ?", (section_id,))
     
+    # Renumber remaining sections sequentially
     remaining_sections = db.execute(
         "SELECT id FROM sections WHERE course_id = ? ORDER BY number",
         (course_id,)
@@ -949,7 +861,9 @@ def delete_section(section_id):
 
 
 def _reorder_all_lessons_in_course(course_id):
+    """Renumber all lessons in a course sequentially based on section and lesson order."""
     db = get_db()
+    # Order by section number (NULL sections first), then current lesson number
     lessons = db.execute("""
         SELECT l.id 
         FROM lessons l
@@ -958,9 +872,11 @@ def _reorder_all_lessons_in_course(course_id):
         ORDER BY CASE WHEN s.number IS NULL THEN 0 ELSE s.number END ASC, l.number ASC
     """, (course_id,)).fetchall()
     
+    # Use temporary high offset to avoid unique constraint violations during reorder
     for lid in lessons:
         db.execute("UPDATE lessons SET number = number + 10000 WHERE id = ?", (lid["id"],))
     
+    # Final sequential numbering
     for idx, lid in enumerate(lessons, start=1):
         db.execute("UPDATE lessons SET number = ? WHERE id = ?", (idx, lid["id"]))
     db.commit()
@@ -973,6 +889,7 @@ def update_section_order(section_id, number):
 
 
 # ─── Activity Queries ────────────────────────────────────────────────────────
+
 
 def award_xp(user_id, xp_amount, activity_type, course_id=None):
     db = get_db()
@@ -1010,7 +927,10 @@ def get_user_stats(user_id):
     user = get_user_by_id(user_id)
     if not user:
         return None
-    return {"total_xp": user["total_xp"]}
+    
+    return {
+        "total_xp": user["total_xp"]
+    }
 
 
 def update_user_profile(user_id, name):
@@ -1079,29 +999,40 @@ def update_lesson_section_and_order(lesson_id, section_id, number):
 
 
 def reorder_sections(course_id, section_ids):
+    """Reorder sections in a course safely without unique constraint violations."""
     db = get_db()
+    # 1. Move all sections to a temporary high offset
     for sid in section_ids:
         db.execute("UPDATE sections SET number = number + 1000 WHERE id = ?", (sid,))
+    
+    # 2. Set final positions
     for idx, sid in enumerate(section_ids, start=1):
         db.execute("UPDATE sections SET number = ? WHERE id = ?", (idx, sid))
     db.commit()
 
 
 def reorder_lessons(course_id, section_id, lesson_ids):
+    """Reorder lessons in a section (and update their section) safely."""
     db = get_db()
+
+    # 1. Update section_id for all lessons in this batch
     for lid in lesson_ids:
         db.execute("UPDATE lessons SET section_id = ? WHERE id = ?", (section_id, lid))
 
+    # 2. Assign temporary numbers in the requested order to ensure internal section sequence
+    # Use a very high base to avoid clashing with existing numbers
     base = 100000
     for idx, lid in enumerate(lesson_ids, start=1):
         db.execute("UPDATE lessons SET number = ? WHERE id = ?", (base + idx, lid))
 
+    # 3. Renumber the entire course sequentially to fix all numbers and maintain integrity
     _reorder_all_lessons_in_course(course_id)
     db.commit()
 
-
 def delete_lesson(lesson_id):
+    """Delete a lesson and fix progress for any enrolled users."""
     db = get_db()
+
     lesson = db.execute("SELECT * FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
     if lesson is None:
         return False
@@ -1109,23 +1040,27 @@ def delete_lesson(lesson_id):
     course_id = lesson["course_id"]
     deleted_number = lesson["number"]
 
+    # Get remaining lessons (excluding the one being deleted)
     remaining = db.execute(
         "SELECT * FROM lessons WHERE course_id = ? AND id != ? ORDER BY number",
         (course_id, lesson_id),
     ).fetchall()
 
     if remaining:
+        # Find the best fallback lesson for users who were on the deleted lesson
         fallback = remaining[0]
         for r in remaining:
             if r["number"] > deleted_number:
                 fallback = r
                 break
 
+        # Update progress: users pointing to deleted lesson → move to fallback
         db.execute(
             "UPDATE progress SET current_lesson_id = ? WHERE current_lesson_id = ?",
             (fallback["id"], lesson_id),
         )
 
+        # Cap completed_lessons so it doesn't exceed new total count
         new_total = len(remaining)
         db.execute(
             """
@@ -1136,10 +1071,15 @@ def delete_lesson(lesson_id):
             (new_total, course_id),
         )
     else:
+        # No remaining lessons — remove all progress for this course
         db.execute("DELETE FROM progress WHERE course_id = ?", (course_id,))
 
+    # Delete the lesson
     db.execute("DELETE FROM lessons WHERE id = ?", (lesson_id,))
+
+    # Renumber remaining lessons sequentially (1, 2, 3...) based on their section and global order
     _reorder_all_lessons_in_course(course_id)
+
     db.commit()
     return True
 
@@ -1161,8 +1101,10 @@ def mark_lesson_complete(user_id, course_slug, completed_lesson_number):
     if progress is None:
         return None
 
+    # Check if this is a new completion
     is_new_completion = completed_lesson_number > progress["completed_lessons"]
 
+    # Find next lesson; if none exists, stay on the current (last) lesson
     next_lesson = None
     for lesson in lessons:
         if lesson["number"] == completed_lesson_number + 1:
@@ -1170,6 +1112,7 @@ def mark_lesson_complete(user_id, course_slug, completed_lesson_number):
             break
 
     if next_lesson is None:
+        # Completed the last lesson — stay on it
         next_lesson = lessons[-1]
 
     db.execute(
@@ -1186,17 +1129,21 @@ def mark_lesson_complete(user_id, course_slug, completed_lesson_number):
 
     awards = []
     if is_new_completion:
+        # 1. Award XP for lesson completion (+10)
         award_xp(user_id, 10, 'lesson_complete', course_id=course["id"])
         awards.append({'type': 'Lesson Completed', 'xp': 10})
         
+        # 2. Award XP for chapter completion (+50)
         current_lesson = next((l for l in lessons if l["number"] == completed_lesson_number), None)
         if current_lesson and current_lesson["section_id"]:
+            # Check if this is the last lesson in this section
             section_lessons = [l for l in lessons if l["section_id"] == current_lesson["section_id"]]
             last_in_section = max(section_lessons, key=lambda l: l["number"])
             if completed_lesson_number == last_in_section["number"]:
                 awards.append({'type': 'Chapter Completed', 'xp': 50})
                 award_xp(user_id, 50, 'chapter_complete', course_id=course["id"])
 
+        # 3. Award XP for course completion (+200)
         if completed_lesson_number == lessons[-1]["number"]:
             awards.append({'type': 'Course Completed', 'xp': 200})
             award_xp(user_id, 200, 'course_complete', course_id=course["id"])

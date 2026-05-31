@@ -33,19 +33,7 @@ app = Flask(__name__)
 import secrets
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", secrets.token_urlsafe(32))
 app.jinja_env.filters['fromjson'] = json.loads
-
-# Check if running on Render (PostgreSQL), otherwise fall back to local SQLite
-database_url = os.environ.get("DATABASE_URL")
-
-if database_url:
-    # Render provides 'postgres://', but Python drivers prefer 'postgresql://'
-    if database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
-    app.config["DATABASE"] = database_url
-else:
-    # Local fallback so your app still runs on your machine
-    os.makedirs(app.instance_path, exist_ok=True)
-    app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqlite3")
+app.config["DATABASE"] = os.path.join(app.instance_path, "learn_with_kabeer.sqlite3")
 
 
 #  Helpers 
