@@ -305,10 +305,26 @@ def init_db():
         BEGIN 
             IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'vector') THEN
                 CREATE EXTENSION IF NOT EXISTS vector;
+                
+                -- Drop if dimensions are mismatched (migration from 768 to 3072)
+                DO $migration$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'educational_chunks' AND column_name = 'embedding'
+                    ) THEN
+                        -- Check dimension of the existing vector column
+                        IF (SELECT atttypmod FROM pg_attribute 
+                            WHERE attrelid = 'educational_chunks'::regclass AND attname = 'embedding') != 3072 THEN
+                            DROP TABLE educational_chunks;
+                        END IF;
+                    END IF;
+                END $migration$;
+
                 CREATE TABLE IF NOT EXISTS educational_chunks (
                     id TEXT PRIMARY KEY,
                     content TEXT NOT NULL,
-                    embedding vector(768),
+                    embedding vector(3072),
                     metadata JSONB,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );

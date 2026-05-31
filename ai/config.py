@@ -8,7 +8,7 @@ import os
 
 GENERATION_MODEL = "llama-3.3-70b-versatile"
 EMBEDDING_MODEL = "gemini-embedding-001"
-EMBEDDING_DIMENSIONS = 768
+EMBEDDING_DIMENSIONS = 3072
 
 # ─── Paths ──────────────────────────────────────────────────────────────────
 
