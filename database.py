@@ -67,10 +67,7 @@ class PostgresCursorWrapper:
         elif "INSERT OR IGNORE INTO career_path_courses" in query:
             query = "INSERT INTO career_path_courses (career_path_id, course_id, number) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
 
-        # 4. Transpile CURRENT_TIMESTAMP to text string format to match SQLite storage
-        query = query.replace('CURRENT_TIMESTAMP', 'CURRENT_TIMESTAMP::text')
-
-        # 5. Handle auto-incrementing ID tracking via RETURNING clause
+        # 4. Handle auto-incrementing ID tracking via RETURNING clause
         is_insert = query.strip().upper().startswith("INSERT")
         if is_insert and "RETURNING" not in query.upper() and "ON CONFLICT DO NOTHING" not in query.upper():
             query += " RETURNING id"
@@ -132,7 +129,6 @@ class PostgresConnWrapper:
     def executescript(self, script):
         # Convert table creation syntax to Postgres standards
         script = script.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-        script = script.replace("DEFAULT CURRENT_TIMESTAMP", "DEFAULT CURRENT_TIMESTAMP::text")
         cursor = self.conn.cursor()
         cursor.execute(script)
         return cursor
@@ -175,44 +171,42 @@ def close_db(error=None):
 
 
 def init_db():
-    db_uri = current_app.config["DATABASE"]
-    is_pg = db_uri.startswith(("postgresql://", "postgres://"))
-
-    if is_pg:
-        conn = psycopg2.connect(db_uri)
-        db = PostgresConnWrapper(conn)
-    else:
+    is_postgres = current_app.config["DATABASE"].startswith("postgresql://")
+    
+    if not is_postgres:
         os.makedirs(current_app.instance_path, exist_ok=True)
-        conn = sqlite3.connect(db_uri)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON")
-        db = conn
+        db = sqlite3.connect(current_app.config["DATABASE"])
+        db.row_factory = sqlite3.Row
+        db.execute("PRAGMA foreign_keys = ON")
+    else:
+        # Get your postgres connection from your wrapper setup
+        db = g.pop("db", None) or get_db()
 
-    db.executescript(
-        """
+    # The raw string containing your tables
+    schema_sql = """
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             is_admin INTEGER NOT NULL DEFAULT 0,
             is_pro INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             total_xp INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS activity_log (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             course_id INTEGER,
             activity_type TEXT NOT NULL,
             xp_amount INTEGER NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS courses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER,
             slug TEXT NOT NULL UNIQUE,
             title TEXT NOT NULL,
@@ -223,7 +217,7 @@ def init_db():
         );
 
         CREATE TABLE IF NOT EXISTS sections (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             course_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             description TEXT,
@@ -234,7 +228,7 @@ def init_db():
         );
 
         CREATE TABLE IF NOT EXISTS lessons (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             course_id INTEGER NOT NULL,
             section_id INTEGER,
             number INTEGER NOT NULL,
@@ -252,20 +246,19 @@ def init_db():
         );
 
         CREATE TABLE IF NOT EXISTS progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             course_id INTEGER NOT NULL,
             current_lesson_id INTEGER NOT NULL,
             completed_lessons INTEGER NOT NULL DEFAULT 0,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
             FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
-            FOREIGN KEY (current_lesson_id) REFERENCES lessons (id) ON DELETE SET NULL,
             UNIQUE (user_id, course_id)
         );
 
         CREATE TABLE IF NOT EXISTS career_paths (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             slug TEXT NOT NULL UNIQUE,
             title TEXT NOT NULL,
             subtitle TEXT NOT NULL,
@@ -287,66 +280,79 @@ def init_db():
         CREATE TABLE IF NOT EXISTS career_path_enrollments (
             user_id INTEGER NOT NULL,
             career_path_id INTEGER NOT NULL,
-            enrolled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (user_id, career_path_id),
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
             FOREIGN KEY (career_path_id) REFERENCES career_paths (id) ON DELETE CASCADE
         );
-        """
-    )
+    """
+
+    # SAFE EXECUTION TRICK FOR BOTH DRIVERS:
+    if is_postgres:
+        # SQLite uses AUTOINCREMENT, Postgres uses SERIAL (handled above)
+        # Split statements by semicolon and run them one by one
+        for statement in schema_sql.split(";"):
+            clean_statement = statement.strip()
+            if clean_statement:
+                db.execute(clean_statement)
+        db.commit()
+    else:
+        # Fallback for local SQLite machine
+        sqlite_schema = schema_sql.replace("SERIAL PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT")
+        sqlite_schema = sqlite_schema.replace("TIMESTAMP", "TEXT")
+        db.executescript(sqlite_schema)
+        db.commit()
 
     # Migration tracking context catches errors gracefully and handles aborted transactions for Postgres
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN content_type TEXT NOT NULL DEFAULT 'html'")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE sections ADD COLUMN background TEXT")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN builder_json TEXT")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE lessons ADD COLUMN plan_json TEXT")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE users ADD COLUMN total_xp INTEGER NOT NULL DEFAULT 0")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE users ADD COLUMN is_pro INTEGER NOT NULL DEFAULT 0")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
     try:
         db.execute("ALTER TABLE courses ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE")
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
-        if is_pg: conn.rollback()
+        if is_postgres: db.rollback()
 
-        # 1. Safely check if the 'users' table exists before trying to query it
-    is_postgres = current_app.config["DATABASE"].startswith("postgresql://")
-    
+    # 1. Safely check if the 'users' table exists before trying to query it
     if is_postgres:
         table_check = db.execute(
             "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')"
