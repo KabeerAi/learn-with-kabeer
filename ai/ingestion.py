@@ -135,14 +135,35 @@ def get_ingestion_stats() -> dict:
 def ensure_ingested() -> None:
     """
     Check if the vector store is populated; if not, run ingestion.
-    Called on app startup to ensure the dataset is ready.
+    Uses a lock file to prevent multiple workers from ingesting simultaneously.
     """
     count = get_collection_count()
-    if count == 0:
-        print("[STARTUP] Vector store is empty. Running initial dataset ingestion...")
-        ingest_all_datasets()
-    else:
+    if count > 0:
         print(f"[STARTUP] Vector store ready: {count} chunks loaded.")
+        return
+
+    # Atomic lock creation
+    lock_file = os.path.join(DATASET_DIR, ".ingest.lock")
+    try:
+        # On Render/Linux, this is atomic. On Windows, it works similarly.
+        # If the file exists, this will fail.
+        fd = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        try:
+            print("[STARTUP] Vector store is empty. Running initial dataset ingestion...")
+            ingest_all_datasets()
+        finally:
+            os.close(fd)
+            if os.path.exists(lock_file):
+                os.remove(lock_file)
+    except FileExistsError:
+        print("[STARTUP] Another worker is already ingesting the dataset. Waiting...")
+        # Optional: could wait, but better to just return and let the other worker finish.
+        # Subsequent requests will either wait for ChromaDB lock or see the count > 0.
+        return
+    except Exception as e:
+        print(f"[STARTUP] Ingestion error: {e}")
+        if os.path.exists(lock_file):
+            os.remove(lock_file)
 
 
 def _discover_dataset_files() -> list[str]:

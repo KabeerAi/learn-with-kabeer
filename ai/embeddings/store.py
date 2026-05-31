@@ -28,10 +28,18 @@ def _get_collection() -> chromadb.Collection:
             return _collection
 
         os.makedirs(CHROMADB_DIR, exist_ok=True)
-        _chroma_client = chromadb.PersistentClient(path=CHROMADB_DIR)
+        # Disable telemetry and use a more memory-efficient configuration
+        _chroma_client = chromadb.PersistentClient(
+            path=CHROMADB_DIR,
+            settings=chromadb.Settings(anonymized_telemetry=False)
+        )
+        
+        # Explicitly set embedding_function=None to prevent Chroma from 
+        # downloading/loading default ONNX models which saves ~300MB RAM
         _collection = _chroma_client.get_or_create_collection(
             name=COLLECTION_NAME,
             metadata={"hnsw:space": "cosine"},
+            embedding_function=None
         )
         return _collection
 
@@ -73,16 +81,6 @@ def query_chunks(
 ) -> dict:
     """
     Query the vector store for similar chunks.
-
-    Args:
-        query_embedding: The embedding vector to search with.
-        n_results: Number of results to return.
-        where: Metadata filter dict (e.g., {"chunk_type": "analogy"}).
-        where_document: Document content filter.
-
-    Returns:
-        ChromaDB query results dict with keys:
-        ids, documents, metadatas, distances
     """
     collection = _get_collection()
 
@@ -97,7 +95,13 @@ def query_chunks(
     if where_document:
         kwargs["where_document"] = where_document
 
-    return collection.query(**kwargs)
+    # Use the global lock to prevent concurrent access issues
+    with _chroma_lock:
+        try:
+            return collection.query(**kwargs)
+        except Exception as e:
+            print(f"[CHROMA QUERY ERROR] {e}")
+            return {"documents": [[]], "metadatas": [[]], "distances": [[]]}
 
 
 def get_collection_count() -> int:
