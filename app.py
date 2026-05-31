@@ -529,9 +529,12 @@ def admin_career_path_new():
         try:
             path = database.create_career_path(slug, title, subtitle, description, level, status)
             flash("Career path created successfully.", "success")
-            return redirect(url_for("admin_career_path_manage", path_id=path["id"]))
-        except Exception:
+            return redirect(url_for("admin_career_path_manage", path_id=path["id"] if isinstance(path, dict) else path))
+        except (database.sqlite3.IntegrityError, database.psycopg2.IntegrityError):
             flash("A career path with this slug already exists.", "error")
+            return render_template("admin/career_path_form.html", path=None)
+        except Exception as e:
+            flash(f"An unexpected error occurred: {str(e)}", "error")
             return render_template("admin/career_path_form.html", path=None)
 
     return render_template("admin/career_path_form.html", path=None)
@@ -1114,12 +1117,15 @@ def generate_single_lesson(course_slug, lesson_number):
     if lesson["builder_json"] and lesson["builder_json"] != "[]":
         return {"status": "success"}
 
-    from ai.generators.memory import CourseMemory
-    from ai.generators.lesson import generate_lesson
+    # Use a unique session ID for this lesson generation job
+    job_id = f"lesson-{lesson['id']}-{int(time.time())}"
     
-    # Reconstruct memory
-    memory = CourseMemory.build_from_db(overview["course"]["id"], lesson_number)
-    
+    # Check if already generating (optional, but good practice)
+    from ai.pipelines.course_pipeline import get_progress as ai_get_progress, generate_single_lesson_task
+    current_status = ai_get_progress(job_id)
+    if current_status.get("status") == "generating":
+        return {"status": "processing", "job_id": job_id}
+
     # We need the section name
     section_name = "Core Curriculum"
     if lesson["section_id"]:
@@ -1127,40 +1133,54 @@ def generate_single_lesson(course_slug, lesson_number):
         if sec:
             section_name = sec["title"]
 
-    try:
-        backgrounds = get_available_backgrounds()
-        lesson_data = generate_lesson(
-            lesson_title=lesson["title"],
-            lesson_objective=lesson["summary"],
-            lesson_number=lesson_number,
-            section_name=section_name,
-            course_title=overview["course"]["title"],
-            difficulty=overview["course"]["level"],
-            memory_context=memory.build_context(),
-            backgrounds=backgrounds,
-        )
+    backgrounds = get_available_backgrounds()
+    
+    from flask import current_app
+    app_obj = current_app._get_current_object()
 
-        raw_blocks = lesson_data.get('builder_json', [])
-        normalized_blocks = normalize_builder_json(raw_blocks)
-        html_content = builder_json_to_html(normalized_blocks)
+    # Start thread
+    thread = threading.Thread(
+        target=generate_single_lesson_task,
+        kwargs={
+            "session_id": job_id,
+            "course_id": overview["course"]["id"],
+            "lesson_id": lesson["id"],
+            "lesson_number": lesson_number,
+            "lesson_title": lesson["title"],
+            "lesson_objective": lesson["summary"],
+            "section_name": section_name,
+            "course_title": overview["course"]["title"],
+            "difficulty": overview["course"]["level"],
+            "backgrounds": backgrounds,
+            "database_module": database,
+            "normalize_builder_json_func": normalize_builder_json,
+            "builder_json_to_html_func": builder_json_to_html,
+            "section_id": lesson["section_id"],
+            "app": app_obj
+        }
+    )
+    thread.start()
 
-        database.update_lesson(
-            lesson_id=lesson["id"],
-            number=lesson["number"],
-            slug=lesson["slug"],
-            title=lesson_data.get("title", lesson["title"]),
-            summary=lesson_data.get("summary", lesson["summary"]),
-            content=html_content,
-            content_type="html",
-            section_id=lesson["section_id"],
-            builder_json=json.dumps(normalized_blocks),
-            plan_json=json.dumps(lesson_data.get("plan", {}))
-        )
+    return {"status": "processing", "job_id": job_id}
 
-        return {"status": "success"}
-    except Exception as e:
-        print(f"Lesson generation error: {e}")
-        return {"error": str(e)}, 500
+
+@app.route("/lesson/generate/status/<job_id>")
+@login_required
+def generate_lesson_status(job_id):
+    """Poll generation progress for a single lesson."""
+    from ai.pipelines.course_pipeline import get_progress as ai_get_progress, clear_progress as ai_clear_progress
+    progress = ai_get_progress(job_id)
+
+    if progress.get("status") == "complete":
+        ai_clear_progress(job_id)
+        return {"status": "complete"}
+
+    if progress.get("status") == "error":
+        error = progress.get("error", "Unknown error")
+        ai_clear_progress(job_id)
+        return {"status": "error", "error": error}
+
+    return progress
 
 # Legacy generate_cod_full_content has been replaced by
 # ai.pipelines.course_pipeline.generate_course()

@@ -857,8 +857,9 @@ def create_career_path(slug, title, subtitle, description, level, status):
         "INSERT INTO career_paths (slug, title, subtitle, description, level, status) VALUES (?, ?, ?, ?, ?, ?)",
         (slug, title, subtitle, description, level, status),
     )
+    path_id = cursor.lastrowid
     db.commit()
-    return cursor.lastrowid
+    return path_id
 
 
 def update_career_path(path_id, slug, title, subtitle, description, level, status):

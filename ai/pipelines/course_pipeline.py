@@ -209,3 +209,72 @@ def generate_course(syllabus: dict, backgrounds: list[str] = None, session_id: s
         "subtitle": course_subtitle,
         "lessons": generated_lessons,
     }
+
+
+def generate_single_lesson_task(
+    session_id: str,
+    course_id: int,
+    lesson_id: int,
+    lesson_number: int,
+    lesson_title: str,
+    lesson_objective: str,
+    section_name: str,
+    course_title: str,
+    difficulty: str,
+    backgrounds: list[str],
+    database_module,
+    normalize_builder_json_func,
+    builder_json_to_html_func,
+    section_id: int = None,
+    app=None
+) -> None:
+    """
+    Background task to generate a single lesson lazily.
+    """
+    _update_progress(session_id, status="generating", percent=10, current_title=lesson_title)
+
+    try:
+        # Use app context for database operations
+        with app.app_context():
+            # Reconstruct memory for this lesson
+            from ai.generators.memory import CourseMemory
+            memory = CourseMemory.build_from_db(course_id, lesson_number)
+
+            # Generate content
+            lesson_data = generate_lesson(
+                lesson_title=lesson_title,
+                lesson_objective=lesson_objective,
+                lesson_number=lesson_number,
+                section_name=section_name,
+                course_title=course_title,
+                difficulty=difficulty,
+                memory_context=memory.build_context(),
+                backgrounds=backgrounds,
+            )
+
+            _update_progress(session_id, percent=80)
+
+            raw_blocks = lesson_data.get('builder_json', [])
+            normalized_blocks = normalize_builder_json_func(raw_blocks)
+            html_content = builder_json_to_html_func(normalized_blocks)
+
+            # Update database
+            database_module.update_lesson(
+                lesson_id=lesson_id,
+                number=lesson_number,
+                slug=lesson_data.get("slug", f"lesson-{lesson_number}-{int(time.time())}"),
+                title=lesson_data.get("title", lesson_title),
+                summary=lesson_data.get("summary", lesson_objective),
+                content=html_content,
+                content_type="html",
+                section_id=section_id,
+                builder_json=json.dumps(normalized_blocks),
+                plan_json=json.dumps(lesson_data.get("plan", {}))
+            )
+
+        _update_progress(session_id, status="complete", percent=100)
+
+    except Exception as e:
+        print(f"[ASYNC LESSON GEN ERROR] {e}")
+        _update_progress(session_id, status="error", error=str(e))
+

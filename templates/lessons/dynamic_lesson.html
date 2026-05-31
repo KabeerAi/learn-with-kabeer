@@ -190,34 +190,57 @@
             setTimeout(() => loader.classList.add('is-solid-in'), 100);
             setTimeout(() => loader.classList.add('is-transparent-ready'), 800);
 
-            const generationPromise = fetch(generateUrl, {
+            async function pollStatus(jobId) {
+                const statusUrl = `/lesson/generate/status/${jobId}`;
+                try {
+                    const res = await fetch(statusUrl);
+                    const data = await res.json();
+                    
+                    if (data.status === "complete") {
+                        return true;
+                    } else if (data.status === "error") {
+                        throw new Error(data.error || "Generation failed");
+                    } else {
+                        // Still processing, wait and poll again
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        return pollStatus(jobId);
+                    }
+                } catch (err) {
+                    throw err;
+                }
+            }
+
+            // Start generation and poll for results
+            fetch(generateUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" }
-            }).then(r => r.json());
-
-            // Satisfying min delay
-            const delayPromise = new Promise(resolve => setTimeout(resolve, 3000));
-
-            Promise.all([generationPromise, delayPromise]).then(([data]) => {
+            })
+            .then(r => r.json())
+            .then(data => {
                 if (data.status === "success") {
-                    loader.classList.add('is-loaded');
-                    setTimeout(() => {
-                        loader.classList.add('is-solid-exiting');
-                        setTimeout(() => {
-                            loader.classList.add('is-transparent-ending');
-                            setTimeout(() => window.location.reload(), 800);
-                        }, 920);
-                    }, 480);
+                    // Already exists
+                    return true;
+                } else if (data.status === "processing") {
+                    // Start polling
+                    return pollStatus(data.job_id);
                 } else {
-                    loader.remove();
-                    document.getElementById('generation-error').classList.remove('hidden');
-                    document.getElementById('error-message').textContent = data.error || 'The system was unable to architect this lesson.';
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    throw new Error(data.error || "Failed to start generation");
                 }
-            }).catch(err => {
+            })
+            .then(() => {
+                loader.classList.add('is-loaded');
+                setTimeout(() => {
+                    loader.classList.add('is-solid-exiting');
+                    setTimeout(() => {
+                        loader.classList.add('is-transparent-ending');
+                        setTimeout(() => window.location.reload(), 800);
+                    }, 920);
+                }, 480);
+            })
+            .catch(err => {
                 loader.remove();
                 document.getElementById('generation-error').classList.remove('hidden');
-                document.getElementById('error-message').textContent = 'A connection error occurred.';
+                document.getElementById('error-message').textContent = err.message || 'A connection error occurred.';
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             });
         });
