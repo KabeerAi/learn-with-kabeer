@@ -299,6 +299,21 @@ def init_db():
             error_message TEXT,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        -- AI Vector Store (for Render/Postgres)
+        DO $$ 
+        BEGIN 
+            IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'vector') THEN
+                CREATE EXTENSION IF NOT EXISTS vector;
+                CREATE TABLE IF NOT EXISTS educational_chunks (
+                    id TEXT PRIMARY KEY,
+                    content TEXT NOT NULL,
+                    embedding vector(768),
+                    metadata JSONB,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            END IF;
+        END $$;
     """
 
     # SAFE EXECUTION TRICK FOR BOTH DRIVERS:
