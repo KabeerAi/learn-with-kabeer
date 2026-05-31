@@ -65,10 +65,13 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
         batch = texts[i : i + _BATCH_SIZE]
         batch_num = (i // _BATCH_SIZE) + 1
         total_batches = (len(texts) + _BATCH_SIZE - 1) // _BATCH_SIZE
-        print(f"  [EMBED] Batch {batch_num}/{total_batches} ({len(batch)} texts)...")
+        print(f"  [EMBED] Starting batch {batch_num}/{total_batches} ({len(batch)} texts)...")
 
         try:
+            start_time = time.time()
             embeddings = _embed_batch(client, batch)
+            elapsed = time.time() - start_time
+            print(f"  [EMBED] Batch {batch_num} complete in {elapsed:.2f}s")
             all_embeddings.extend(embeddings)
         except RuntimeError:
             # Fallback: embed one by one

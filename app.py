@@ -1168,6 +1168,26 @@ def generate_single_lesson(course_slug, lesson_number):
 @login_required
 def generate_lesson_status(job_id):
     """Poll generation progress for a single lesson."""
+    # First, try to get from the persistent database (for cross-worker consistency on Render)
+    job = database.get_system_job(job_id)
+    
+    if job:
+        status = job["status"]
+        if status == "complete":
+            database.delete_system_job(job_id)
+            return {"status": "complete"}
+        elif status == "error":
+            error = job["error_message"] or "Unknown error"
+            database.delete_system_job(job_id)
+            return {"status": "error", "error": error}
+        else:
+            return {
+                "status": status,
+                "percent": job["progress_percent"],
+                "current_title": job["current_title"]
+            }
+
+    # Fallback to memory for local dev or older tasks
     from ai.pipelines.course_pipeline import get_progress as ai_get_progress, clear_progress as ai_clear_progress
     progress = ai_get_progress(job_id)
 

@@ -6,6 +6,7 @@ and semantic search with metadata filtering.
 """
 
 import os
+import threading
 from typing import Optional
 
 import chromadb
@@ -15,22 +16,24 @@ from ai.config import CHROMADB_DIR, COLLECTION_NAME
 
 _chroma_client: Optional[chromadb.PersistentClient] = None
 _collection: Optional[chromadb.Collection] = None
+_chroma_lock = threading.Lock()
 
 
 def _get_collection() -> chromadb.Collection:
-    """Get or create the ChromaDB collection."""
+    """Get or create the ChromaDB collection (thread-safe)."""
     global _chroma_client, _collection
 
-    if _collection is not None:
-        return _collection
+    with _chroma_lock:
+        if _collection is not None:
+            return _collection
 
-    os.makedirs(CHROMADB_DIR, exist_ok=True)
-    _chroma_client = chromadb.PersistentClient(path=CHROMADB_DIR)
-    _collection = _chroma_client.get_or_create_collection(
-        name=COLLECTION_NAME,
-        metadata={"hnsw:space": "cosine"},
-    )
-    return _collection
+        os.makedirs(CHROMADB_DIR, exist_ok=True)
+        _chroma_client = chromadb.PersistentClient(path=CHROMADB_DIR)
+        _collection = _chroma_client.get_or_create_collection(
+            name=COLLECTION_NAME,
+            metadata={"hnsw:space": "cosine"},
+        )
+        return _collection
 
 
 def upsert_chunks(

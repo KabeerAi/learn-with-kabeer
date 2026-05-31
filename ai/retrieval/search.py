@@ -134,13 +134,41 @@ def search_all_references(topic: str, difficulty: str = "Beginner") -> dict:
     Perform a comprehensive search across all chunk types for a topic.
 
     Returns a dict with categorized results for context building.
+    Uses batch embedding to minimize API latency.
     """
+    from ai.embeddings.embedder import generate_embeddings
+    
+    # 1. Prepare all query prompts
+    prompts = [
+        f"How to teach and explain {topic} to a {difficulty} student",      # teaching examples
+        f"Analogy or metaphor to explain {topic} in simple terms",          # analogies
+        f"Practice exercise or hands-on challenge for {topic}",            # exercises
+        f"Summary and recap of key points about {topic}",                 # recaps
+        f"Code example demonstrating {topic} with explanation",           # code
+        f"Beginner-friendly lesson teaching {topic} step by step"          # pacing
+    ]
+    
+    # 2. Generate all embeddings in one batch
+    print(f"    [RETRIEVE] Generating batch embeddings for search queries...")
+    embeddings = generate_embeddings(prompts)
+    
+    # 3. Perform ChromaDB queries with pre-generated embeddings
     return {
-        "teaching_examples": search_teaching_examples(topic, difficulty, k=4),
-        "analogies": search_analogies(topic, k=2),
-        "exercises": search_exercises(topic, k=2),
-        "code_examples": search_code_examples(topic, k=2),
-        "pacing_examples": search_pacing_examples(topic, k=2),
+        "teaching_examples": _format_results(query_chunks(
+            query_embedding=embeddings[0], n_results=4, where={"difficulty": difficulty} if difficulty else None
+        )),
+        "analogies": _format_results(query_chunks(
+            query_embedding=embeddings[1], n_results=2, where={"chunk_type": "analogy"}
+        )),
+        "exercises": _format_results(query_chunks(
+            query_embedding=embeddings[2], n_results=2, where={"chunk_type": "exercise"}
+        )),
+        "code_examples": _format_results(query_chunks(
+            query_embedding=embeddings[4], n_results=2, where={"chunk_type": "explained_code"}
+        )),
+        "pacing_examples": _format_results(query_chunks(
+            query_embedding=embeddings[5], n_results=2, where={"chunk_type": "explanation"}
+        )),
     }
 
 

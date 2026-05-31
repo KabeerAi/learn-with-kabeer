@@ -36,11 +36,35 @@ def get_progress(session_id: str) -> dict:
 
 
 def _update_progress(session_id: str, **kwargs) -> None:
-    """Update progress for a session."""
+    """Update progress tracking (supports memory for dev and database for production)."""
+    if not session_id:
+        return
+
     with _progress_lock:
         if session_id not in _generation_progress:
-            _generation_progress[session_id] = {}
+            _generation_progress[session_id] = {
+                "status": "idle",
+                "current_lesson": 0,
+                "total_lessons": 0,
+                "current_title": "",
+                "percent": 0,
+            }
         _generation_progress[session_id].update(kwargs)
+    
+    # Persistent database update if db_module is provided
+    db = kwargs.get('db_module')
+    if db:
+        try:
+            db.update_system_job(
+                job_id=session_id,
+                status=kwargs.get('status'),
+                progress=kwargs.get('percent'),
+                title=kwargs.get('current_title'),
+                url=kwargs.get('url'),
+                error=kwargs.get('error')
+            )
+        except Exception as e:
+            print(f"[DB PROGRESS ERROR] {e}")
 
 
 def clear_progress(session_id: str) -> None:
@@ -231,7 +255,11 @@ def generate_single_lesson_task(
     """
     Background task to generate a single lesson lazily.
     """
-    _update_progress(session_id, status="generating", percent=10, current_title=lesson_title)
+    # Initialize job in DB
+    with app.app_context():
+        database_module.create_system_job(session_id, status='generating', title=lesson_title)
+
+    _update_progress(session_id, status="generating", percent=10, current_title=lesson_title, db_module=database_module)
 
     try:
         # Use app context for database operations
@@ -252,7 +280,7 @@ def generate_single_lesson_task(
                 backgrounds=backgrounds,
             )
 
-            _update_progress(session_id, percent=80)
+            _update_progress(session_id, percent=80, db_module=database_module)
 
             raw_blocks = lesson_data.get('builder_json', [])
             normalized_blocks = normalize_builder_json_func(raw_blocks)
@@ -272,9 +300,9 @@ def generate_single_lesson_task(
                 plan_json=json.dumps(lesson_data.get("plan", {}))
             )
 
-        _update_progress(session_id, status="complete", percent=100)
+        _update_progress(session_id, status="complete", percent=100, db_module=database_module)
 
     except Exception as e:
         print(f"[ASYNC LESSON GEN ERROR] {e}")
-        _update_progress(session_id, status="error", error=str(e))
+        _update_progress(session_id, status="error", error=str(e), db_module=database_module)
 

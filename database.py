@@ -285,6 +285,16 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
             FOREIGN KEY (career_path_id) REFERENCES career_paths (id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS system_jobs (
+            job_id TEXT PRIMARY KEY,
+            status TEXT NOT NULL DEFAULT 'pending',
+            progress_percent INTEGER NOT NULL DEFAULT 0,
+            current_title TEXT,
+            result_url TEXT,
+            error_message TEXT,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
     """
 
     # SAFE EXECUTION TRICK FOR BOTH DRIVERS:
@@ -348,6 +358,22 @@ def init_db():
 
     try:
         db.execute("ALTER TABLE courses ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE")
+        db.commit()
+    except (sqlite3.OperationalError, psycopg2.Error):
+        if is_postgres: db.rollback()
+
+    try:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS system_jobs (
+                job_id TEXT PRIMARY KEY,
+                status TEXT NOT NULL DEFAULT 'pending',
+                progress_percent INTEGER NOT NULL DEFAULT 0,
+                current_title TEXT,
+                result_url TEXT,
+                error_message TEXT,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
         db.commit()
     except (sqlite3.OperationalError, psycopg2.Error):
         if is_postgres: db.rollback()
@@ -1180,6 +1206,59 @@ def delete_lesson(lesson_id):
     _reorder_all_lessons_in_course(course_id)
     db.commit()
     return True
+
+
+# ─── Job Tracking Queries ───────────────────────────────────────────────────
+
+def create_system_job(job_id, status='pending', progress=0, title=None, url=None):
+    db = get_db()
+    db.execute(
+        "INSERT INTO system_jobs (job_id, status, progress_percent, current_title, result_url) VALUES (?, ?, ?, ?, ?)",
+        (job_id, status, progress, title, url)
+    )
+    db.commit()
+
+
+def update_system_job(job_id, status=None, progress=None, title=None, url=None, error=None):
+    db = get_db()
+    fields = []
+    params = []
+    
+    if status is not None:
+        fields.append("status = ?")
+        params.append(status)
+    if progress is not None:
+        fields.append("progress_percent = ?")
+        params.append(progress)
+    if title is not None:
+        fields.append("current_title = ?")
+        params.append(title)
+    if url is not None:
+        fields.append("result_url = ?")
+        params.append(url)
+    if error is not None:
+        fields.append("error_message = ?")
+        params.append(error)
+        
+    if not fields:
+        return
+
+    fields.append("updated_at = CURRENT_TIMESTAMP")
+    query = f"UPDATE system_jobs SET {', '.join(fields)} WHERE job_id = ?"
+    params.append(job_id)
+    
+    db.execute(query, params)
+    db.commit()
+
+
+def get_system_job(job_id):
+    return get_db().execute("SELECT * FROM system_jobs WHERE job_id = ?", (job_id,)).fetchone()
+
+
+def delete_system_job(job_id):
+    db = get_db()
+    db.execute("DELETE FROM system_jobs WHERE job_id = ?", (job_id,))
+    db.commit()
 
 
 def mark_lesson_complete(user_id, course_slug, completed_lesson_number):

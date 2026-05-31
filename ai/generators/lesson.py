@@ -36,16 +36,20 @@ def generate_lesson(
     Returns a dict with:
       title, summary, section, section_background, number, builder_json
     """
+    import time
     client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
     # ── Stage 1: Retrieve educational references ───────────────────────
     print(f"    [RETRIEVE] Searching dataset for: {lesson_title}")
+    start_time = time.time()
     references = search_all_references(lesson_title, difficulty)
     rag_context = build_generation_context(references, lesson_title)
     teaching_patterns = extract_teaching_patterns(references)
+    print(f"    [RETRIEVE] Complete in {time.time() - start_time:.2f}s")
 
     # ── Stage 2: Plan the lesson structure ─────────────────────────────
     print(f"    [PLAN] Planning lesson structure...")
+    start_time = time.time()
     plan_prompt = build_lesson_plan_prompt(
         lesson_title=lesson_title,
         lesson_objective=lesson_objective,
@@ -82,9 +86,11 @@ def generate_lesson(
     # Ensure title is set
     lesson_plan["title"] = lesson_plan.get("title", lesson_title)
     lesson_plan["summary"] = lesson_plan.get("summary", lesson_objective)
+    print(f"    [PLAN] Complete in {time.time() - start_time:.2f}s")
 
     # ── Stage 3: Generate the full lesson content ──────────────────────
-    print(f"    [GENERATE] Generating lesson content...")
+    print(f"    [GENERATE] Generating content for {len(lesson_plan.get('sections', []))} sections...")
+    start_time = time.time()
     gen_prompt = build_lesson_generation_prompt(
         lesson_plan=lesson_plan,
         course_title=course_title,
@@ -142,5 +148,5 @@ def generate_lesson(
         "plan": lesson_plan,  # Keep plan for memory system
     }
 
-    print(f"    [DONE] {len(builder_json)} blocks generated")
+    print(f"    [DONE] Stage complete in {time.time() - start_time:.2f}s. {len(builder_json)} blocks generated.")
     return result
