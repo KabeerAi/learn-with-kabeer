@@ -137,32 +137,41 @@ def ensure_ingested() -> None:
     Check if the vector store is populated; if not, run ingestion.
     Uses a lock file to prevent multiple workers from ingesting simultaneously.
     """
+    print("[STARTUP] Checking vector store status...", flush=True)
     count = get_collection_count()
     if count > 0:
-        print(f"[STARTUP] Vector store ready: {count} chunks loaded.")
+        print(f"[STARTUP] Vector store ready: {count} chunks loaded.", flush=True)
         return
 
     # Atomic lock creation
     lock_file = os.path.join(DATASET_DIR, ".ingest.lock")
+
+    # Clean up stale locks on startup
+    if os.path.exists(lock_file):
+        # If the file is older than 10 minutes, it's definitely stale
+        import time
+        if time.time() - os.path.getmtime(lock_file) > 600:
+            print("[STARTUP] Removing stale ingestion lock.", flush=True)
+            try: os.remove(lock_file)
+            except: pass
+
     try:
-        # On Render/Linux, this is atomic. On Windows, it works similarly.
-        # If the file exists, this will fail.
         fd = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         try:
-            print("[STARTUP] Vector store is empty. Running initial dataset ingestion...")
+            print("[STARTUP] Vector store is empty. Running dataset ingestion...", flush=True)
             ingest_all_datasets()
         finally:
             os.close(fd)
             if os.path.exists(lock_file):
                 os.remove(lock_file)
     except FileExistsError:
-        print("[STARTUP] Another worker is already ingesting the dataset. Waiting...")
-        # Optional: could wait, but better to just return and let the other worker finish.
-        # Subsequent requests will either wait for ChromaDB lock or see the count > 0.
+        print("[STARTUP] Ingestion is already being handled by another worker.", flush=True)
         return
     except Exception as e:
-        print(f"[STARTUP] Ingestion error: {e}")
+        print(f"[STARTUP] Ingestion error: {e}", flush=True)
         if os.path.exists(lock_file):
+            os.remove(lock_file)
+
             os.remove(lock_file)
 
 

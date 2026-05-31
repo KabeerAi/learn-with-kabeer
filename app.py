@@ -1364,13 +1364,16 @@ def builder_json_to_html(blocks):
 
 database.init_app(app)
 
-# Auto-ingest educational dataset on startup
-try:
-    from ai.ingestion import ensure_ingested
-    with app.app_context():
-        ensure_ingested()
-except Exception as e:
-    print(f"[STARTUP] Dataset ingestion skipped: {e}")
+# Auto-ingest educational dataset in the background on startup
+def run_background_ingestion(app_obj):
+    try:
+        from ai.ingestion import ensure_ingested
+        with app_obj.app_context():
+            ensure_ingested()
+    except Exception as e:
+        print(f"[STARTUP] Dataset ingestion failed: {e}")
+
+threading.Thread(target=run_background_ingestion, args=(app,), daemon=True).start()
 
 
 if __name__ == "__main__":
