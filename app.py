@@ -56,7 +56,7 @@ def get_available_backgrounds():
     bg_dir = os.path.join(app.static_folder, "imgs/assets/background")
     if not os.path.exists(bg_dir):
         return []
-    return [f for f in os.listdir(bg_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+    return [f for f in os.listdir(bg_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
 
 
 def lesson_url(lesson, course_slug=None):
@@ -1230,8 +1230,12 @@ def normalize_builder_json(blocks):
         # Otherwise, convert flat format to data-based format
         if block_type == 'heading':
             normalized.append({"type": "heading", "data": {"text": block.get('content', 'Heading')}})
+        elif block_type == 'subheading':
+            normalized.append({"type": "subheading", "data": {"text": block.get('content', 'Subheading')}})
         elif block_type == 'text':
             normalized.append({"type": "text", "data": {"text": block.get('content', '')}})
+        elif block_type == 'list':
+            normalized.append({"type": "list", "data": {"items": block.get('items', block.get('content', []))}})
         elif block_type == 'code':
             normalized.append({"type": "code", "data": {
                 "lang": block.get('lang', 'python'),
@@ -1272,10 +1276,19 @@ def builder_json_to_html(blocks):
             text = data.get('text', '')
             parts.append(f'<h2 class="mb-8 mt-12 text-3xl font-extrabold tracking-tight text-gray-900">{text}</h2>')
         
+        elif btype == 'subheading':
+            text = data.get('text', '')
+            parts.append(f'<h3 class="subheading-text">{text}</h3>')
+
         elif btype == 'text':
             text = data.get('text', '')
             parts.append(f'<p class="text-lg leading-relaxed text-gray-600 mb-6 font-medium">{text}</p>')
         
+        elif btype == 'list':
+            items = data.get('items', [])
+            items_html = '\n'.join([f'    <li>{item}</li>' for item in items])
+            parts.append(f'<ul class="lesson-content">\n{items_html}\n</ul>')
+
         elif btype == 'image':
             url = data.get('url', '')
             if url:
@@ -1288,12 +1301,6 @@ def builder_json_to_html(blocks):
 <div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group">
     <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
         <div class="flex items-center gap-4">
-            <div class="flex gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-            </div>
-            <div class="h-4 w-[1px] bg-gray-800"></div>
             <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">{lang}</span>
         </div>
         <button onclick="copyToClipboard(this)" data-code="{code}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">
@@ -1373,7 +1380,26 @@ def run_background_ingestion(app_obj):
     except Exception as e:
         print(f"[STARTUP] Dataset ingestion failed: {e}")
 
-threading.Thread(target=run_background_ingestion, args=(app,), daemon=True).start()
+# Keep-Alive thread for Render Free Tier
+def run_keep_alive():
+    """Pings the app every 10 minutes to prevent Render from sleeping."""
+    import requests
+    url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not url:
+        return
+        
+    print(f"[KEEP-ALIVE] Starting pinger for {url}")
+    while True:
+        try:
+            # Wait 10 minutes
+            time.sleep(600)
+            requests.get(url)
+            print(f"[KEEP-ALIVE] Pinged {url} at {time.ctime()}")
+        except Exception as e:
+            print(f"[KEEP-ALIVE] Ping failed: {e}")
+
+threading.Thread(target=run_background_ingestion, args=(app,), daemon=True, name="IngestionThread").start()
+threading.Thread(target=run_keep_alive, daemon=True, name="KeepAliveThread").start()
 
 
 if __name__ == "__main__":

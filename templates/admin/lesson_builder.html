@@ -286,9 +286,17 @@
                     <div class="icon-box"><i data-lucide="heading"></i></div>
                     <span class="text-xs font-bold uppercase tracking-widest">Heading</span>
                 </div>
-                <div class="palette-item" data-type="text">
+                <div class="palette-item" data-type="subheading">
                     <div class="icon-box"><i data-lucide="type"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">Subheading</span>
+                </div>
+                <div class="palette-item" data-type="text">
+                    <div class="icon-box"><i data-lucide="align-left"></i></div>
                     <span class="text-xs font-bold uppercase tracking-widest">Paragraph</span>
+                </div>
+                <div class="palette-item" data-type="list">
+                    <div class="icon-box"><i data-lucide="list"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-widest">List</span>
                 </div>
                 <div class="palette-item" data-type="separator">
                     <div class="icon-box"><i data-lucide="minus"></i></div>
@@ -517,7 +525,9 @@
     function getDefaultDataForType(type) {
         switch(type) {
             case 'heading': return { text: 'New Heading' };
+            case 'subheading': return { text: 'New Subheading' };
             case 'text': return { text: 'Type your story here...' };
+            case 'list': return { items: ['First list item'] };
             case 'separator': return {};
             case 'image': return { url: '' };
             case 'code': return { lang: 'python', code: '# Add your code\nprint("Hello World")' };
@@ -569,9 +579,47 @@
         <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
     </div>
 </div>`;
+            } else if (block.type === 'subheading') {
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="subheading">
+    <h3 contenteditable="true" onblur="updateBlockData('${block.id}', {text: this.innerText})" class="m-0 cursor-text text-xl font-bold text-gray-800 focus:outline-none w-full text-left">${block.data.text}</h3>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
             } else if (block.type === 'text') {
                 html = `<div class="canvas-item group/blk" id="${block.id}" data-type="text">
     <p contenteditable="true" onblur="updateBlockData('${block.id}', {text: this.innerText})" class="m-0 p-0 cursor-text text-base leading-7 text-gray-700 focus:outline-none whitespace-pre-wrap w-full text-left" style="margin: 0; padding: 0;">${block.data.text}</p>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>`;
+            } else if (block.type === 'list') {
+                let itemsHtml = '';
+                for (let i = 0; i < block.data.items.length; i++) {
+                    const item = block.data.items[i];
+                    itemsHtml += `<div class="group/opt flex w-full items-start gap-3">
+                        <div class="mt-2.5 h-1.5 w-1.5 rounded-full bg-gold-500 shrink-0"></div>
+                        <div contenteditable="true" onblur="updateListItem('${block.id}', ${i}, this.innerText)" class="flex-1 text-sm text-gray-700 focus:outline-none py-1">${item}</div>
+                        <button onclick="removeListItem('${block.id}', ${i})" class="opacity-0 group-hover/opt:opacity-100 text-gray-400 hover:text-red-500 transition-all shrink-0 mt-1"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    </div>`;
+                }
+                html = `<div class="canvas-item group/blk" id="${block.id}" data-type="list">
+    <div class="not-prose w-full rounded-xl border border-gray-200 bg-white p-6 text-left">
+        <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="list" class="w-4 h-4 text-gray-400"></i>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">List Component</span>
+        </div>
+        <div class="flex flex-col gap-3 mb-4">
+            ${itemsHtml}
+        </div>
+        <button onclick="addListItem('${block.id}')" class="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add list item
+        </button>
+    </div>
     <div class="item-controls">
         <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
         <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
@@ -776,6 +824,34 @@
         }
     }
 
+    // --- List Helpers ---
+
+    function updateListItem(id, idx, val) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.items[idx] = val;
+            markUnsaved();
+        }
+    }
+
+    function addListItem(id) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk) {
+            blk.data.items.push('New list item');
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
+    function removeListItem(id, idx) {
+        const blk = builderData.find(b => b.id === id);
+        if (blk && blk.data.items.length > 1) {
+            blk.data.items.splice(idx, 1);
+            renderCanvas();
+            markUnsaved();
+        }
+    }
+
     // --- Interactions ---
 
     function initSortables() {
@@ -959,8 +1035,14 @@
                 case 'heading':
                     html += `<h2 class="mb-8 mt-12 text-3xl font-extrabold tracking-tight text-gray-900">${blk.data.text}</h2>\n`;
                     break;
+                case 'subheading':
+                    html += `<h3 class="subheading-text">${blk.data.text}</h3>\n`;
+                    break;
                 case 'text':
                     html += `<p class="text-lg leading-relaxed text-gray-600 mb-6 font-medium">${blk.data.text}</p>\n`;
+                    break;
+                case 'list':
+                    html += `<ul class="lesson-content">\n${blk.data.items.map(item => `    <li>${item}</li>`).join('\n')}\n</ul>\n`;
                     break;
                 case 'separator':
                     // Separator doesn't render anything in final HTML, used for slide splitting
@@ -975,12 +1057,6 @@
 <div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group">
     <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
         <div class="flex items-center gap-4">
-            <div class="flex gap-1.5">
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-                <div class="h-2.5 w-2.5 rounded-full bg-gray-800"></div>
-            </div>
-            <div class="h-4 w-[1px] bg-gray-800"></div>
             <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">${blk.data.lang}</span>
         </div>
         <button onclick="copyToClipboard(this)" data-code="${escapeHtml(blk.data.code)}" class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 transition-all hover:bg-gray-700 hover:text-white">

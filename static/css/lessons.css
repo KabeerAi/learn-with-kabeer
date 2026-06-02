@@ -142,3 +142,80 @@
     transform: translateY(4px);
     box-shadow: none;
 }
+
+/* List Styles - Global for Lessons */
+ul.lesson-content, 
+.lesson-block ul,
+.builder-canvas ul {
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin-bottom: 1.5rem;
+}
+
+ul.lesson-content li, 
+.lesson-block ul li,
+.builder-canvas ul li {
+    position: relative;
+    padding-left: 1.75rem !important;
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+    color: #374151;
+}
+
+ul.lesson-content li::before, 
+.lesson-block ul li::before,
+.builder-canvas ul li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0.65rem;
+    width: 6px;
+    height: 6px;
+    background-color: #B28A42; /* Gold color */
+    border-radius: 50%;
+    display: block;
+    box-shadow: 0 0 0 2px rgba(178, 138, 66, 0.1);
+}
+
+/* Support for nested paragraphs in list items from markdown */
+ul.lesson-content li p, 
+.lesson-block ul li p,
+.builder-canvas ul li p {
+    display: inline !important;
+    margin: 0 !important;
+}
+
+ol.lesson-content, 
+.lesson-block ol,
+.builder-canvas ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin-bottom: 1.5rem;
+    color: #374151;
+}
+
+ol.lesson-content li, 
+.lesson-block ol li,
+.builder-canvas ol li {
+    padding-left: 0.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+}
+
+ol.lesson-content li::marker, 
+.lesson-block ol li::marker,
+.builder-canvas ol li::marker {
+    color: #B28A42;
+    font-weight: 700;
+}
+
+/* Subheading Styles */
+.subheading-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #1C1C1C;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}

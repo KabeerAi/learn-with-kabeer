@@ -1,11 +1,11 @@
 <div class="canvas-item group/blk" id="${block.id}" data-type="callout">
-    <div class="not-prose flex w-full gap-3 rounded-xl border ${block.data.type === 'warning' ? 'border-amber-200 bg-amber-50' : block.data.type === 'common_mistake' ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'} p-4 text-left">
-        <div class="mt-0.5 shrink-0 ${block.data.type === 'warning' ? 'text-amber-600' : block.data.type === 'common_mistake' ? 'text-red-600' : 'text-gray-500'}">
+    <div class="w-full flex gap-3 rounded-xl border ${block.data.type === 'warning' ? 'border-amber-200 bg-amber-50' : block.data.type === 'common_mistake' ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'} p-4 text-left mb-6">
+        <div class="mt-0.5 shrink-0 ${block.data.type === 'warning' ? 'text-amber-600' : block.data.type === 'common_mistake' ? 'text-red-600' : 'text-gray-600'}">
             <i data-lucide="${block.data.type === 'warning' ? 'alert-triangle' : block.data.type === 'common_mistake' ? 'x-circle' : 'info'}" class="w-4 h-4"></i>
         </div>
-        <div class="flex-1 min-w-0">
-            <h4 contenteditable="true" onblur="updateBlockData('${block.id}', {title: this.innerText})" class="text-sm font-semibold text-gray-900 mb-1 focus:outline-none">${block.data.title}</h4>
-            <div contenteditable="true" onblur="updateBlockData('${block.id}', {body: this.innerText})" class="text-sm leading-relaxed text-gray-700 focus:outline-none whitespace-pre-wrap">${block.data.body}</div>
+        <div class="flex flex-col flex-1 min-w-0">
+            <h4 contenteditable="true" onblur="updateBlockData('${block.id}', {title: this.innerText})" class="text-sm font-semibold text-gray-900 mb-1 focus:outline-none cursor-text">${block.data.title}</h4>
+            <div contenteditable="true" onblur="updateBlockData('${block.id}', {body: this.innerText})" class="text-sm leading-relaxed text-gray-700 focus:outline-none cursor-text whitespace-pre-wrap">${block.data.body}</div>
         </div>
         <button onclick="toggleCalloutType('${block.id}')" class="w-6 h-6 rounded hover:bg-black/5 transition-colors flex items-center justify-center text-gray-400 shrink-0"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
     </div>

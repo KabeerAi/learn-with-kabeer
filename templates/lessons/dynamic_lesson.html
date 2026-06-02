@@ -9,8 +9,12 @@
             <div class="lesson-block w-full" data-block-type="{{ block.type }}">
                 {% if block.type == 'heading' %}
                     {% include 'components/heading.html' %}
+                {% elif block.type == 'subheading' %}
+                    {% include 'components/subheading.html' %}
                 {% elif block.type == 'text' %}
                     {% include 'components/text.html' %}
+                {% elif block.type == 'list' %}
+                    {% include 'components/list.html' %}
                 {% elif block.type == 'image' %}
                     {% include 'components/image.html' %}
                 {% elif block.type == 'code' %}
@@ -165,8 +169,8 @@
     </style>
 
     <div id="course-overview-loader" class="course-overview-loader" role="status" aria-label="Loading course overview">
-        <img class="course-loader__plate course-loader__plate--transparent" src="{{ url_for('static', filename='imgs/assets/loading-logo/transparent_logo.png') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
-        <img class="course-loader__plate course-loader__plate--solid" src="{{ url_for('static', filename='imgs/assets/loading-logo/solid_logo.png') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img class="course-loader__plate course-loader__plate--transparent" src="{{ url_for('static', filename='imgs/assets/loading-logo/transparent_logo.webp') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img class="course-loader__plate course-loader__plate--solid" src="{{ url_for('static', filename='imgs/assets/loading-logo/solid_logo.webp') }}" width="2730" height="1536" loading="eager" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
         <div class="course-loader__loading" aria-hidden="true">
             <div class="course-loader__loading-fill"></div>
         </div>

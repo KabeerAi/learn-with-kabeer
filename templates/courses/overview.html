@@ -346,7 +346,7 @@
 <div id="course-overview-loader" class="course-overview-loader" role="status" aria-label="Loading course overview">
     <img
         class="course-loader__plate course-loader__plate--transparent"
-        src="{{ url_for('static', filename='imgs/assets/loading-logo/transparent_logo.png') }}"
+        src="{{ url_for('static', filename='imgs/assets/loading-logo/transparent_logo.webp') }}"
         width="2730"
         height="1536"
         loading="eager"
@@ -357,7 +357,7 @@
     />
     <img
         class="course-loader__plate course-loader__plate--solid"
-        src="{{ url_for('static', filename='imgs/assets/loading-logo/solid_logo.png') }}"
+        src="{{ url_for('static', filename='imgs/assets/loading-logo/solid_logo.webp') }}"
         width="2730"
         height="1536"
         loading="eager"
@@ -475,7 +475,7 @@
             <div class="absolute h-full" 
                  style="left: {{ stage.x_start }}px; 
                         width: {{ stage.width }}px;
-                        background-image: url('{{ url_for('static', filename='imgs/assets/background/' + (stage.background or 'lush-greeny-lands.png')) }}'); 
+                        background-image: url('{{ url_for('static', filename='imgs/assets/background/' + (stage.background or 'lush-greeny-lands.webp')) }}'); 
                         background-size: auto 100%; 
                         background-repeat: repeat-x; 
                         background-position: left center;">
@@ -503,7 +503,7 @@
                     
                     {# The Absolute Stage Container (defines horizontal bounds) #}
                     <div class="absolute h-full pointer-events-none z-30 js-stage-container" 
-                         data-background="{{ stage.background or 'lush-greeny-lands.png' }}"
+                         data-background="{{ stage.background or 'lush-greeny-lands.webp' }}"
                          style="left: {{ stage.x_start }}px; width: {{ stage.width }}px; top: 0;">
                         
                         {# --- MASSIVE VERTICAL OVERLAY CLOUD GATE (Static) --- #}
@@ -512,7 +512,7 @@
                             
                             {# Big Fluffy Cloud Image with a crisp, fully opaque render #}
                             <div class="absolute inset-0 flex items-center justify-center overflow-visible">
-                                <img src="{{ url_for('static', filename='imgs/assets/chapter/chapter.png') }}" 
+                                <img src="{{ url_for('static', filename='imgs/assets/chapter/chapter.webp') }}" 
                                      class="h-[120%] max-w-none w-auto object-contain object-center drop-shadow-[40px_10px_30px_rgba(0,0,0,0.5)] {% if stage.is_locked %}grayscale{% endif %}" 
                                      style="min-width: 1400px;"
                                      alt="Stage Cloud" />
@@ -604,7 +604,7 @@
             {% for deco in map.decorations %}
                 <div class="cloud-decoration-wrapper js-random-cloud" data-base-x="{{ deco.x }}">
                     <div class="cloud-parallax-layer">
-                        <img src="{{ url_for('static', filename='imgs/assets/clouds/cloud.png') }}" 
+                        <img src="{{ url_for('static', filename='imgs/assets/clouds/cloud.webp') }}" 
                              class="cloud-decoration-asset object-contain js-random-cloud-img"
                              alt="Sky Foreground Cloud" />
                     </div>
@@ -685,6 +685,7 @@
         const solidEaseOutMs = 920;
         const transparentHoldMs = 1400;
         const transparentEndingMs = 1900;
+        
         const plates = Array.from(loader.querySelectorAll('img'));
         const solidPlate = loader.querySelector('.course-loader__plate--solid');
 
@@ -692,6 +693,8 @@
             if (document.readyState === 'complete') return Promise.resolve();
             return new Promise((resolve) => {
                 window.addEventListener('load', resolve, { once: true });
+                // Safety timeout for window load
+                setTimeout(resolve, 5000);
             });
         }
 
@@ -711,6 +714,8 @@
                 if (typeof image.decode === 'function') {
                     image.decode().then(finish).catch(finish);
                 }
+                // Safety timeout for large image loading
+                setTimeout(finish, 4000);
             });
         }
 
@@ -932,9 +937,9 @@
 
         // --- 5. Atmospheric Music Engine ---
         const backgroundMusicMap = {
-            'lush-greeny-lands.png': new Audio("{{ url_for('static', filename='musics/greeny-hills.MP3') }}"),
-            'crystal-land.png': new Audio("{{ url_for('static', filename='musics/crystal-land.MP3') }}"),
-            'valley-of-peace.png': new Audio("{{ url_for('static', filename='musics/valley-of-peace.MP3') }}")
+            'lush-greeny-lands.webp': new Audio("{{ url_for('static', filename='musics/greeny-hills.MP3') }}"),
+            'crystal-land.webp': new Audio("{{ url_for('static', filename='musics/crystal-land.MP3') }}"),
+            'valley-of-peace.webp': new Audio("{{ url_for('static', filename='musics/valley-of-peace.MP3') }}")
         };
 
         // Pre-configure all audio instances

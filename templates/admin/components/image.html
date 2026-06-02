@@ -1,8 +1,8 @@
 <div class="canvas-item group/blk" id="${block.id}" data-type="image">
-    <div class="not-prose rounded-xl overflow-hidden ${block.data.url ? 'border border-gray-200' : 'border border-dashed border-gray-300 bg-gray-50'} cursor-pointer transition-colors hover:border-gray-400 w-full" onclick="openImageModal('${block.id}')">
+    <div class="w-full overflow-hidden rounded-xl border border-gray-200 mb-6 cursor-pointer hover:border-gray-400 transition-colors" onclick="openImageModal('${block.id}')">
         ${block.data.url ? 
-            `<img src="${block.data.url}" class="w-full h-auto block object-cover">` : 
-            `<div class="py-12 flex flex-col items-center justify-center gap-2">
+            `<img src="${block.data.url}" class="block w-full h-auto object-cover">` : 
+            `<div class="py-12 flex flex-col items-center justify-center gap-2 bg-gray-50 border border-dashed border-gray-300 rounded-xl">
                 <i data-lucide="image" class="w-5 h-5 text-gray-400"></i>
                 <span class="text-sm font-medium text-gray-500">Upload Image</span>
              </div>`

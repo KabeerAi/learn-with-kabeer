@@ -1,0 +1,7 @@
+<div class="w-full text-left mb-6">
+    <ul class="lesson-content">
+        {% for item in block.data['items'] %}
+            <li>{{ item | markdown | safe }}</li>
+        {% endfor %}
+    </ul>
+</div>

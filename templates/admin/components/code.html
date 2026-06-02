@@ -1,10 +1,15 @@
 <div class="canvas-item group/blk" id="${block.id}" data-type="code">
-    <div class="not-prose relative my-6 w-full rounded-xl border border-gray-800 bg-[#0A0A0A] text-left cursor-pointer group" onclick="openCodeModal('${block.id}')">
-        <div class="flex items-center justify-between px-4 py-2 border-b border-gray-800/50 bg-[#0A0A0A] rounded-t-xl">
-            <span class="text-xs font-mono text-gray-500">${block.data.lang || 'text'}</span>
-            <i data-lucide="code" class="w-4 h-4 text-gray-500"></i>
+    <div class="relative overflow-hidden rounded-xl border border-gray-800 bg-[#0D1117] shadow-xl my-10 not-prose group/code cursor-pointer" onclick="openCodeModal('${block.id}')">
+        <div class="flex items-center justify-between border-b border-gray-800 bg-black/20 px-5 py-3.5">
+            <div class="flex items-center gap-4">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 font-mono">${block.data.lang || 'text'}</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-md bg-gray-800 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <i data-lucide="code" class="w-3.5 h-3.5"></i>
+                <span>Edit Code</span>
+            </div>
         </div>
-        <div class="w-full">
+        <div class="overflow-x-auto">
             <pre class="language-${block.data.lang || 'text'}"><code class="language-${block.data.lang || 'text'}">${escapeHtml(block.data.code)}</code></pre>
         </div>
     </div>

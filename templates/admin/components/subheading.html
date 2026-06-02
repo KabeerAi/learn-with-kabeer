@@ -1,0 +1,12 @@
+<div class="canvas-item group/blk" id="${block.id}" data-type="subheading">
+    <h3 contenteditable="true" 
+        onblur="updateBlockData('${block.id}', {text: this.innerText})" 
+        class="w-full text-left subheading-text mb-4 focus:outline-none cursor-text">
+        ${block.data.text}
+    </h3>
+    <div class="item-controls">
+        <div class="control-btn drag-handle"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+        <button class="control-btn" onclick="duplicateBlock('${block.id}')" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        <button class="control-btn delete" onclick="deleteBlock('${block.id}')" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</div>

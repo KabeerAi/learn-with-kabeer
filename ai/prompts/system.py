@@ -73,38 +73,44 @@ Every lesson must follow this professional structural progression:
 BLOCK_TYPES_REFERENCE = """AVAILABLE BUILDER BLOCK TYPES:
 Use these blocks strategically to deliver high-density technical content:
 
-1. HEADING — Structural breaks between technical sections
+1. HEADING — Structural breaks between major sections (triggers a "Continue" button)
    {"type": "heading", "data": {"text": "Heading Title"}}
 
-2. TEXT — Technical delivery (concise, dense, professional)
+2. SUBHEADING — Minor breaks within the same section/slide
+   {"type": "subheading", "data": {"text": "Subheading Title"}}
+
+3. TEXT — Technical delivery (concise, dense, professional)
    {"type": "text", "data": {"text": "Technical explanation using <code>code_terms</code> and <b>bold concepts</b>."}}
 
-3. CODE — Functional, realistic snippets (max 10 lines)
+4. LIST — Grouped points or steps (rendered as a clean, gold-bulleted list)
+   {"type": "list", "data": {"items": ["Point 1", "Point 2", "Point 3"]}}
+
+5. CODE — Functional, realistic snippets (max 10 lines)
    {"type": "code", "data": {"lang": "python", "code": "implementation_here"}}
    Supported: python, javascript, html, css, sql, json, typescript
 
-4. CALLOUT (info) — Essential technical context or key insights
+6. CALLOUT (info) — Essential technical context or key insights
    {"type": "callout", "data": {"type": "info", "title": "Technical Insight", "body": "Insight"}}
 
-5. CALLOUT (warning) — Critical pitfalls, logic errors, or safety warnings
+7. CALLOUT (warning) — Critical pitfalls, logic errors, or safety warnings
    {"type": "callout", "data": {"type": "warning", "title": "Critical Error", "body": "Pitfall"}}
 
-6. CALLOUT (beginner_tip) — Foundational context for those new to the stack
+8. CALLOUT (beginner_tip) — Foundational context for those new to the stack
    {"type": "callout", "data": {"type": "beginner_tip", "title": "Foundation Tip", "body": "Context"}}
 
-7. CALLOUT (recap) — Summary of technical logic
+9. CALLOUT (recap) — Summary of technical logic
    {"type": "callout", "data": {"type": "recap", "title": "Technical Summary", "body": "Recap"}}
 
-8. CALLOUT (common_mistake) — Debugging typical logic or syntax errors
-   {"type": "callout", "data": {"type": "common_mistake", "title": "Logic Error", "body": "Correction"}}
+10. CALLOUT (common_mistake) — Debugging typical logic or syntax errors
+    {"type": "callout", "data": {"type": "common_mistake", "title": "Logic Error", "body": "Correction"}}
 
-9. CALLOUT (expected_output) — Verifies code behavior with the exact result
+11. CALLOUT (expected_output) — Verifies code behavior with the exact result
     {"type": "callout", "data": {"type": "expected_output", "title": "Expected Output", "body": "Result"}}
 
-10. QUIZ — Comprehension check (logic and syntax)
+12. QUIZ — Comprehension check (logic and syntax)
     {"type": "quiz", "data": {"question": "...", "options": ["A", "B", "C"], "correct": 0}}
 
-11. SEPARATOR — Split lesson into small, digestible slides; the user clicks "Continue" to advance
+13. SEPARATOR — Split lesson into small, digestible slides; the user clicks "Continue" to advance
     {"type": "separator", "data": {}}
 
 WHEN TO USE EACH:

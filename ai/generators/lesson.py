@@ -131,12 +131,29 @@ def generate_lesson(
     if len(builder_json) < MIN_BLOCKS_PER_LESSON:
         print(f"    [WARN] Only {len(builder_json)} blocks generated (min: {MIN_BLOCKS_PER_LESSON})")
 
-    # Pick a background image for the section
+    # Pick a background image for the section with intelligent variety
     section_bg = ""
     if backgrounds:
         import hashlib
-        hash_val = int(hashlib.md5(section_name.encode()).hexdigest(), 16)
-        section_bg = backgrounds[hash_val % len(backgrounds)]
+        import re
+        
+        # 1. Start with a base offset from the course title
+        # This ensures different courses use different parts of the background set
+        course_seed = int(hashlib.md5(course_title.lower().strip().encode()).hexdigest(), 16)
+        
+        # 2. Try to find a number in the section name (Module 1, Chapter 2, etc.)
+        # This is a very reliable way to ensure backgrounds rotate in order
+        section_number_match = re.search(r'(\d+)', section_name)
+        if section_number_match:
+            # Use the number found in the name as the offset
+            section_index = int(section_number_match.group(1))
+        else:
+            # Fallback to hashing the section name for consistent but varied selection
+            section_index = int(hashlib.md5(section_name.lower().strip().encode()).hexdigest(), 16)
+            
+        # 3. Combine them to pick the background from the available list
+        final_index = (course_seed + section_index) % len(backgrounds)
+        section_bg = backgrounds[final_index]
 
     result = {
         "number": lesson_number,

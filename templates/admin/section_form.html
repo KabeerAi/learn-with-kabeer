@@ -46,7 +46,7 @@
                                          class="h-full w-full object-cover transition-transform group-hover:scale-105" alt="{{ bg }}">
                                 </div>
                                 <div class="mt-2 text-center">
-                                    <span class="text-[10px] font-bold uppercase tracking-tight text-[#6B6B6B]">{{ bg.replace('.png', '').replace('-', ' ') }}</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-tight text-[#6B6B6B]">{{ bg.split('.')[0].replace('-', ' ') }}</span>
                                 </div>
                                 {# Selection Indicator #}
                                 <div class="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-[#1C1C1C] text-white peer-checked:flex">

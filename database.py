@@ -299,7 +299,9 @@ def init_db():
             error_message TEXT,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+    """
 
+    postgres_ai_sql = """
         -- AI Vector Store (for Render/Postgres)
         DO $$ 
         BEGIN 
@@ -336,6 +338,7 @@ def init_db():
     if is_postgres:
         # Use executescript to run the whole block at once (handles semicolons in DO blocks)
         db.executescript(schema_sql)
+        db.executescript(postgres_ai_sql)
         db.commit()
     else:
         # Fallback for local SQLite machine
@@ -667,6 +670,9 @@ def get_admin_stats():
 def get_course_overview(user=None, course_slug=None):
     db = get_db()
     
+    # Track if a specific course was requested
+    is_specific_course = course_slug is not None
+
     if not course_slug and user:
         latest = db.execute("""
             SELECT c.slug 
@@ -725,8 +731,14 @@ def get_course_overview(user=None, course_slug=None):
     completed_lessons = progress["completed_lessons"] if progress else 0
     total = len(lessons)
     progress_percent = round((completed_lessons / total) * 100) if total else 0
-    courses = get_course_library(user)
-    enrolled_courses = [c for c in courses if c["enrolled"]]
+    
+    # Only fetch the full library if we're on the dashboard/home (no course_slug provided to function)
+    # This significantly improves performance on individual course pages
+    courses = []
+    enrolled_courses = []
+    if not is_specific_course:
+        courses = get_course_library(user)
+        enrolled_courses = [c for c in courses if c["enrolled"]]
 
     sections = []
     

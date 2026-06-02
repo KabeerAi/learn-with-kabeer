@@ -1,18 +1,22 @@
 <div class="canvas-item group/blk" id="${block.id}" data-type="quiz">
-    <div class="not-prose w-full rounded-xl border border-gray-200 bg-white p-6 text-left">
-        <h3 contenteditable="true" onblur="updateBlockData('${block.id}', {question: this.innerText})" class="text-base font-semibold text-gray-900 mb-4 focus:outline-none">${block.data.question}</h3>
-        <div class="flex flex-col gap-2.5 mb-4" id="quiz-options-${block.id}">
+    <div class="w-full text-left mb-8 rounded-xl border border-gray-200 bg-white p-6">
+        <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="help-circle" class="w-4 h-4 text-gray-400"></i>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Quiz Component</span>
+        </div>
+        <div contenteditable="true" onblur="updateBlockData('${block.id}', {question: this.innerText})" class="text-base text-gray-900 mb-6 focus:outline-none cursor-text">${block.data.question}</div>
+        <div class="flex flex-col gap-3 mb-6" id="quiz-options-${block.id}">
             ${(function() {
                 let html = '';
                 for (let i = 0; i < block.data.options.length; i++) {
                     const opt = block.data.options[i];
                     const isCorrect = i === block.data.correct;
-                    html += '<div class="group/opt flex w-full items-center gap-3 rounded-lg border ' + (isCorrect ? 'border-gray-900 bg-gray-50' : 'border-gray-200') + ' px-4 py-3 text-left transition-colors">';
-                    html += '<div class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border ' + (isCorrect ? 'border-gray-900 bg-gray-900' : 'border-gray-300') + ' transition-colors shrink-0" onclick="setQuizCorrect(\'' + block.id + '\', ' + i + ')">';
-                    if (isCorrect) html += '<div class="h-1.5 w-1.5 rounded-full bg-white"></div>';
+                    html += `<div class="group/opt flex w-full items-center gap-3 rounded-xl border-2 ${isCorrect ? 'border-gray-900 bg-gray-50' : 'border-gray-200 bg-white'} px-4 py-3 text-left transition-all">`;
+                    html += `<div class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border-2 ${isCorrect ? 'border-gray-900 bg-gray-900' : 'border-gray-300'} transition-colors shrink-0" onclick="setQuizCorrect('${block.id}', ${i})">`;
+                    if (isCorrect) html += '<div class="h-2 w-2 rounded-full bg-white"></div>';
                     html += '</div>';
-                    html += '<div contenteditable="true" onblur="updateQuizOption(\'' + block.id + '\', ' + i + ', this.innerText)" class="flex-1 text-sm text-gray-700 focus:outline-none">' + opt + '</div>';
-                    html += '<button onclick="removeQuizOption(\'' + block.id + '\', ' + i + ')" class="opacity-0 group-hover/opt:opacity-100 text-gray-400 hover:text-red-500 transition-all shrink-0"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>';
+                    html += `<div contenteditable="true" onblur="updateQuizOption('${block.id}', ${i}, this.innerText)" class="flex-1 text-sm font-semibold text-gray-900 focus:outline-none cursor-text">${opt}</div>`;
+                    html += `<button onclick="removeQuizOption('${block.id}', ${i})" class="opacity-0 group-hover/opt:opacity-100 text-gray-400 hover:text-red-500 transition-all shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>`;
                     html += '</div>';
                 }
                 return html;
