@@ -1,27 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    @keyframes welcome-gradient {
-        0% { background-position: 0% 50%; }
-        100% { background-position: 100% 50%; }
-    }
-    .animate-welcome-gradient {
-        background-size: 200% auto;
-        animation: welcome-gradient 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    .premium-highlight {
-        display: inline-block;
-        background: #FAF9F6;
-        color: #1C1C1C;
-        padding: 0.02em 0.15em;
-        border-radius: 0;
-        font-style: normal;
-        text-shadow: none;
-        vertical-align: middle;
-        line-height: 1;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 <main class="flex-1 overflow-y-auto font-sans {% if current_user %}bg-[#FAF9F6] pb-20 selection:bg-[#1C1C1C] selection:text-white{% else %}bg-[#FAF9F6] selection:bg-[#1C1C1C] selection:text-white{% endif %}">
     {% if current_user %}
         {# --- AUTHENTICATED: LEARNER DASHBOARD --- #}
@@ -448,46 +428,6 @@
 
 {% block scripts %}
     {% if request.endpoint == 'home' and not current_user %}
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const hero = document.getElementById('home-hero');
-                const video = document.getElementById('home-hero-video');
-                const content = document.getElementById('hero-content');
-                const scroller = document.querySelector('main');
-                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-                if (!hero || !video || !scroller || reduceMotion) return;
-
-                let frame = null;
-
-                const updateParallax = () => {
-                    const scrollTop = scroller.scrollTop;
-                    const heroHeight = hero.offsetHeight || 1;
-                    const progress = Math.min(Math.max(scrollTop / heroHeight, 0), 1);
-                    
-                    // Background video moves downward (parallax depth)
-                    const videoTranslate = progress * 120;
-                    video.style.transform = `translate3d(0, ${videoTranslate}px, 0)`;
-
-                    // Content moves upward (cinematic float)
-                    if (content) {
-                        const contentTranslate = progress * -120;
-                        content.style.transform = `translate3d(0, ${contentTranslate}px, 0)`;
-                        content.style.opacity = 1 - (progress * 1.4);
-                    }
-
-                    frame = null;
-                };
-
-                const requestTick = () => {
-                    if (frame) return;
-                    frame = window.requestAnimationFrame(updateParallax);
-                };
-
-                updateParallax();
-                scroller.addEventListener('scroll', requestTick, { passive: true });
-                window.addEventListener('resize', requestTick);
-            });
-        </script>
+        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
     {% endif %}
 {% endblock %}

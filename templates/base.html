@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learn with Kabeer</title>
 
-    <!-- Premium Fonts: Instrument Serif for display, Inter for UI, JetBrains Mono for Code -->
+    <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,178 +13,13 @@
     <!-- Tailwind & Icons -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Cleaned Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-                        display: ['Instrument Serif', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/tailwind_config.js') }}"></script>
 
     <!-- Prism.js for Syntax Highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='css/lessons.css') }}" rel="stylesheet" />
-    <style>
-        :root {
-            --font-display: 'Instrument Serif', serif;
-            --font-body: 'Inter', sans-serif;
-            --background: 201 100% 13%;
-            --foreground: 0 0% 100%;
-            --muted-foreground: 240 4% 66%;
-            --primary: 0 0% 100%;
-            --primary-foreground: 0 0% 4%;
-            --secondary: 0 0% 10%;
-            --muted: 0 0% 10%;
-            --accent: 0 0% 10%;
-            --border: 0 0% 18%;
-            --input: 0 0% 18%;
-        }
-
-        body { font-family: var(--font-body); }
-
-        /* Prism overrides for premium minimal look */
-        pre[class*="language-"] {
-            margin: 0 !important;
-            padding: 1.25rem !important;
-            background: transparent !important;
-            font-size: 0.85rem !important;
-            border: none !important;
-            white-space: pre !important;
-            word-break: normal !important;
-            overflow: auto !important;
-            line-height: 1.6 !important;
-        }
-        
-        code[class*="language-"] {
-            font-family: 'JetBrains Mono', monospace !important;
-            text-shadow: none !important;
-            white-space: pre !important;
-            word-break: normal !important;
-            line-height: 1.6 !important;
-        }
-
-        /* --- UNIFIED KEYWORD STYLING (Inline Code) --- */
-        /* This creates the w3schools style "block word" look for technical terms */
-        :not(pre) > code {
-            background-color: #F1F1F1 !important;
-            color: #111827 !important;
-            padding: 2px 8px !important;
-            font-size: 0.85em !important;
-            border-radius: 6px !important;
-            border: 1px solid #E1E1E1 !important;
-            font-weight: 700 !important;
-            display: inline-block !important;
-            line-height: 1.4 !important;
-            vertical-align: middle !important;
-            margin: 0 2px !important;
-            box-shadow: 0 1px 0 0 rgba(0,0,0,0.05) !important;
-            font-family: 'JetBrains Mono', monospace !important;
-        }
-
-        /* Standard Bold Styling */
-        .prose strong,
-        .lesson-block strong {
-            font-weight: 700 !important;
-            color: inherit !important;
-        }
-
-        html { 
-            scroll-behavior: smooth; 
-            font-feature-settings: "ss03", "cv11"; /* Clean alternates for Inter */
-        }
-        
-        /* Premium Text Selection */
-        ::selection { background: #111827; color: #FFFFFF; }
-        
-        /* Custom Clean Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #F9FAFB; }
-        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
-
-        /* Toast Animations */
-        @keyframes slide-in-right {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slide-out-right {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        .toast-item.animate-in { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .toast-item.animate-out { animation: slide-out-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        /* Premium XP Animations */
-        @keyframes xp-glint {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .ease-premium { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-        .ease-spring { transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
-
-        .liquid-glass {
-            background: rgba(255, 255, 255, 0.01);
-            background-blend-mode: luminosity;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: none;
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .liquid-glass-light {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .liquid-glass::before, .liquid-glass-light::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1.4px;
-            background: linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.45) 0%,
-                rgba(255, 255, 255, 0.15) 20%,
-                rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0) 60%,
-                rgba(255, 255, 255, 0.15) 80%,
-                rgba(255, 255, 255, 0.45) 100%
-            );
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        @keyframes fade-rise {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fade-rise { animation: fade-rise 0.8s ease-out both; }
-        .animate-fade-rise-delay { animation: fade-rise 0.8s ease-out 0.2s both; }
-        .animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }
-
-        .cinematic-text-shadow {
-            text-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
-        }
-
-
-    </style>
+    
+    <!-- Global Styles -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
 </head>
 <body class="h-screen overflow-hidden bg-gray-50 text-gray-900 font-sans antialiased flex flex-col">
     
@@ -237,8 +72,6 @@
                                 <i data-lucide="zap" class="h-3.5 w-3.5 fill-amber-400 text-amber-400"></i>
                                 <span class="font-mono text-xs font-bold text-white"><span class="xp-value">{{ current_user['total_xp'] }}</span> <span class="text-[10px] text-[#6B6B6B]">XP</span></span>
                             </div>
-
-
                         </div>
 
                         <div class="h-4 w-[1px] bg-[#2A2A2A] hidden md:block"></div>
@@ -300,118 +133,21 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const container = document.getElementById('toast-container');
-                    if (!container || container.children.length === 0) return;
-
-                    const showToasts = () => {
-                        container.classList.remove('opacity-0', 'invisible');
-                        
-                        // Auto-dismiss toasts after 5 seconds
-                        setTimeout(() => {
-                            const toasts = container.querySelectorAll('.toast-item');
-                            toasts.forEach((toast, index) => {
-                                setTimeout(() => {
-                                    toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-4');
-                                    setTimeout(() => toast.remove(), 300);
-                                }, index * 100);
-                            });
-                        }, 5000);
-                    };
-
-                    const checkLoaders = () => {
-                        // Look for anything with 'loader' in ID or class
-                        const loaders = document.querySelectorAll('[id*="loader"], [class*="loader"]');
-                        const activeLoader = Array.from(loaders).find(l => {
-                            const style = window.getComputedStyle(l);
-                            // Consider it active if it's in the DOM and not explicitly hidden
-                            return style.display !== 'none' && style.visibility !== 'hidden' && l.isConnected;
-                        });
-
-                        if (!activeLoader) {
-                            // Give it one more tiny beat to ensure transitions finished
-                            setTimeout(showToasts, 100);
-                        } else {
-                            setTimeout(checkLoaders, 200);
-                        }
-                    };
-
-                    // Small initial delay to allow page-specific scripts to initialize their loaders
-                    setTimeout(checkLoaders, 100);
-                });
-            </script>
         {% endif %}
     {% endwith %}
-
-
 
     {# --- MAIN CONTENT INJECTION --- #}
     {% block content %}{% endblock %}
 
-    <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
-    </script>
-
+    <!-- Global Scripts -->
     <script src="{{ url_for('static', filename='js/xp_animation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     <!-- Prism.js and Plugins -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     
     <script>
-        window.copyToClipboard = function(btn) {
-            const code = btn.getAttribute('data-code');
-            const textSpan = btn.querySelector('.copy-text');
-            const icon = btn.querySelector('i');
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(code).then(() => {
-                    updateButton();
-                });
-            } else {
-                const textArea = document.createElement("textarea");
-                textArea.value = code;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    updateButton();
-                } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
-                }
-                document.body.removeChild(textArea);
-            }
-
-            function updateButton() {
-                const originalText = textSpan ? textSpan.textContent : 'Copy';
-                if (textSpan) textSpan.textContent = 'Copied!';
-                btn.classList.add('text-green-500');
-                
-                if (window.lucide) {
-                    const iconEl = btn.querySelector('[data-lucide]');
-                    if (iconEl) {
-                        iconEl.setAttribute('data-lucide', 'check');
-                        lucide.createIcons();
-                    }
-                }
-
-                setTimeout(() => {
-                    if (textSpan) textSpan.textContent = originalText;
-                    btn.classList.remove('text-green-500');
-                    if (window.lucide) {
-                        const iconEl = btn.querySelector('[data-lucide]');
-                        if (iconEl) {
-                            iconEl.setAttribute('data-lucide', 'copy');
-                            lucide.createIcons();
-                        }
-                    }
-                }, 2000);
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', async () => {
             {% with messages = get_flashed_messages(category_filter=['xp_award']) %}
                 const allAwards = [];
@@ -424,11 +160,8 @@
                     } catch (e) { console.error("XP Award Parsing Error:", e); }
                 {% endfor %}
                 
-                if (allAwards.length > 0) {
-                    // Start animation after a slight delay to ensure UI is ready
-                    setTimeout(() => {
-                        playXpAnimation(allAwards);
-                    }, 500);
+                if (allAwards.length > 0 && typeof triggerXpAwards === 'function') {
+                    triggerXpAwards(allAwards);
                 }
             {% endwith %}
         });

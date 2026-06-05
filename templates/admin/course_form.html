@@ -59,19 +59,7 @@
                         <p class="mt-1.5 text-[10px] text-[#6B6B6B] font-medium italic">Auto-generated from title, but you can customize it.</p>
                     </div>
 
-                    <script>
-                    document.getElementById('title').addEventListener('input', function() {
-                        if (!document.querySelector('input[name="course_id"]')) { // Only auto-generate for new courses
-                            const title = this.value;
-                            const slug = title.toLowerCase()
-                                .replace(/[^\w\s-]/g, '') // Remove special characters
-                                .replace(/\s+/g, '-')     // Replace spaces with -
-                                .replace(/-+/g, '-')      // Replace multiple - with single -
-                                .trim();
-                            document.getElementById('slug').value = slug;
-                        }
-                    });
-                    </script>
+                    <script src="{{ url_for('static', filename='js/admin/course_form.js') }}"></script>
 
                     <div>
                         <label for="level" class="mb-2 block font-mono text-[11px] font-bold uppercase tracking-widest text-[#6B6B6B]">Difficulty Level</label>

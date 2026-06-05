@@ -1,0 +1,280 @@
+/* ======================================================
+   BASE PRISTINE WHITE WORKSPACE
+====================================================== */
+
+body {
+    background: #FFFFFF;
+}
+
+/* ======================================================
+   DYNAMIC SYSTEM INTERACTIVE STATES
+====================================================== */
+
+.state-chat #interaction-area {
+    flex: none;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.state-chat #initial-content {
+    opacity: 0;
+    transform: translateY(-16px);
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+    margin: 0;
+}
+
+.state-chat #chat-header {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Override hidden to ensure chat visibility */
+.state-chat #chatMessages {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible;
+}
+
+/* Shrink the input box to a compact dual-row when chatting */
+.state-chat #input-inner {
+    min-height: 60px !important;
+}
+
+.state-chat #input-wrapper {
+    max-width: 768px;
+}
+
+.state-chat #input-label {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.state-chat #bottom-input-row {
+    margin-top: 0.5rem;
+}
+
+.state-chat #suggestions {
+    display: none !important;
+}
+
+.state-chat #tab-hint {
+    display: none !important;
+}
+
+/* ======================================================
+   ELITE TYPOGRAPHY SYSTEM (DYNAMIC NODES FORMATTING)
+====================================================== */
+
+.chat-content {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #444444;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.chat-content h1,
+.chat-content h2,
+.chat-content h3 {
+    color: #222222;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.chat-content h1 {
+    font-size: 1.75rem;
+    margin: 2rem 0 1rem;
+}
+
+.chat-content h2 {
+    font-size: 1.25rem;
+    margin: 1.7rem 0 0.85rem;
+}
+
+.chat-content h3 {
+    font-size: 1.05rem;
+    margin: 1.4rem 0 0.7rem;
+}
+
+.chat-content p {
+    margin-bottom: 1.2rem;
+}
+
+.chat-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1.2rem;
+}
+
+.chat-content ul li {
+    position: relative;
+    padding-left: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.chat-content ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    height: 5px;
+    width: 5px;
+    border-radius: 999px;
+    background: #D500F9; /* Highlight accent bullet */
+}
+
+/* Code Highlight Blocks */
+.chat-content code {
+    border-radius: 4px;
+    background: #F8F8F8;
+    border: 1px solid #EAEAEA;
+    padding: 0.15rem 0.35rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.88em;
+    color: #FF5252;
+}
+
+.chat-content pre {
+    overflow-x: auto;
+    border-radius: 12px;
+    background: #FAFAFA;
+    border: 1px solid #EAEAEA;
+    padding: 1.25rem;
+    color: #333333;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.chat-content pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+}
+
+.chat-content blockquote {
+    margin: 1.5rem 0;
+    border-left: 3px solid #FF9800; /* Subtle gradient match */
+    padding-left: 1.2rem;
+    color: #777777;
+}
+
+/* ======================================================
+   METALLIC MICRO-ORB LOADING ENGINE
+====================================================== */
+
+.thinking-orb {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #FF9800, #D500F9);
+    box-shadow: 0 2px 4px rgba(213, 0, 249, 0.2);
+}
+
+.thinking-shine {
+    position: absolute;
+    inset: -40%;
+    background: linear-gradient(120deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.6) 50%,
+            transparent 80%);
+    animation: silverShine 2s linear infinite;
+    transform: rotate(15deg);
+}
+
+@keyframes silverShine {
+    from {
+        transform: translateX(-200%) rotate(15deg);
+    }
+    to {
+        transform: translateX(200%) rotate(15deg);
+    }
+}
+
+.thinking-text {
+    animation: thinkingFade 1.6s ease-in-out infinite;
+}
+
+@keyframes thinkingFade {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ======================================================
+   FLOWING GRADIENT BORDER LOGIC
+====================================================== */
+
+.flowing-gradient-border {
+    background: linear-gradient(135deg, #FF9800, #FF5252, #D500F9, #FF9800, #FF5252);
+    background-size: 300% 300%;
+    animation: borderFlow 3.5s ease infinite;
+}
+
+@keyframes borderFlow {
+    0% {
+        background-position: 100% 100%;
+    }
+    50% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+/* ======================================================
+   TRANSITION LOGICS
+====================================================== */
+
+.message-enter {
+    animation: messageIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    background: #D500F9;
+    animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+#chatMessages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+    background: #EAEAEA;
+    border-radius: 999px;
+}
+
+#chatMessages::-webkit-scrollbar-track {
+    background: transparent;
+}

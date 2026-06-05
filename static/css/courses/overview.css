@@ -1,0 +1,338 @@
+.map-btn {
+    width: 64px;
+    height: 56px;
+    border: none;
+    outline: none;
+    border-radius: 100%;
+    position: relative;
+    transition: .3s;
+    display: block;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+}
+.map-btn .back {
+    border-radius: 100%;
+    position: absolute;
+    left: 0; top: 0; width: 100%; height: 100%;
+}
+.map-btn .front {
+    border-radius: 100%;
+    position: absolute;
+    left: 0; top: 0; width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-15%);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease-out;
+}
+
+.map-btn:active .front {
+    transform: translateY(0%) !important;
+    box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+}
+
+/* --- Node States (Premium Gold) --- */
+.map-btn.is-active { 
+    --primary: 250, 204, 21; /* Gold */
+    --secondary: 161, 98, 7; /* Deep Gold */
+    outline: 4px solid rgba(var(--primary), 0.3);
+    z-index: 20;
+}
+.map-btn.is-active .back { background: rgb(var(--secondary)); }
+.map-btn.is-active .front { 
+    background: linear-gradient(0deg, rgba(var(--primary), .9) 20%, rgb(var(--primary)) 50%); 
+    border: 1px solid rgb(var(--secondary)); 
+    color: #422006; 
+    box-shadow: 0 .4em 0 0 rgba(var(--secondary), 1); 
+}
+
+.map-btn.is-mastered { 
+    --primary: 253, 224, 71; /* Lighter Gold */
+    --secondary: 180, 83, 9; /* Deep Gold */
+}
+.map-btn.is-mastered .back { background: rgb(var(--secondary)); }
+.map-btn.is-mastered .front { 
+    background: linear-gradient(0deg, rgba(var(--primary), .9) 20%, rgb(var(--primary)) 50%); 
+    border: 1px solid rgb(var(--secondary)); 
+    color: #422006; 
+    box-shadow: 0 .4em 0 0 rgba(var(--secondary), 1); 
+}
+
+.map-btn:not(.is-locked):hover .front { transform: translateY(-20%); }
+
+.map-btn.is-locked { 
+    --primary: 244, 244, 245;
+    --secondary: 212, 212, 216;
+    cursor: not-allowed; 
+}
+.map-btn.is-locked .back { background: rgb(var(--secondary)); }
+.map-btn.is-locked .front { 
+    background: linear-gradient(0deg, #FFFFFF 20%, rgb(var(--primary)) 50%); 
+    border: 1px solid rgb(var(--secondary)); 
+    color: #A3A3A3; 
+    box-shadow: 0 .4em 0 0 rgba(163, 163, 163, 1); 
+}
+
+/* --- Environmental Asset Styles --- */
+.cloud-parallax-layer {
+    will-change: transform;
+}
+
+.cloud-decoration-wrapper {
+    position: absolute;
+    z-index: 60; /* Highest Z-index to float over everything like sky */
+    left: calc(var(--x-pos, -9999) * 1px);
+    top: calc(var(--y-pos, -9999) * 1px);
+    transform: translateX(var(--parallax-x, 0px));
+    pointer-events: none;
+    will-change: transform;
+}
+
+.cloud-decoration-asset {
+    opacity: 1;
+    width: clamp(300px, var(--cloud-width, 44vw), 760px);
+    height: auto;
+    transform: translate(-50%, -50%) rotate(var(--cloud-rotate, 0deg)) scaleX(var(--cloud-stretch, 1)) scale(var(--target-scale, 1));
+    transition: none;
+}
+
+/* Perfect legibility on colorful backgrounds */
+.map-label-shadow {
+    text-shadow: 0px 2px 10px rgba(255, 255, 255, 1), 0px 0px 4px rgba(255, 255, 255, 0.8);
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* --- Course Overview Full-Screen Loading Plates --- */
+.course-overview-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background-color: #FAF9F6;
+    isolation: isolate;
+    pointer-events: auto;
+    transition: background-color 0.42s ease;
+}
+
+.course-overview-loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    /* Soft corner-focused cinematic shading */
+    background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.25) 100%),
+                radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.35) 120%);
+    opacity: 0;
+    transition: opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-overview-loader.is-solid-in::after {
+    opacity: 1;
+}
+
+.course-overview-loader.is-transparent-ending::after {
+    opacity: 0;
+    transition: opacity 1.2s ease-in; /* Smooth exit during final zoom */
+}
+
+.course-overview-loader.is-content-live {
+    background-color: transparent;
+}
+
+.course-overview-content {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.42s ease;
+}
+
+body.course-overview-ready .course-overview-content {
+    opacity: 1;
+    visibility: visible;
+}
+
+.course-loader__plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    transform-origin: center center;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+}
+
+.course-loader__plate--transparent {
+    z-index: 1;
+    opacity: 0;
+    transform: scale(1) rotate(0deg);
+    transform-origin: 48% 50%; /* Very subtly left for a near-center offset */
+    transition:
+        opacity 0.36s ease,
+        transform 1.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.course-loader__plate--solid {
+    z-index: 2;
+    opacity: 0;
+    transform: scale(0.985) rotate(-0.45deg);
+    transition:
+        opacity 0.82s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.course-overview-loader.is-solid-in .course-loader__plate--solid {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.course-overview-loader.is-transparent-ready .course-loader__plate--transparent {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.course-overview-loader.is-transparent-ending .course-loader__plate--transparent {
+    opacity: 0;
+    transform: scale(200) rotate(0.02deg); /* Total fly-through scale */
+    transition:
+        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s,
+        transform 0.8s cubic-bezier(0.8, 0, 0.9, 1); /* Extreme physics acceleration snap */
+}
+
+.course-overview-loader.is-solid-exiting .course-loader__plate--solid {
+    opacity: 0;
+    transform: scale(1.025) rotate(0.35deg);
+    transition:
+        opacity 0.92s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.92s cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+.course-loader__loading {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(60px, 10vh, 100px);
+    z-index: 3;
+    width: min(42vw, 260px);
+    height: 12px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: #FFFFFF;
+    border: 1px solid #1C1C1C;
+    box-shadow: 0 6px 0 0 rgba(28, 28, 28, 0.15);
+    opacity: 0;
+    transform: translate(-50%, 15px);
+    transition:
+        opacity 0.46s ease 0.55s,
+        transform 0.46s cubic-bezier(0.16, 1, 0.3, 1) 0.55s;
+}
+
+.course-overview-loader.is-solid-in .course-loader__loading {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.course-loader__loading-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 18%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #FACC15 0%, #EAB308 50%, #FACC15 100%);
+    background-size: 200% 100%;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    transition: width 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: courseLoaderFillShimmer 2s linear infinite;
+}
+
+.course-loader__loading-fill::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 100%;
+    width: 15px;
+    background: #FFFFFF;
+    filter: blur(8px);
+    opacity: 0.8;
+    animation: courseLoaderTipPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes courseLoaderFillShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes courseLoaderTipPulse {
+    0%, 100% { opacity: 0.4; transform: translateY(-50%) scaleX(1); }
+    50% { opacity: 0.9; transform: translateY(-50%) scaleX(1.8); }
+}
+
+.course-overview-loader.is-solid-in .course-loader__loading-fill {
+    animation: 
+        courseLoaderLoadingWait 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.72s forwards,
+        courseLoaderFillShimmer 2s linear infinite;
+}
+
+.course-overview-loader.is-loaded .course-loader__loading-fill {
+    width: 100%;
+    animation: none;
+}
+
+.course-overview-loader.is-solid-exiting .course-loader__loading {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+}
+
+@keyframes courseLoaderLoadingWait {
+    0% { width: 18%; }
+    45% { width: 62%; }
+    100% { width: 86%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .course-loader__plate,
+    .course-loader__loading,
+    .course-loader__loading-fill {
+        animation: none !important;
+        transition: opacity 0.18s ease !important;
+    }
+
+    .course-loader__plate--transparent {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    .course-loader__plate--solid {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    .course-overview-loader.is-solid-in .course-loader__plate--solid,
+    .course-overview-loader.is-transparent-ready .course-loader__plate--transparent {
+        opacity: 1;
+    }
+
+    .course-loader__loading {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    .course-loader__loading-fill {
+        width: 76%;
+    }
+
+    .course-overview-loader.is-transparent-ending .course-loader__plate--transparent {
+        transform: scale(1);
+    }
+}

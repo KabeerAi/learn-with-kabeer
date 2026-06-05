@@ -1,0 +1,3 @@
+# Ignore templates and static CSS from language statistics
+templates/**/*.html linguist-detectable=false
+static/**/*.css linguist-detectable=false

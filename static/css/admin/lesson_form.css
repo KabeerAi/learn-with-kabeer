@@ -1,0 +1,9 @@
+/* Custom CodeMirror-like appearance for the editor */
+.editor-container {
+    min-height: 400px;
+    font-family: 'JetBrains Mono', monospace;
+}
+#content {
+    resize: vertical;
+    line-height: 1.6;
+}

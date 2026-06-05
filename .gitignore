@@ -3,9 +3,10 @@
 .env.local
 .env.*.local
 
-# Ignore only the SQLite database file (keep ChromaDB vector store)
+# Ignore entire ChromaDB vector store and SQLite databases
 instance/*.sqlite3
 instance/learn_with_kabeer.sqlite3
+instance/chromadb/
 
 # Ignore Python caches and temporary files
 __pycache__/

@@ -1,0 +1,14 @@
+/* Cleaned up drag-and-drop interactions to match the elegant UI */
+.sortable-ghost {
+    opacity: 0.5 !important;
+    background-color: #F5F5F5 !important;
+    border: 1px dashed #A3A3A3 !important;
+    box-shadow: none !important;
+    border-radius: 0.75rem !important;
+}
+.sortable-drag {
+    cursor: grabbing !important;
+    box-shadow: -6px 6px 0 0 #1C1C1C !important;
+    transform: translate(2px, -2px) !important;
+    background-color: white !important;
+}

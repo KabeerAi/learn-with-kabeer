@@ -1,19 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    #html-source-editor { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-    .block-palette-item { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .block-palette-item:hover { transform: translateY(-2px) translateX(2px); box-shadow: -4px 4px 0 0 #1C1C1C; }
-    
-    .ai-loading {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .5; }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/lesson_form.css') }}">
 
 <main class="flex-1 overflow-y-auto bg-[#FAF9F6] font-sans selection:bg-[#1C1C1C] selection:text-white pb-20">
     <div class="mx-auto max-w-6xl px-6 py-12 md:py-20">
@@ -143,29 +131,8 @@
     </div>
 </main>
 
-{# ── Scripts ─────────────────────────────────────────────────────────────── #}
 <script>
-    // ── Auto-slug from title ───────────────────────────────────────────
-    {% if not lesson %}
-    let slugManuallyEdited = false;
-    document.getElementById('slug').addEventListener('input', function() { slugManuallyEdited = true; });
-    {% endif %}
-
-    function autoSlug(title) {
-        {% if lesson %}return;{% endif %}
-        if (typeof slugManuallyEdited !== 'undefined' && slugManuallyEdited) return;
-        const slug = title.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '');
-        document.getElementById('slug').value = slug;
-    }
-
-    // ── Initialize page ─────────────────────────────────────────
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initial lucide icons
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
+    window.IS_EDIT_MODE = {{ 'true' if lesson else 'false' }};
 </script>
+<script src="{{ url_for('static', filename='js/admin/lesson_form.js') }}"></script>
 {% endblock %}

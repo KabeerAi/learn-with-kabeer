@@ -1,0 +1,125 @@
+.course-overview-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background-color: #FAF9F6;
+    isolation: isolate;
+    pointer-events: auto;
+    transition: background-color 0.42s ease;
+}
+
+.course-overview-loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.25) 100%),
+                radial-gradient(circle, transparent 60%, rgba(0,0,0,0.35) 120%);
+    opacity: 0;
+    transition: opacity 0.82s cubic-bezier(0.4,0,0.2,1);
+}
+
+.course-overview-loader.is-solid-in::after { opacity: 1; }
+.course-overview-loader.is-transparent-ending::after { opacity: 0; transition: opacity 1.2s ease-in; }
+
+.course-loader__plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    transform-origin: center center;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+}
+
+.course-loader__plate--transparent {
+    z-index: 1;
+    opacity: 0;
+    transform: scale(1) rotate(0deg);
+    transform-origin: 48% 50%;
+    transition: opacity 0.36s ease, transform 1.7s cubic-bezier(0.16,1,0.3,1);
+}
+
+.course-loader__plate--solid {
+    z-index: 2;
+    opacity: 0;
+    transform: scale(0.985) rotate(-0.45deg);
+    transition: opacity 0.82s cubic-bezier(0.4,0,0.2,1), transform 1s cubic-bezier(0.16,1,0.3,1);
+}
+
+.course-overview-loader.is-solid-in .course-loader__plate--solid { opacity: 1; transform: scale(1) rotate(0deg); }
+.course-overview-loader.is-transparent-ready .course-loader__plate--transparent { opacity: 1; transform: scale(1) rotate(0deg); }
+.course-overview-loader.is-transparent-ending .course-loader__plate--transparent { opacity: 0; transform: scale(200) rotate(0.02deg); transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1) 0.3s, transform 0.8s cubic-bezier(0.8,0,0.9,1); }
+.course-overview-loader.is-solid-exiting .course-loader__plate--solid { opacity: 0; transform: scale(1.025) rotate(0.35deg); transition: opacity 0.92s cubic-bezier(0.4,0,0.2,1), transform 0.92s cubic-bezier(0.7,0,0.84,0); }
+
+.course-loader__loading {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(60px,10vh,100px);
+    z-index: 3;
+    width: min(42vw,260px);
+    height: 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #FFFFFF;
+    border:1px solid #1C1C1C;
+    box-shadow:0 6px 0 0 rgba(28,28,28,0.15);
+    opacity:0;
+    transform: translate(-50%,15px);
+    transition: opacity 0.46s ease 0.55s, transform 0.46s cubic-bezier(0.16,1,0.3,1) 0.55s;
+}
+
+.course-overview-loader.is-solid-in .course-loader__loading { opacity:1; transform: translate(-50%,0); }
+
+.course-loader__loading-fill {
+    position: absolute;
+    inset:0 auto 0 0;
+    width:18%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #FACC15 0%, #EAB308 50%, #FACC15 100%);
+    background-size: 200% 100%;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.4);
+    transition: width 0.48s cubic-bezier(0.16,1,0.3,1);
+    animation: courseLoaderFillShimmer 2s linear infinite;
+}
+
+.course-loader__loading-fill::after {
+    content:"";
+    position:absolute;
+    right:0;
+    top:50%;
+    transform: translateY(-50%);
+    height:100%;
+    width:15px;
+    background:#FFFFFF;
+    filter: blur(8px);
+    opacity:0.8;
+    animation: courseLoaderTipPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes courseLoaderFillShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes courseLoaderTipPulse {
+    0%,100% { opacity:0.4; transform: translateY(-50%) scaleX(1); }
+    50% { opacity:0.9; transform: translateY(-50%) scaleX(1.8); }
+}
+
+.course-overview-loader.is-solid-in .course-loader__loading-fill {
+    animation: courseLoaderLoadingWait 5s cubic-bezier(0.65,0,0.35,1) 0.72s forwards, courseLoaderFillShimmer 2s linear infinite;
+}
+
+.course-overview-loader.is-loaded .course-loader__loading-fill { width:100% !important; animation:none !important; }
+
+@keyframes courseLoaderLoadingWait {
+    0% { width:18%; }
+    45% { width:62%; }
+    100% { width:86%; }
+}

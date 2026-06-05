@@ -4,6 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
     const codContainer = document.getElementById('cod-container');
     const chatForm = document.getElementById('chatForm');
     const chatMessages = document.getElementById('chatMessages');
