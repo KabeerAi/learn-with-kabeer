@@ -8,6 +8,9 @@ instance/*.sqlite3
 instance/learn_with_kabeer.sqlite3
 instance/chromadb/
 
+# Ignore Dataset folder
+dataset/
+
 # Ignore Python caches and temporary files
 __pycache__/
 *.pyc
