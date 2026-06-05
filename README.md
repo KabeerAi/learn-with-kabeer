@@ -45,7 +45,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Dataset Setup 📊
+### 3. Environment Setup 🔑
+The app uses AI models and needs API keys. 
+
+1.  Create a file named `.env` in the root directory.
+2.  Copy the contents of `.env.example` into `.env`.
+3.  Add your own API keys for **Gemini** and **Groq**.
+
+### 4. Dataset Setup 📊
 The project requires a specific dataset to function correctly. This dataset is hosted on Kaggle.
 
 1.  **Download:** Go to the [Coding Courses Dataset on Kaggle](https://www.kaggle.com/datasets/ranakabeerali/coding-courses-dataset) and download the files.
